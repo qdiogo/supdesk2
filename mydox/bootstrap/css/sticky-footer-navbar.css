@@ -1,0 +1,46 @@
+/* Sticky footer styles
+-------------------------------------------------- */
+html {
+  position: relative;
+  min-height: 100%;
+}
+body {
+  /* Margin bottom by footer height 40 pixels a mais que o .footer */
+  /*com os icones de midias sociais colocar 170*/
+  margin-bottom: 120px; 
+}
+.footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  /* Set the fixed height of the footer here */
+   /*com os icones de midias sociais colocar 130*/
+  height: 80px;
+ 
+  text-align:center;
+  /*
+  background-image: url(../../images/bg_rodape_geradox.png); 
+  background-repeat:repeat-x;
+  */	
+ 
+ 
+}
+
+
+/* Custom page CSS
+-------------------------------------------------- */
+/* Not required for template or sticky footer method. */
+
+.container {
+  width: auto;
+  /*
+  max-width: 680px;
+  */
+  padding: 0 15px;
+}
+.container .text-muted {
+  margin: 20px 0;
+  /*
+   color: #333;
+   */
+}

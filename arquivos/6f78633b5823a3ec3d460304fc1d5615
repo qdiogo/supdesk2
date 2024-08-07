@@ -1,0 +1,259 @@
+table
+{
+	text-align:left;
+	font-family: Verdana;
+	font-size: 9px;
+	width:100%;
+	color:black;
+	background-color: white;  
+}
+
+
+table.pequena
+{
+	text-align:left;
+	font-family: Verdana;
+	font-size: 9px;
+	width:90%;
+}
+
+thead { display: table-header-group; } 
+tfoot { display: table-footer-group; overflow: visible;} 
+
+table.tabelatop tbody tr:nth-child(odd)
+{
+	border-collapse: collapse;
+	background-color: #aaf9ff;
+	text-align:left;
+	font-family: Verdana;
+	font-size: 9px;
+	width:100%;
+}
+
+td.logo {
+	padding: 0px;
+	text-align: Left;
+	color:White;
+	background-color: white;
+	width:130px;
+}
+
+td.centro {
+	padding: 0px;
+	text-align: Left;
+	color:black;
+	width:400px;
+	background-color: white;
+}
+
+td.centrocab{
+	padding: 0px;
+	text-align: Left;
+	color:black;
+	width:400px;
+	background-color: yellow;
+}
+
+td.direito {
+	padding: 0px;
+	text-align: Right;
+	color:black;
+	width:200px;
+	background-color: white;
+}
+
+td.titulo {
+	padding: 0px;
+	text-align: center;
+	font-size: 16px;
+	font-weight: bold;
+	width:100%;
+}
+
+span {
+	text-align: Left;
+	font-family: Verdana;
+	font-size: 11px;
+	color:black;
+	font-weight: bold;
+}
+
+span.titulo {
+	text-align: Left;
+	font-family: Verdana;
+	font-size: 14px;
+	font-weight: bold;
+	color:black;
+}
+
+table.tabela1 tbody tr:nth-child(odd)
+{
+	border-collapse: collapse;
+	background-color: #E9E9E9;
+	text-align:left;
+	font-family: Verdana;
+	font-size: 11px;
+}
+
+th {
+	padding: 0px;
+	border: 0px;
+	Color:White;
+	background-color:Navy;
+	border-radius: 3px;
+	-moz-border-radius: 3px;
+	-webkit-border-radius: 3px;
+}
+
+th.direito {
+	padding: 0px;
+	text-align: Right;
+}
+
+th.centro {
+	padding: 0px;
+	text-align: Center;
+}
+
+td {
+	padding: 0px;
+}
+
+td.nie {
+	padding: 0px;
+	text-align: Left;
+}
+
+td.nieamb {
+	padding: 0px;
+	text-align: Left;
+	width:70px;
+}
+
+td.niecpf {
+	padding: 0px;
+	text-align: Left;
+	width:94px;
+}
+
+td.nietel {
+	padding: 0px;
+	text-align: Left;
+	width:98px;
+}
+
+td.nic {
+	padding: 0px;
+	text-align: Center;
+}
+
+td.nid {
+	padding: 0px;
+	text-align: Right;
+}
+
+td.npe {
+	padding: 0px;
+	text-align: Left;
+}
+
+td.npeamb {
+	padding: 0px;
+	text-align: Left;
+	width:70px;
+}
+
+td.npecpf {
+	padding: 0px;
+	text-align: Left;
+	width:94px;
+}
+
+td.npetel {
+	padding: 0px;
+    text-align: Left;
+	width:98px;
+}
+
+td.npc {
+	padding: 0px;
+	text-align: Center;
+}
+
+td.npd {
+	padding: 0px;
+	text-align: Right;
+}
+
+td.npdred{
+	padding: 0px;
+	color:red;
+	text-align: Right;
+}
+
+td.npdv {
+	padding: 0px;
+	text-align: Right;
+	color:Red;
+}
+
+td.npdt {
+	padding: 0px;
+	text-align: Right;
+	background-color:Navy;
+	color:white;
+	font-weight: bold;
+}
+
+td.grupoazul1 {
+	padding: 0px;
+	text-align: left;
+	color:Black;
+	font-size: 18px;
+	font-weight: bold;
+	background-color: #0099e6;
+	width:100%;
+}
+
+td.grupoazul2 {
+	padding: 0px;
+	text-align: left;
+	color:Black;
+	font-size: 14px;
+	font-weight: bold;
+	background-color: #66ccff;
+	width:100%;
+}
+
+td.grupoazul3{
+	padding: 0px;
+	text-align: left;
+	color:Black;
+	font-size: 12px;
+	font-weight: bold;
+	background-color: #cceeff;
+	width:100%;
+}
+
+td.grupoazul {
+	padding: 0px;
+	text-align: left;
+	color:Black;
+	font-size: 14px;
+	font-weight: bold;
+	background-color: #99ffff;
+	width:100%;
+}
+
+td.grupo {
+	padding: 0px;
+	text-align: left;
+	color:Black;
+	font-size: 14px;
+	font-weight: bold;
+	background-color: silver;
+	width:100%;
+	border-radius: 3px;
+	-moz-border-radius: 3px;
+	-webkit-border-radius: 3px;
+}

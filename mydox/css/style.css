@@ -1,0 +1,832 @@
+@CHARSET "UTF-8";
+
+/*-------GERAL---------*/
+#geral { 	
+	min-height: 100%;
+	width:100%;	
+	position: relative;	
+	padding: 0px;	
+	/*	
+	font-size: 13px;
+	*/
+        
+}
+
+/*-------TOPO---------*/
+#topo{
+	height:45px;	
+	/*
+	background-image: url(../images/bg_top_geradox.jpg); 
+	background-repeat:repeat-x;
+	background-color: #4e8079; 
+	*/
+	
+	background-color: #4e8079;
+}
+
+#topo #topo_left{	
+	float:left;
+	height:45px;		
+	background-image: url(../images/bg_top_left.jpg);
+	background-repeat:no-repeat; 
+	padding-left:20px;
+}
+
+
+
+#topo_center{
+	margin: 15px 0 15px 0px;
+	font-size: 12px;
+	color:#FFFFFF;
+	/*
+	float:left;	
+	*/
+}
+
+#topo #topo_right{	
+	float:right;
+	height:45px;
+	width:146px;
+	background-image: url(../images/bg_top_right.png); 	
+}
+
+/*-------LOGO---------*/
+
+#logo{
+	background-image: url(../images/bg_logo_right.jpg);	
+	background-position:right;
+	background-repeat:no-repeat;
+	background-color: white; 
+	/*
+	display: block;
+	*/
+}
+
+#logo #logo_left{	
+
+	height:80px;
+	width:400px;
+}
+
+#logo_right{	
+	/*
+	float:right;
+	height:80px;
+	margin: -70px 30px 20px 0px;
+	*/
+	
+	background: linear-gradient(to left, rgba(255,255,255,0), rgba(255,255,255,1)), url(../images/pattern-6dzp.png);
+	
+	height:75px;
+	
+	background-position:right;
+	background-repeat:repeat;
+	background-color: white; 
+	font-size: 20pt;
+	font-family: 'Times New Roman',Times,serif;
+	padding-top: 7px;
+}
+
+/*-------MENU---------*/
+
+#menu{
+	height: 25px;
+	background-color:#EDEDED;
+	margin-bottom:20px;	
+	padding-top: 2px;	
+	
+	background-image: url(../images/fundo_topo.jpg);	
+	background-position:bottom;
+	background-repeat:repeat-x;
+	vertical-align: bottom;	
+}
+
+#menu_itens{
+	position: absolute;
+	line-height:25px;
+	margin-left: 10px;
+	margin-top: 2px;
+	background-position:left bottom;
+	background-repeat:no-repeat;
+	background-position-x:left;
+}
+
+/*-------MENU VERTICAL---------*/
+.menu_vertical{
+        position: absolute; /*-------corrige a incompatibilidade do menu com o Datatables (ficava empurrando pra baixo)---------*/
+	background-color: #E5E5E5;
+	padding:8px;
+        width: 175px;
+        float:left;
+        margin: 0 0 0 5px;
+}
+
+
+.areaimage{
+	top: -109px; 
+	position: relative;
+	margin: 0 auto;
+	width: 300px;
+	height: 0px;
+	font-family: 'Times New Roman',Times,serif;
+	font-size: 15pt;
+}
+
+#emblema{ 
+	z-index: 9;
+}
+
+
+
+/*-------CONTEUDO---------*/
+#geral #conteudo{	
+	padding-bottom:86px;	
+	padding-left:10px;
+	padding-right:10px;
+	width: 97%;
+    margin: 0px auto; 
+        
+}
+
+#submenu{ 
+    margin-top: 5px;
+    padding:5px; 
+    background-color: #F7F7F7;
+
+}
+
+#submenu li {
+	display: list-item;
+	padding: 5px;
+}
+
+#submenu a{	
+	color: #037E45;
+	font-size: 13px;
+	
+	text-decoration: none;
+}
+
+#submenu a:hover{
+	text-decoration:underline;
+}
+
+
+
+/*-----Classes CSS------*/
+.titulo1{	
+	font-size:13pt;
+	background-color: #CAE1D7;
+	color:#006400;
+	padding: 5px;
+	margin-top: 10px;
+	margin-bottom:10px; 	
+	text-align: center;
+}
+
+.titulo2{
+	font-size: 18px;
+	background-color: #B2CFC4;
+	padding: 5px;
+	margin-top: 10px;
+	margin-bottom:10px; 	
+	color: #4F8A75;
+	font-weight:bold;
+}
+
+.titulo3{	
+	font-size:15px;
+	color: #006400;
+	font-weight:bold;
+	
+}
+
+.titulo_aplicacao{
+	font-family: Arial, Verdana, Helvetica, sans-serif;
+	font-size:32px;
+	padding-top:220px;
+	padding-left:300px;
+	color:#2d2d2d;
+}
+
+.button{
+	background-repeat-x: repeat;
+	background-repeat-y: no-repeat;
+	background-attachment: initial;
+	background-position-x: 0%;
+	background-position-y: 0%;
+	background-origin: initial;
+	background-clip: initial;
+	background-color: #E9E9E9;
+	border: 1px solid #A8A8A8;
+	color: #424242;
+	cursor: pointer;
+	font-family:Arial, Helvetica, sans-serif;
+	font-size:11pt;
+	font-weight:bold;
+	padding-left:5px;
+	padding-right:5px;
+	padding-top:2px;
+	padding-bottom:2px;	
+}
+
+.button:hover{	
+	background-color: #008000;
+	color: #FFFFFF;	
+	
+}
+
+.button_back{
+	background-repeat-x: repeat;
+	background-repeat-y: no-repeat;
+	background-attachment: initial;
+	background-position-x: 0%;
+	background-position-y: 0%;
+	background-origin: initial;
+	background-clip: initial;
+	background-color: #E9E9E9;
+	border: 1px solid #A8A8A8;
+	color: #424242;
+	cursor: pointer;
+	font-family:Arial, Helvetica, sans-serif;
+	font-size:12pt;
+	font-weight:bold;
+	padding-left:5px;
+	padding-right:5px;
+	padding-top:2px;
+	padding-bottom:2px;	
+}
+
+.button_back:hover{	
+	background-color: #008000;
+	color: #FFFFFF;	
+	
+}
+
+.topo_campo {
+	color: #FFC;
+	font-weight: bold;
+}
+
+
+.paginacao {	
+	font-size:12pt;
+	color: #333333; 	
+	padding: 10px;
+		
+}
+
+.paginacao a {		
+	text-decoration:none;
+	color:#037E45;
+	border: 1px solid #037E45;
+	padding-left:6px;
+	padding-right:6px;	
+}
+
+.paginacao a:hover {	
+	background-color: #008000;
+	color: #FFFFFF;	
+}
+
+
+.conteiner_tabela{	
+	margin-top:5px;
+}
+
+
+.conteiner1{
+	background-color: #E5E5E5;
+	padding:8px;
+}
+
+
+
+.formulario {
+	
+	text-align:center; /* hack para o IE */
+	margin-bottom: 20px;
+	/*width: 760px;*/
+	max-width: 860px;
+	margin:7px auto;
+}
+
+.conteiner2{
+	margin-bottom: 10px;
+	border-bottom: 1px solid #ccc;
+	padding-left:10px;
+	background-color: white; 
+	text-align:left; /* "remédio" para o hack do IE */ 
+	/*width: 800px;*/
+	
+}
+
+.conteiner2 table {
+	margin:0 auto;
+	min-width: 700px;
+	font-size: 11pt;
+	
+}
+
+.conteiner2 td {
+	border: 1px solid #999;
+	padding: 5px;
+	
+}
+
+
+.conteiner2 table .gray {
+	text-align: right;
+	background-color: #F0F0F0;
+	width: 100px;
+	
+}
+
+.conteiner2 table .green{
+	background-color: #D5E2DC;
+}
+
+
+.conteiner2 ul li{
+	padding: 5px;
+}
+
+
+.status1{
+	font-weight : bold;
+	color : #141414;
+}
+
+.status2{
+	font-weight : bold;
+	color : #ac0000;
+}
+
+.status3{
+	font-weight : bold;
+	color : #256d25;
+} 
+
+.status4{
+	font-weight : bold;
+	color : #2255f6;
+}
+
+.img_center{
+	vertical-align:text-top;
+}
+
+
+.subTitulo1{	
+	font-size:14px;
+	color: #48858D;
+	font-weight:bold;
+	padding:0px;
+	margin:0px;	
+}
+
+.subTitulo2{
+	font-size:15px;
+	color:#2D2D2D;
+	font-weight:bold;
+	margin-top: 10px;
+}
+
+.subTitulo3{
+	font-size:12px;
+	font-weight:bold;
+	color:#191919; 	
+}
+
+.subTitulo11{
+	font-size:11px;
+	font-weight:bold;
+	color:#191919; 	
+}
+
+.subTitulo4{
+	font-size:18px;
+	font-weight:bold;
+	color:#ff001e; 		
+}
+
+.subTitulo5{
+	font-family: Arial, Verdana, Helvetica, sans-serif;
+	font-size:13px;
+	color:#3e3e3e;	
+	background-color:#f7f7f7; 
+	text-align:justify;
+	padding: 5px;
+	border:1px solid #d4d4d4;	
+}
+
+.subTitulo6{
+	font-family: Arial, Verdana, Helvetica, sans-serif;
+	font-size:16px;
+	font-weight:bold;
+	color: #006400;	
+	background-color:#f7f7f7; 
+	text-align:justify;
+	padding: 5px;
+	border:1px solid #d4d4d4;	
+}
+
+
+.descricao1{
+	text-align:justify;	
+}
+
+.text1{
+	text-align:justify;	
+}
+
+.textbox {	
+	border:1px solid #c7c7c7;
+	color:#121212;
+	background-color:#f9fcff;
+	text-transform: none;
+}
+
+.textboxUpper {	
+	border:1px solid #c7c7c7;
+	color:#121212;
+	background-color:#f9fcff;
+    text-transform: uppercase;
+}
+
+
+.textboxLower {
+	border:1px solid #c7c7c7;
+	color:#121212;
+	background-color:#f9fcff;
+	text-transform: lowercase;
+}
+
+.error_field{
+	color:#bb0202;
+	font-style:italic;
+}
+
+.img_align{
+	vertical-align:text-top;
+}
+
+.img_align2{
+	vertical-align:middle;
+}
+
+
+.titulo4{
+	font-size: 18px;	
+	color: #060;	
+}
+
+.sucess{
+	margin:0 auto;
+	width:400px;
+}
+
+.sucess ul li{
+	padding: 5px;
+	color: #303030;
+	font-size: 15px;
+}
+
+.msg_erro{
+	color:#bb0202;
+	font-style:italic;
+}
+
+
+.generic_conteiner {
+	width:80%;
+	margin:0 auto;
+}
+
+
+#comprovante ul {
+	list-style:none;
+	margin:0px;
+	padding:0px;
+}
+
+#comprovante ul li {
+	padding-top:5px;
+	padding-bottom:5px;
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 12px;
+	color: #303030;
+}
+
+.via1{
+	border-bottom: 1px dashed #000000;
+	margin-bottom: 20px;
+	padding-bottom: 30px;
+	
+}
+
+.conteiner3{
+	border: 1px solid #000000;
+	margin-top:10px;
+	padding:10px;
+}
+
+#clock1{
+	font-size:18px;
+	color:#383838;
+	font-weight:bold;
+}
+
+.submenu_action{
+	width:135px;
+}
+
+#status_atendimento{
+	font-size:14px;
+	
+	color:#5c5c5c;
+}
+
+
+#conteiner_subMenu{	
+	padding-bottom:8px;
+}
+
+#view_content {
+	font-size: 14px;
+    font-family: Arial, Helvetica, sans-serif;
+    color: #333;
+}
+
+.form_clear{
+	margin:0px;
+	padding:0px;
+}
+
+.alerta1{
+	text-align: justify;
+	padding: 5px;
+	border: 1px solid #F7941D;
+	margin-bottom:20px;
+	background-color: #FEEFDA;
+}
+
+.mail {
+	text-transform: lowercase;
+}
+
+
+.text-red{
+	color: red;
+}
+
+
+/*** MODAL ***/
+
+#modalDialog{
+	background-color: #FFF;
+}
+
+#modalDialog .title{
+	float: left;
+	height: 23px;
+	padding-top: 3px;
+	text-align: center;
+	font-size: 11pt;
+	color: #FFF;
+	background-color: #FFFF00;
+	width: 100%;
+	background-image: url(../images/fundo_topo.jpg);
+	background-position: bottom;
+	background-repeat: repeat-x;
+	position: absolute;
+	font-weight: bold;
+}
+
+#modalDialog .text{
+	margin: auto;
+	min-width: 486px;
+	position: absolute;
+	font-size: 11pt;
+	margin-top: 27px;
+	padding-left: 7px;
+	padding-right: 7px;
+	text-align: left;
+}
+
+#modalDialog .foot {
+	background-image: url(../images/bg_rodape_geradox.png);
+	background-repeat: repeat-x;
+	width: 100%;
+	position: absolute;
+	bottom: 0px;
+	height: 35px;
+	color: #FFF;
+}
+
+.close {	
+	float: right;
+	font-size: 17pt;
+	display: block;
+	position: relative;
+	z-index: 9;
+}
+
+.close .text {	
+	font-size: 30pt;
+}
+
+.close a {		
+	text-decoration:none;
+	background-color: #B22222;
+	color:#FFF;
+	padding-left:6px;
+	padding-right:6px;	
+}
+
+.close a:hover {	
+	background-color: #FF0000;
+	color: #FFFFFF;	
+}
+
+/*** FIM DO MODAL ***/
+
+/*** Modal do historico ***/
+#mask {
+  position:absolute;
+  left:0;
+  top:0;
+  z-index:9000;
+  background-color:#000;
+  display:none;
+}
+
+#boxes .window {
+  position:absolute;
+  left:0;
+  top:0;
+  /*
+  width:440px;
+  height:200px;
+  padding:20px;
+  */ 
+  display:none;
+  z-index:9999;
+  background-color:#ffffff; 
+  width:210mm;
+  height: 500px;
+  padding: 20px;
+  
+  overflow: auto;
+  
+  
+}
+
+.modal_historico_texto{
+	font-family: "Times New Roman", Times, serif;
+	font-size: 18px;
+	text-align: justify;
+	line-height: 175%;
+	padding-left: 70px;
+  	padding-right: 50px;
+}
+.close{text-align:right;}
+/*** Fim do modal do historico ***/
+
+
+/*===========================
+  --- Template Components ----
+=========================== */
+
+section.section {
+	margin:0;
+	padding: 20px 0 10px 0;
+}
+
+.mar-bot20 {
+	margin-bottom: 20px;
+}
+
+section#footer {
+	background: #eee;
+	margin: 0;
+}
+
+section#footer .copyright {
+	text-align: center;
+	color: #777;
+}
+
+/* footer social icons */
+ul.social-network {
+	list-style: none;
+	display: inline;
+	margin-left:0 !important;
+	padding: 0;
+}
+ul.social-network li {
+	display: inline;
+	margin: 0 5px;
+}
+
+/* footer menu */
+ul.footer-menu {
+	list-style: none;
+	display: inline;
+	margin-left:0 !important;
+	padding: 0;
+}
+ul.footer-menu li {
+	display: inline;
+	margin: 0 5px;
+}
+
+a.scrollup{
+	height:32px;
+	width:32px;
+	color:#fff;
+	font-size:18px;
+	line-height:32px;
+	text-align:center;
+	text-decoration:none;
+	position:fixed;
+	bottom:10px;
+	right:10px;
+	z-index:9999;
+	opacity:0.5;
+}
+a.scrollup:hover{
+	opacity:1;
+	color:#fff;
+}
+
+/* footer social icons */
+.social-network a.icoRss:hover {
+	background-color: #F56505;
+}
+.social-network a.icoFacebook:hover {
+	background-color:#3B5998;
+}
+.social-network a.icoTwitter:hover {
+	background-color:#33ccff;
+}
+.social-network a.icoGoogle:hover {
+	background-color:#BD3518;
+}
+.social-network a.icoVimeo:hover {
+	background-color:#0590B8;
+}
+.social-network a.icoLinkedin:hover {
+	background-color:#007bb7;
+}
+.social-network a.icoRss:hover i, .social-network a.icoFacebook:hover i, .social-network a.icoTwitter:hover i, 
+.social-network a.icoGoogle:hover i, .social-network a.icoVimeo:hover i, .social-network a.icoLinkedin:hover i {
+	color:#fff;
+}
+a.socialIcon:hover, .socialHoverClass {
+	color:#44BCDD;
+}
+
+.social-circle li a {
+	display:inline-block;
+	position:relative;
+	margin:0 auto 0 auto;
+	-moz-border-radius:50%;
+	-webkit-border-radius:50%;
+	border-radius:50%;
+	text-align:center;
+	width: 50px;
+	height: 50px;
+	font-size:20px;
+}
+.social-circle li i {
+	margin:0;
+	line-height:50px;
+	text-align: center;
+}
+
+.social-circle li a:hover i, .triggeredHover {
+	-moz-transform: rotate(360deg);
+	-webkit-transform: rotate(360deg);
+	-ms--transform: rotate(360deg);
+	transform: rotate(360deg);
+	-webkit-transition: all 0.2s;
+	-moz-transition: all 0.2s;
+	-o-transition: all 0.2s;
+	-ms-transition: all 0.2s;
+	transition: all 0.2s;
+}
+.social-circle i {
+	color: #fff;
+	-webkit-transition: all 0.8s;
+	-moz-transition: all 0.8s;
+	-o-transition: all 0.8s;
+	-ms-transition: all 0.8s;
+	transition: all 0.8s;
+}
+
+
+/* footer */
+.social-circle li a {
+	background:#35A49C;
+}

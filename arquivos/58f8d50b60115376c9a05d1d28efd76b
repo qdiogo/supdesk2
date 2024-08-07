@@ -1,0 +1,27 @@
+Bom dia queridos,
+
+Ao tentar executar alguns relatorios no BI apresentou os seguintes erros.
+
+
+#Enfermagem.
+/*Erro:[ODBC Firebird Driver][Firebird]Dynamic SQL Error
+SQL error code = -204
+Table unknown
+ERROS
+At line 1, column 13 - Número: -2147467259 - Comando:  select  CLASSE AS NOME_JUNK, count(CODIGOCPS) AS QTDE from CALC_TEMPOESPERA('2023-01-01','2023-05-11','', 'C',2,00)  WHERE GRAVIDADE IS NOT NULL  GROUP BY CLASSE ORDER-- --BY CLASSE ASC*/
+
+
+#Gerencial por turno
+/*Erro:[ODBC Firebird Driver][Firebird]Dynamic SQL Error
+SQL error code = -204
+Table unknown
+ERROS
+At line 1, column 13 - Número: -2147467259 - Comando: SELECT turno, COALESCE(CAST(SUM(QTDE) AS INTEGER),0) AS QTDE from atendturno('2023-05-01','2023-05-11', 1, 2, 3, 7, 0, 0, 0, '06:59', '07:00', '11:59', '12:00', '17:59', '18:00', '00' ,00 ,00 ) GROUP BY TURNO ORDER BY TURNO */
+
+
+#Classificacao de risco
+/*Erro:[ODBC Firebird Driver][Firebird]Dynamic SQL Error
+SQL error code = -204
+Table unknown
+ERROS
+At line 1, column 13 - Número: -2147467259 - Comando: INSERT INTO ERROS (INDICE, DATA, HORA, TEXTO, EMPRESA, MODULO, IP, NAVEGADOR) VALUES (9999999, '2023-05-11', '17:40:46', 'select cast(count(c.codigocps) as integer) AS QTDE , c.motivo , j.nome FROM CPS1 C inner join motivosaida m on (m.codigo = c.motivo) inner join junk j on (c.gravidade = j.codigo) WHERE m.codigo = 2 and ((C.A_DATAFAT>=^2023-02-01^) AND (C.A_DATAFAT<=^2023-05-11^)) group by j.nome, c.motivo ','UNIMED SUDOESTE','BI','192.168.1.205', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36' )*/
