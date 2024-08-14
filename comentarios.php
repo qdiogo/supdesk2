@@ -179,13 +179,13 @@
 	
 	if($Mailer->Send()){
 		echo "E-mail enviado com sucesso";		
-		if (!empty($RTA["CELULAR"])){
-			echo numerocelular($RTA["CELULAR"], "Chamado: ".$_GET["CODIGO"]." \n Solicitação: ". $RTA["CONTEUDO"] . " \n                                                                                       
-			*Resposta: " . trim($_POST["COMENTARIO"]) . "            Técnico: " . $TABUSER["NOME"]."* ");
-		}
 		$enviado_email="S";
 	}else{
 		echo "Erro no envio do e-mail: " . $Mailer->ErrorInfo;
+	}
+
+	if (!empty($RTA["CELULAR"])){
+		echo numerocelular($RTA["CELULAR"], "Chamado: ".$_GET["CODIGO"]." \n Solicitação: ". $RTA["CONTEUDO"] . " \n  *Resposta: " . trim($_POST["COMENTARIO"]) . "            Técnico: " . $TABUSER["NOME"]."* ");
 	}
 	
 	}
