@@ -18,6 +18,12 @@
 <meta http-equiv="refresh" content="1200">
   <?php include "css.php"?>
   <script type="text/javascript" src="/cavas/canvasjs.min.js"></script></head>
+  <script>
+		function pegadata()
+		{
+			location.href="/processos.php?ANO=" + document.getElementById("ano").value;
+		}
+  </script>
 </head>
 
 <body id="page-top">
@@ -38,7 +44,57 @@
 					?>
 		<div class="container-fluid">
 		  <div class="d-sm-flex align-items-center justify-content-between mb-4">
-            <h1 class="h3 mb-0 text-gray-800">Dashboard</h1>
+            <h1 class="h3 mb-0 text-gray-800">Dashboard 
+				<select id="ano" class="form-control" onchange="pegadata()">
+					<?PHP
+						$opcaoxano1="";
+						$opcaoxano2="";
+						$opcaoxano3="";
+						$opcaoxano4="";
+						$opcaoxano5="";
+						if (!empty($_GET["ANO"]))
+						{
+							if ($_GET["ANO"]=="2022")
+							{
+								$opcaoxano1="selected";
+							}
+							if ($_GET["ANO"]=="2023")
+							{
+								$opcaoxano2="selected";
+							}
+							if ($_GET["ANO"]=="2024")
+							{
+								$opcaoxano3="selected";
+							}
+							if ($_GET["ANO"]=="2025")
+							{
+								$opcaoxano4="selected";
+							}
+						}else{
+							if (date('Y')=="2022")
+							{
+								$opcaoxano1="selected";
+							}
+							if (date('Y')=="2023")
+							{
+								$opcaoxano2="selected";
+							}
+							if (date('Y')=="2024")
+							{
+								$opcaoxano3="selected";
+							}
+							if (date('Y')=="2025")
+							{
+								$opcaoxano4="selected";
+							}
+						}
+					?>
+					<option value="2022" <?php echo $opcaoxano1?>>2022</option>
+					<option value="2023" <?php echo $opcaoxano2?>>2023</option>
+					<option value="2024" <?php echo $opcaoxano3?>>2024</option>
+					<option value="2025" <?php echo $opcaoxano4?>>2025</option>
+				</select>
+			</h1>
           </div>
 		 <?PHP } ?>
 		<div class="row">
@@ -53,7 +109,13 @@
 			$datewO=date('Y-m-d');
 			$stop_datewO = new DateTime($datewO);
 			$stop_datewO->modify('-1 day');
-			$ANO=date('Y');
+			if (!empty($_GET["ANO"]))
+			{
+				$ANO=$_GET["ANO"];
+			}else{
+				$ANO=date('Y');
+			}
+			
 			
 			$SQLINS="SELECT  COUNT(DISTINCT CHAMADO) AS QTDE FROM HISTORICO_AT_CHAMADOS ".
 					"INNER JOIN CHAMADOS C ON (C.CODIGO=HISTORICO_AT_CHAMADOS.CHAMADO) ".
@@ -267,7 +329,7 @@
                    <script>
 						window.onload = function () {
 							<?PHP
-								$SQL="SELECT (COUNT(CHAMADOS.CODIGO)/(SELECT COUNT(*) FROM CHAMADOS))*100 AS QUANTIDADE, UPPER(NOME) AS NOME FROM CHAMADOS ".
+								$SQL="SELECT (COUNT(CHAMADOS.CODIGO)/(SELECT COUNT(*) FROM CHAMADOS WHERE EXTRACT(YEAR FROM DATAHORA)='".$ANO."'))*100 AS QUANTIDADE, UPPER(NOME) AS NOME FROM CHAMADOS ".
 									 "INNER JOIN TECNICOS T ON (T.CODIGO=CHAMADOS.TECNICO) WHERE (1=1) AND ".$UNIDADE." STATUS='F' AND EXTRACT(YEAR FROM DATAHORA)='".$ANO."' ".
 									 "GROUP BY  NOME ".
 									"ORDER BY COUNT(CHAMADOS.CODIGO) DESC";
@@ -310,7 +372,7 @@
 							}
 							
 							<?PHP
-								$SQL2="SELECT (COUNT(CHAMADOS.CODIGO)/(SELECT COUNT(*) FROM CHAMADOS))*100 AS QUANTIDADE, FANTASIA FROM CHAMADOS ".
+								$SQL2="SELECT (COUNT(CHAMADOS.CODIGO)/(SELECT COUNT(*) FROM CHAMADOS WHERE EXTRACT(YEAR FROM DATAHORA)='".$ANO."'))*100 AS QUANTIDADE, FANTASIA FROM CHAMADOS ".
                                "INNER JOIN EMPRESAS E ON (E.CODIGO=CHAMADOS.EMPRESA) WHERE (1=1) AND ".$UNIDADE." STATUS ='F' AND EXTRACT(YEAR FROM DATAHORA)='".$ANO."' ".
                                 "GROUP BY FANTASIA ".
                                 "ORDER BY COUNT(CHAMADOS.CODIGO) DESC";
@@ -1041,7 +1103,7 @@
 					   		
                        $XFECH="select COUNT(CHAMADO) AS QTDE , (SELECT NOME FROM TECNICOS WHERE CODIGO=HISTORICO_AT_CHAMADOS.TECNICO) AS NOME ".
 							   "from HISTORICO_AT_CHAMADOS ".
-							   " WHERE (1=1) AND ".$UNIDADE."   extract(month from HISTORICO_AT_CHAMADOS.DATA)='".date('m')."'  and extract(year from HISTORICO_AT_CHAMADOS.DATA)='".date('Y')."' and quem='TECNICO' and ACAO='FECHADO' ".
+							   " WHERE (1=1) AND ".$UNIDADE."   extract(month from HISTORICO_AT_CHAMADOS.DATA)='".date('m')."'  and extract(year from HISTORICO_AT_CHAMADOS.DATA)='".$ANO."' and quem='TECNICO' and ACAO='FECHADO' ".
 							   "GROUP BY HISTORICO_AT_CHAMADOS.TECNICO ORDER BY COUNT(CHAMADO) DESC  ";
                         $TABFECH=ibase_query($conexao,$XFECH);
 						
