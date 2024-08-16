@@ -1,0 +1,28 @@
+<Requisicoes>
+<Requisicao>
+<Tp_Movimento>I</Tp_Movimento>
+<Dt_Gravacao>16/08/2024 11:06:28</Dt_Gravacao>
+<Cd_Comprador>05413531000120</Cd_Comprador>
+<Cd_Unidade>15444</Cd_Unidade>
+<Cd_Requisicao>524</Cd_Requisicao>
+<Dt_Requisicao>12/08/2024</Dt_Requisicao>
+<Cd_Usuario_Solicitante>2</Cd_Usuario_Solicitante>
+<Ds_Observacao></Ds_Observacao>
+<Produtos_Requisicao>
+<Produto_Requisicao>
+<Cd_Produto>MED11757</Cd_Produto>
+<Ds_Produto>MILRINONA 1 MG/ ML 10 ML</Ds_Produto>
+<Ds_Unidade>AMP</Ds_Unidade>
+<Qt_Estoque>0</Qt_Estoque>
+<Qt_Consumo>0</Qt_Consumo>
+<Ds_Observacao_Produto></Ds_Observacao_Produto>
+<Entregas>
+<Entrega>
+<Dt_Entrega>12/08/2024</Dt_Entrega>
+<Qt_Entrega>20</Qt_Entrega>
+</Entrega>
+</Entregas>
+</Produto_Requisicao>
+</Produtos_Requisicao>
+</Requisicao>
+</Requisicoes>
