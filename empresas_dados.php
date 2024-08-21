@@ -43,13 +43,21 @@
 	}else{
 		$MONITORADO="NULL";
 	}
+
+	if ($_POST["ATIVO"]!=""){
+		$ATIVO="'".$_POST["ATIVO"]."'";
+	}else{
+		$ATIVO="NULL";
+	}
+
+	
 	
 	if (empty($_POST["CODIGO"])){
-		$sql="INSERT INTO EMPRESAS (RAZAOSOCIAL, FANTASIA, CNPJ, TELEFONE, UNIDADE, OBSERVACAO, MONITORADO) VALUES (".$razaosocial.", ".$fantasia.", ".$cnpj.", ".$telefone.", ".$UNIDADE.", ".$OBSERVACAO.", ".$MONITORADO.")";
+		$sql="INSERT INTO EMPRESAS (RAZAOSOCIAL, FANTASIA, CNPJ, TELEFONE, UNIDADE, OBSERVACAO, MONITORADO, ATIVO) VALUES (".$razaosocial.", ".$fantasia.", ".$cnpj.", ".$telefone.", ".$UNIDADE.", ".$OBSERVACAO.", ".$MONITORADO.", 'S')";
 		$tabela= ibase_query ($conexao, $sql);
 		$tabela2= ibase_query ($controle, $sql);
 	}else{
-		$sql="UPDATE EMPRESAS SET RAZAOSOCIAL=".$razaosocial.", OBSERVACAO=".$OBSERVACAO.", MONITORADO=".$MONITORADO.", FANTASIA=".$fantasia.", CNPJ=".$cnpj.", UNIDADE=".$UNIDADE.", TELEFONE=".$telefone." WHERE CODIGO=" .$_POST["CODIGO"];
+		$sql="UPDATE EMPRESAS SET RAZAOSOCIAL=".$razaosocial.", OBSERVACAO=".$OBSERVACAO.", MONITORADO=".$MONITORADO.", FANTASIA=".$fantasia.", CNPJ=".$cnpj.", UNIDADE=".$UNIDADE.", TELEFONE=".$telefone.", ATIVO=".$ATIVO." WHERE CODIGO=" .$_POST["CODIGO"];
 		$tabela= ibase_query ($conexao, $sql);
 		$tabela2= ibase_query ($controle, $sql);
 	}

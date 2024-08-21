@@ -52,11 +52,11 @@ $(document).ready(function() {
 $ACESSO=""; 
 $ACESSO="CADASTRO DE EMPRESAS"; 
 include "controleacesso.php";
-$SQL="SELECT CODIGO, RAZAOSOCIAL, CNPJ, FANTASIA, UNIDADE, cast(OBSERVACAO AS VARCHAR(20000)) AS OBSERVACAO, TELEFONE, COALESCE(MONITORADO,'N') AS MONITORADO FROM EMPRESAS "; 
+$SQL="SELECT CODIGO, RAZAOSOCIAL, ATIVO, CNPJ, FANTASIA, UNIDADE, cast(OBSERVACAO AS VARCHAR(20000)) AS OBSERVACAO, TELEFONE, COALESCE(MONITORADO,'N') AS MONITORADO FROM EMPRESAS "; 
 if (ISSET($_GET["ATITUDE"]))
 { 
 	$ATITUDE=$_GET["ATITUDE"]; 
-$SQL=$SQL . " WHERE CODIGO=0". $_GET["ATITUDE"];
+	$SQL=$SQL . " WHERE CODIGO=0". $_GET["ATITUDE"];
 	$tabela=ibase_query($conexao,$SQL); 
 	$row=$open=ibase_fetch_assoc($tabela); 
 	echo "<script> window.onload=function e(){ $('#ExemploModalCentralizado').modal(); } </script>";
@@ -156,6 +156,21 @@ $SQL=$SQL . " WHERE CODIGO=0". $_GET["ATITUDE"];
 								}?>
 							</select>
 						</div>
+						<div class="col-md-3">
+							<label>Ativo</label>
+								<select name="ATIVO" id="ATIVO" class="form-control">
+								<?php 
+									if ($row["ATIVO"]=="S")
+									{
+										$opcaox="selected";
+									}else{
+										$opcaox2="selected";
+									}
+								?>
+								<option value="S" <?php echo $opcaox?>>Sim</option>
+								<option value="N" <?php echo $opcaox2?>>Não</option>
+							</select>
+						</div>
 					</div> 
 					<div class="row">						
 						<div class="col-md-12">
@@ -190,7 +205,8 @@ $SQL=$SQL . " WHERE CODIGO=0". $_GET["ATITUDE"];
 					  <th>CNPJ</th>
 					  <th>RAZAO SOCIAL</th>
 					  <th>FANTASIA</th> 	
-					  <th>MONITORADA</th>					  
+					  <th>MONITORADA</th>	
+					  <th>ATIVO</th>					  
 					  <th><button class="btn btn-success" type="button" onclick="alterar('0')"><i class="fas fa-plus-square"></i></button></th>  
 					</tr>    
 				  </thead>
@@ -201,6 +217,7 @@ $SQL=$SQL . " WHERE CODIGO=0". $_GET["ATITUDE"];
 					  <th>RAZAO SOCIAL</th> 
 					  <th>FANTASIA</th> 
 					  <th>MONITORADA</th>
+					  <th>ATIVO</th>
 					  <th>Ação</th>
 					</tr>  
 				  </tfoot>  
@@ -213,6 +230,7 @@ $SQL=$SQL . " WHERE CODIGO=0". $_GET["ATITUDE"];
 					  <td><?php ECHO $row["RAZAOSOCIAL"]?></td>
 					  <td><?php ECHO $row["FANTASIA"]?></td>
 					  <td><?php ECHO $row["MONITORADO"]?></td>
+					  <td><?php ECHO $row["ATIVO"]?></td>
 					  <td>
 					  	<?php include "acao.php" ?>
 						<button class="button buttoned" type="button" onclick="abrirlista('<?PHP ECHO $sequencia?>')" title="Usuarios Associados a empresa"><i class="fas fa-user"></i></button>
