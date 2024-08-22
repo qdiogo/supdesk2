@@ -128,10 +128,10 @@ if (ISSET($_GET["ATITUDE"]))
 						<div class="col-md-12">
 							<label>Empresa</label>
 							
-							<select name="EMPRESA" id="EMPRESA" class="form-control" onblur="getValor(this.value)" required>
+							<select name="EMPRESA" id="EMPRESA" class="form-control" onchange="getValor(this.value)" required>
 								<option></option>
 								<?php
-								$SQL1="SELECT CODIGO, FANTASIA FROM EMPRESAS WHERE ATIVO='S' ORDER BY FANTASIA ASC ";
+								$SQL1="SELECT CODIGO, FANTASIA FROM EMPRESAS ORDER BY FANTASIA ASC ";
 								$tabelaX=ibase_query($conexao,$SQL1); 
 								while ($rowX=$open=ibase_fetch_assoc($tabelaX)){ ?>
 								<?php if (isset($_GET["ATITUDE"])){

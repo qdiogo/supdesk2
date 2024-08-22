@@ -1,0 +1,40 @@
+<?xml version='1.0' encoding='ISO-8859-1'?>
+<Respostas>
+  <Cabecalho>
+    <PDC>213128</PDC>
+    <Requisicao>524</Requisicao>
+    <Data_Vencimento>19/08/2024</Data_Vencimento>
+    <Hora_Vencimento>14:30</Hora_Vencimento>
+  </Cabecalho>
+  <Fornecedores>
+    <Fornecedor>
+      <Razao_Social>CM HOSPITALAR SA</Razao_Social>
+      <CNPJ>12.420.164/0009-04</CNPJ>
+      <Faturamento_Minimo>30.0</Faturamento_Minimo>
+      <Prazo_Entrega>1</Prazo_Entrega>
+      <Validade_Proposta>27/08/2024</Validade_Proposta>
+      <Id_Forma_Pagamento>12</Id_Forma_Pagamento>
+      <Frete>CIF</Frete>
+      <Data_Confirmacao>19/08/2024</Data_Confirmacao>
+    </Fornecedor>
+  </Fornecedores>
+  <Itens>
+    <Item>
+      <Id_Artigo>6092040</Id_Artigo>
+      <Cod_Produto>MED11757</Cod_Produto>
+      <Quantidade>20</Quantidade>
+      <Campo_Extra>
+        <Nome>justificativa</Nome>
+        <Valor />
+      </Campo_Extra>
+      <Resposta>
+        <CNPJ>12.420.164/0009-04</CNPJ>
+        <Fabricante>A</Fabricante>
+        <Embalagem>unidade</Embalagem>
+        <Preco_Unitario>35.0000</Preco_Unitario>
+        <Preco_Total>700.0000</Preco_Total>
+        <Comentario></Comentario>
+      </Resposta>
+    </Item>
+  </Itens>
+</Respostas>
