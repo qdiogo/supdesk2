@@ -403,7 +403,7 @@ $lembretes2="Para garantir um acompanhamento eficiente dos chamados, é essencial
 	title: '<strong> <u>Aviso </u></strong>',
 	icon: 'warning',
 	html:
-		'<?php echo $lembretes ?></b> <BR><BR>  <b>Observação sobre o chamado</b><br> <?php echo $lembretes2?> ',
+		'<?php echo $lembretes2?> ',
 	howCloseButton: true,
 	focusConfirm: false,
 	confirmButtonText:
