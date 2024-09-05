@@ -1,5 +1,5 @@
 
-    <?php
+<?php
 session_start(); 
     function generateAIContent($apiKey, $prompt) {
         $url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key={$apiKey}";
@@ -56,22 +56,22 @@ session_start();
         if (isset($responseData['candidates'][0]['content']['parts'][0]['text'])) {
             return $responseData['candidates'][0]['content']['parts'][0]['text'];
         } else {
-            return "No generated text found.";
+            return "Texto não gerado.";
         }
     }
 
-    $apiKey="AIzaSyA2iwAXyzO_D9k-MVEvwEZJUu8gjGtvqVE";
+    $apiKey="AIzaSyAo9zlm2oUG9S7hkCHAOYczTLPeFiiPqIM";
 	
 	function tirarAcentos($string){
-		return preg_replace(array("/(Ã¡|Ã |Ã£|Ã¢|Ã¤)/","/(Ã|Ã€|Ãƒ|Ã‚|Ã„)/","/(Ã©|Ã¨|Ãª|Ã«)/","/(Ã‰|Ãˆ|ÃŠ|Ã‹)/","/(Ã­|Ã¬|Ã®|Ã¯)/","/(Ã|ÃŒ|ÃŽ|Ã)/","/(Ã³|Ã²|Ãµ|Ã´|Ã¶)/","/(Ã“|Ã’|Ã•|Ã”|Ã–)/","/(Ãº|Ã¹|Ã»|Ã¼)/","/(Ãš|Ã™|Ã›|Ãœ)/","/(Ã±)/","/(Ã‘)/"),explode(" ","a A e E i I o O u U n N"),$string);
+		return preg_replace(array("/(á|à|ã|â|ä)/","/(Á|À|Ã|Â|Ä)/","/(é|è|ê|ë)/","/(É|È|Ê|Ë)/","/(í|ì|î|ï)/","/(Í|Ì|Î|Ï)/","/(ó|ò|õ|ô|ö)/","/(Ó|Ò|Õ|Ô|Ö)/","/(ú|ù|û|ü)/","/(Ú|Ù|Û|Ü)/","/(ñ)/","/(Ñ)/"),explode(" ","a A e E i I o O u U n N"),$string);
 	}
 	
     $prompt="".$_GET["tipo"].", sem *, sem Assunto: ".tirarAcentos($_GET["texto"]);
 
     $generatedText = generateAIContent($apiKey, $prompt);
 	$generatedText=str_replace("[Seu nome]","".$_SESSION["NOMEUSUARIO"]."","".$generatedText."");
-	$generatedText=str_replace("[Nome do destinatÃ¡rio]","Cliente","".$generatedText."");
-	$generatedText=str_replace("[Nome do DestinatÃ¡rio]","Cliente","".$generatedText."");
+	$generatedText=str_replace("[Nome do destinatário]","Cliente","".$generatedText."");
+	$generatedText=str_replace("[Nome do Destinatário]","Cliente","".$generatedText."");
 	$generatedText=str_replace("[Seu Nome]","".$_SESSION["NOMEUSUARIO"]."","".$generatedText."");
     echo trim($generatedText);
 

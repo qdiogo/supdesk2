@@ -121,7 +121,7 @@
 		  </a>
 		  <!-- Dropdown - User Information -->
 		  <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
-			<a class="dropdown-item" href="usuarios.php?ATITUDE=<?PHP ECHO $_SESSION["USUARIO"]?>">
+			<a class="dropdown-item" href="usuarios_cliente.php?ATITUDE=<?PHP ECHO $_SESSION["USUARIO"]?>">
 			  <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
 			  Perfil
 			</a>

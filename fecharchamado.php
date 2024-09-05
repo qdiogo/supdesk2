@@ -59,7 +59,7 @@
 	$HTMLX= $HTMLX. '<td colspan="3"><br> Técnico Responsável <br> '.$TABUSER["NOME"].' </td>';
 	$HTMLX= $HTMLX. '</tr>';
 	$HTMLX= $HTMLX. '<tr> ';
-	$HTMLX= $HTMLX. '<td colspan="3"><br><b style="color:red">Prezado(a), Gostaria de solicitar sua avaliação sobre nosso atendimento recente. Sua opinião é muito importante para nós e nos ajuda a aprimorar nossos serviços.</b> <br> <a href="http://ga.sytes.net:5008/satistafacao.php?index=S&TOKEN='.$_GET["codigo"].'87JSHDFFSFDF5464D65SD57854DS545DSAD45ASD555C&CHAMADO='.$_GET["codigo"].'">Avaliar Atendimento</a> </td>';
+	$HTMLX= $HTMLX. '<td colspan="3"><br><b style="color:red">Prezado(a), Gostaria de solicitar sua avaliação sobre nosso atendimento recente. Sua opinião é muito importante para nós e nos ajuda a aprimorar nossos serviços.</b> <br> <a href="http://mypc.sytes.net:5008/satistafacao.php?index=S&TOKEN='.$_GET["codigo"].'87JSHDFFSFDF5464D65SD57854DS545DSAD45ASD555C&CHAMADO='.$_GET["codigo"].'">Avaliar Atendimento</a> </td>';
 	$HTMLX= $HTMLX. '</tr>';
 	$HTMLX= $HTMLX. '<tr> ';
 	$HTMLX= $HTMLX. '<td colspan="3"><br> Por favor não responder por esse endereço de E-mail. </td>';

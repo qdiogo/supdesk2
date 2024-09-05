@@ -69,6 +69,8 @@
 		http.send(null);
 	}
 
+	
+
 	function verificar()
 	{
 		if(http.readyState == 4)
@@ -77,10 +79,17 @@
 			
 			if (response > 0)
 			{
-				document.getElementById("speak").click();
 				var http2 = createRequestObject();
 				http2.open('get','monitor2.php?codigo=' + response);
 				http2.send(null);
+				// Verifica se o navegador suporta a API Web Speech
+				if ('speechSynthesis' in window) {
+					var msg = new SpeechSynthesisUtterance("Um novo chamado foi aberto!");
+					// Fala o texto
+					window.speechSynthesis.speak(msg);
+				} else {
+					alert("Seu navegador não suporta a API Web Speech.");
+				}
 				location.href="/chamados.php";
 			}
 		}
@@ -328,8 +337,6 @@ if (ISSET($_GET["ATITUDE"]))
 			<input type='hidden' value='Um novo chamado foi aberto!' id='message' class='materialize-textarea'>
 		  </div>
 		</div>
-		<INPUT type="hidden"  id="speak">
-
 		<div class="modal fade bd-example-modal-lg" id="ExemploModalCentralizado" tabindex="-1" role="dialog" aria-labelledby="TituloModalCentralizado" aria-hidden="true">  
 		  <div class="modal-dialog modal-lg" role="document"> 
 			<div class="modal-content">   
@@ -939,71 +946,6 @@ if (ISSET($_GET["ATITUDE"]))
 	  </div> 
 	</div>
 </div> 
-<script>
-	
-   $(function(){
-	  if ('speechSynthesis' in window) {
-		speechSynthesis.onvoiceschanged = function() {
-		  var $voicelist = $('#voices');
-
-		  if($voicelist.find('option').length == 0) {
-			speechSynthesis.getVoices().forEach(function(voice, index) {
-			  var $option = $('<option>')
-			  .val(index)
-			  .html(voice.name + (voice.default ? ' (default)' :''));
-
-			  $voicelist.append($option);
-			});
-
-			$voicelist.material_select();
-		  }
-		}
-		
-		$('#speak').click(function(){
-		  var text = $('#message').val();
-		  var msg = new SpeechSynthesisUtterance();
-		  var voices = window.speechSynthesis.getVoices();
-		  msg.voice = voices[$('#voices').val()];
-		  msg.rate = $('#rate').val() / 10;
-		  msg.pitch = $('#pitch').val();
-		  msg.text = text;
-
-		  msg.onend = function(e) {
-			console.log('Finished in ' + event.elapsedTime + ' seconds.');
-		  };
-
-		  speechSynthesis.
-		  (msg);
-		})
-	  } else {
-		$('#modal1').openModal();
-	  }
-	});
-  </script>
-  <script>
-    
-	$(document).ready(function() {
-      //init DateTimePickers
-      md.initFormExtendedDatetimepickers();
-	 });
-	
-  </script>
- 
 </body>
 </html> 
-
-
-<script>
-  window.onUsersnapCXLoad = function(api) {
-    api.init();
-	
-  }
-  
-  
-
- 
-  var script = document.createElement('script');
-  script.defer = 1;
-  script.src = 'https://widget.usersnap.com/global/load/f1648f84-ecb6-4f16-94a6-1fd99da20f71?onload=onUsersnapCXLoad';
-  document.getElementsByTagName('head')[0].appendChild(script);
 </script>

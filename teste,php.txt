@@ -1,0 +1,27 @@
+<?php
+// Texto que você quer que o navegador fale
+$text = "Olá! Esta é uma mensagem de exemplo para teste de fala no navegador.";
+?>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Texto para Fala com JavaScript</title>
+</head>
+<body>
+    <button onclick="falarTexto()">Falar Texto</button>
+
+    <script>
+        function falarTexto() {
+            // Verifica se o navegador suporta a API Web Speech
+            if ('speechSynthesis' in window) {
+                var msg = new SpeechSynthesisUtterance("<?php echo $text; ?>");
+                // Fala o texto
+                window.speechSynthesis.speak(msg);
+            } else {
+                alert("Seu navegador não suporta a API Web Speech.");
+            }
+        }
+    </script>
+</body>
+</html>
