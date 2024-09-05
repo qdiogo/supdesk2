@@ -101,7 +101,7 @@ $row=$open=ibase_fetch_assoc($tabela);
 	<div id="content-wrapper" class="d-flex flex-column">     
 	  <div id="content"> 
 		<?php include "menuh.php" ?>     
-		<form method="post" action="tecnico_dados2.php">    
+		<form method="post" action="tecnico_dados2">    
 			<div class="modal-body">  
 			<?php if (isset($ATITUDE)){?>  
 				<input type="hidden" name="CODIGO" value="<?php ECHO $row["CODIGO"]?>" id="CODIGO" maxlength="4" class="form-control">  
@@ -154,7 +154,7 @@ $row=$open=ibase_fetch_assoc($tabela);
 			</div>
 			</div>  
 			<div class="modal-footer"> 
-			<button type="button" class="btn btn-danger" data-dismiss="modal" onclick='location.href="TECNICOS.php"'>Fechar</button> 
+			<button type="button" class="btn btn-danger" data-dismiss="modal" onclick='location.href="chamados"'>Cancelar</button> 
 			<button type="submit" id="salvar" class="btn btn-success">Salvar mudanças</button>  
 			</div> 
 		</form>   

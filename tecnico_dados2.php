@@ -93,7 +93,7 @@
 	}
 	
 	try{ 
-		echo "<script>alert('Alterado com Sucesso'); location.href='usuarios.php';</script>";
+		echo "<script>alert('Alterado com Sucesso'); location.href='usuarios';</script>";
 	} catch (Exception $e) {
 		echo "N??o foi possivel incluir esses dados!";
 	}

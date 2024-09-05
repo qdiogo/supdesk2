@@ -121,10 +121,18 @@
 		  </a>
 		  <!-- Dropdown - User Information -->
 		  <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
-			<a class="dropdown-item" href="usuarios_cliente.php?ATITUDE=<?PHP ECHO $_SESSION["USUARIO"]?>">
-			  <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
-			  Perfil
-			</a>
+			
+			<?php if (!empty($_SESSION["USUARIOX"])){?>}
+				<a class="dropdown-item" href="usuarios_cliente">
+				<i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
+				Perfil
+				</a>
+			<?php } else { ?>
+				<a class="dropdown-item" href="usuarios">
+				<i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
+				Perfil
+				</a>
+			<?php } ?>
 			<?php  if (!empty($_SESSION["USUARIOX"])) { ?>   
 				<a class="dropdown-item" href="saircliente.php">
 				  <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>

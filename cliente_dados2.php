@@ -85,7 +85,7 @@
 	}
 	
 	try{ 
-		echo "<script>alert('Alterado com Sucesso'); location.href='usuarios_cliente.php';</script>";
+		echo "<script>alert('Alterado com Sucesso'); location.href='usuarios_cliente';</script>";
 	} catch (Exception $e) {
 		echo "N??o foi possivel incluir esses dados!";
 	}
