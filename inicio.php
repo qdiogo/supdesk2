@@ -331,7 +331,7 @@
 		//Aceitar carasteres especiais
 		$Mailer->Charset = 'UTF-8';
 		
-		$Mailer->SMTPAuth = true;
+		$Mailer->SMTPAuth = false;
 		$Mailer->SMTPSecure = 'tls';
 		
 		//nome do servidor

@@ -8,9 +8,9 @@ session_start();
             "contents" => [
                 [
                     "parts" => [
-                        ["text" => "me passe um diagnostico resumido"],
+                        ["text" => "me passe um diagnostico"],
 						["text" => "QUAL É O EXAME ESPECIFICADO QUE O PACIENTE PODE FAZER"],
-						["text" => "QUAL É O POSSIVEL TRATAMENTO"],
+						["text" => "QUAL É O POSSIVEL TRATAMENTO E PORQUE PORQUE ESSES TRATAMENTOS"],
 						["text" => "me passe o cid desse diagnostico"],
 						["text" => $prompt]
                     ]
