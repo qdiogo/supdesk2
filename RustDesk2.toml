@@ -1,0 +1,6 @@
+rendezvous_server = 'gasuporte.sytes.net:21116'
+nat_type = 1
+serial = 0
+
+[options]
+custom-rendezvous-server = 'gasuporte.sytes.net:21116'
