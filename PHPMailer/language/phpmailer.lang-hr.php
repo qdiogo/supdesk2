@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Croatian PHPMailer language file: refer to English translation for definitive list
  * @package PHPMailer
@@ -9,7 +10,7 @@ $PHPMAILER_LANG['authenticate']         = 'SMTP Greška: Neuspjela autentikacija
 $PHPMAILER_LANG['connect_host']         = 'SMTP Greška: Ne mogu se spojiti na SMTP poslužitelj.';
 $PHPMAILER_LANG['data_not_accepted']    = 'SMTP Greška: Podatci nisu prihvaćeni.';
 $PHPMAILER_LANG['empty_message']        = 'Sadržaj poruke je prazan.';
-$PHPMAILER_LANG['encoding']             = 'Nepoznati encodinC: ';
+$PHPMAILER_LANG['encoding']             = 'Nepoznati encoding: ';
 $PHPMAILER_LANG['execute']              = 'Nije moguće izvršiti naredbu: ';
 $PHPMAILER_LANG['file_access']          = 'Nije moguće pristupiti datoteci: ';
 $PHPMAILER_LANG['file_open']            = 'Nije moguće otvoriti datoteku: ';

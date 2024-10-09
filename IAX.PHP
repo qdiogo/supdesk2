@@ -1,4 +1,4 @@
-
+ 
 <?php
 session_start(); 
     function generateAIContent($apiKey, $prompt) {
@@ -12,12 +12,13 @@ session_start();
 						["text" => "QUAL É O EXAME ESPECIFICADO QUE O PACIENTE PODE FAZER"],
 						["text" => "QUAL É O POSSIVEL TRATAMENTO E PORQUE PORQUE ESSES TRATAMENTOS"],
 						["text" => "me passe o cid desse diagnostico"],
+						["text" => "cor da classificacao de risco atraves do protocolo manchester"],
 						["text" => $prompt]
                     ]
                 ]
             ],
             "generationConfig" => [
-                "temperature" => 0.2,
+                "temperature" => 0.9,
                 "topK" => 1,
                 "topP" => 1,
                 "maxOutputTokens" => 2000,
@@ -26,6 +27,18 @@ session_start();
             "safetySettings" => [
                 [
                     "category" => "HARM_CATEGORY_HARASSMENT",
+                    "threshold" => "BLOCK_ONLY_HIGH"
+                ],
+                [
+                    "category" => "HARM_CATEGORY_HATE_SPEECH",
+                    "threshold" => "BLOCK_ONLY_HIGH"
+                ],
+                [
+                    "category" => "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+                    "threshold" => "BLOCK_ONLY_HIGH"
+                ],
+                [
+                    "category" => "HARM_CATEGORY_DANGEROUS_CONTENT",
                     "threshold" => "BLOCK_ONLY_HIGH"
                 ]
             ]
@@ -52,7 +65,7 @@ session_start();
         }
     }
 
-    $apiKey="AIzaSyCZSE_vnnRGqZVG5YaH-SqYzy0tJk8lW34";
+    $apiKey="AIzaSyAo9zlm2oUG9S7hkCHAOYczTLPeFiiPqIM";
 	
 	function tirarAcentos($string){
 		return preg_replace(array("/(á|à|ã|â|ä)/","/(Á|À|Ã|Â|Ä)/","/(é|è|ê|ë)/","/(É|È|Ê|Ë)/","/(í|ì|î|ï)/","/(Í|Ì|Î|Ï)/","/(ó|ò|õ|ô|ö)/","/(Ó|Ò|Õ|Ô|Ö)/","/(ú|ù|û|ü)/","/(Ú|Ù|Û|Ü)/","/(ñ)/","/(Ñ)/"),explode(" ","a A e E i I o O u U n N"),$string);
@@ -61,19 +74,11 @@ session_start();
     $prompt="".$_GET["tipo"].", sem *, sem Assunto: ".tirarAcentos($_GET["texto"]);
 
     $generatedText = generateAIContent($apiKey, $prompt);
-	if (!empty($_SESSION["NOMEUSUARIO"]))
-	{
-		$generatedText=str_replace("[Seu nome]","".$_SESSION["NOMEUSUARIO"]."","".$generatedText."");
-	}
-	$generatedText=str_replace("[Nome do destinatário]","Cliente","".$generatedText."");
-	$generatedText=str_replace("[Nome do Destinatário]","Cliente","".$generatedText."");
-	if (!empty($_GET["tipo"]))
-	{
-		if ($_GET["tipo"]=="1")
-		{
-			$generatedText=str_replace("*","","<BR>".$generatedText."");
-		}
-	}
+	$generatedText=str_replace("*","<br>","".$generatedText."");
+	$generatedText=str_replace("<br><br>","<br>","".$generatedText."");
+	$generatedText=str_replace("Protocolo de Manchester","","".$generatedText."");
+	$generatedText=str_replace("Manchester Triage","","".$generatedText."");
+	$generatedText=str_replace("do Protocolo Manchester","","".$generatedText."");
 	echo trim($generatedText);
 
     ?>

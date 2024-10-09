@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Estonian PHPMailer language file: refer to English translation for definitive list
  * @package PHPMailer
@@ -10,7 +11,7 @@ $PHPMAILER_LANG['authenticate']         = 'SMTP Viga: Autoriseerimise viga.';
 $PHPMAILER_LANG['connect_host']         = 'SMTP Viga: Ei õnnestunud luua ühendust SMTP serveriga.';
 $PHPMAILER_LANG['data_not_accepted']    = 'SMTP Viga: Vigased andmed.';
 $PHPMAILER_LANG['empty_message']        = 'Tühi kirja sisu';
-$PHPMAILER_LANG["encoding"]             = 'Tundmatu kodeerinC: ';
+$PHPMAILER_LANG["encoding"]             = 'Tundmatu kodeering: ';
 $PHPMAILER_LANG['execute']              = 'Tegevus ebaõnnestus: ';
 $PHPMAILER_LANG['file_access']          = 'Pole piisavalt õiguseid järgneva faili avamiseks: ';
 $PHPMAILER_LANG['file_open']            = 'Faili Viga: Faili avamine ebaõnnestus: ';

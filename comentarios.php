@@ -145,18 +145,20 @@
 	//Configurações
 	$Mailer->SMTPAuth = true;
 	$Mailer->SMTPSecure = 'tls';
-	
+		
 	//nome do servidor
-	$Mailer->Host = 'smtp.office365.com';
+	$Mailer->Host = 'smtp.gmail.com';
 	//Porta de saida de e-mail 
 	$Mailer->Port = 587;
 	
 	//Dados do e-mail de saida - autenticação
-	$Mailer->Username = 'gasupdesk@hotmail.com';
-	$Mailer->Password = 'ga@2016@@';
+	$Mailer->Username = 'sistemadesuportesupdesk@gmail.com';
+	$Mailer->Password = 'penn jhbk yyjl nsyy';
+		
+	//$Mailer->SMTPDebug = 2;
 
 	//E-mail remetente (deve ser o mesmo de quem fez a autenticação)
-	$Mailer->From = 'gasupdesk@hotmail.com';
+	$Mailer->From = 'sistemadesuportesupdesk@gmail.com';
 	
 	//Nome do Remetente
 	$Mailer->FromName = 'Atendimento ' . $_SESSION["UNIDADE"];
@@ -183,13 +185,13 @@
 	}else{
 		echo "Erro no envio do e-mail: " . $Mailer->ErrorInfo;
 	}
+	
 
 	if (!empty($RTA["CELULAR"])){
 		echo numerocelular($RTA["CELULAR"], "Chamado: ".$_GET["CODIGO"]." \n Solicita��o: ". $RTA["CONTEUDO"] . " \n  *Resposta: " . trim($_POST["COMENTARIO"]) . "            T�cnico: " . $TABUSER["NOME"]."* ");
 	}
 	
 	}
-	
 	try{ 
 		if (!empty($_SESSION["CLIENTE"]))
 		{

@@ -71,8 +71,24 @@ function RESTRICAO($TABELA,$SQL, $REGISTRO) {
 	$tabelaSINC= ibase_query (ibase_connect('127.0.0.1:C:\SGBD\SICINFO.FDB', 'SYSDBA', 's@bia#:)ar@ra2021Ga'), $sqlSINC); 
 }
 
-function tirarAcentos($string){
-    return preg_replace(array("/(á|à|ã|â|ä)/","/(Á|À|Ã|Â|Ä)/","/(é|è|ê|ë)/","/(É|È|Ê|Ë)/","/(í|ì|î|ï)/","/(Í|Ì|Î|Ï)/","/(ó|ò|õ|ô|ö)/","/(Ó|Ò|Õ|Ô|Ö)/","/(ú|ù|û|ü)/","/(Ú|Ù|Û|Ü)/","/(ñ)/","/(Ñ)/"),explode(" ","a A e E i I o O u U n N"),$string);
+function tirarAcentos($string) {
+    $acentos = [
+        'á', 'à', 'ã', 'â', 'ä', 'é', 'ê', 'ë', 
+        'í', 'î', 'ï', 'ó', 'ò', 'õ', 'ô', 'ö', 
+        'ú', 'ù', 'û', 'ü', 'ç', 'Á', 'À', 'Ã', 
+        'Â', 'Ä', 'É', 'Ê', 'Ë', 'Í', 'Î', 'Ï', 
+        'Ó', 'Ò', 'Õ', 'Ô', 'Ö', 'Ú', 'Ù', 'Û', 'Ü', 'Ç'
+    ];
+    
+    $semAcentos = [
+        'a', 'a', 'a', 'a', 'a', 'e', 'e', 'e', 
+        'i', 'i', 'i', 'o', 'o', 'o', 'o', 'o', 
+        'u', 'u', 'u', 'u', 'c', 'A', 'A', 'A', 
+        'A', 'A', 'E', 'E', 'E', 'I', 'I', 'I', 
+        'O', 'O', 'O', 'O', 'O', 'U', 'U', 'U', 'U', 'C'
+    ];
+    
+    return str_replace($acentos, $semAcentos, $string);
 }
 function formatardata($wdata, $tipo)
 {

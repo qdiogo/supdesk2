@@ -166,7 +166,7 @@
 		h = screen.height;
 		meio1 = (h-570)/2;
 		meio2 = (w-780)/2;
-		window.open('https://web.whatsapp.com/send?phone=55'+numero+'&text='+mensagem+'','Consulta','height=' + (h/2) + ', width=' + (w/2) + ', top='+meio1+', left='+meio2+' titlebar=no menubar=no status=no');
+		window.open('https://wa.me/55'+numero+'?text='+mensagem+'','Consulta','height=' + (h/2) + ', width=' + (w/2) + ', top='+meio1+', left='+meio2+' titlebar=no menubar=no status=no');
 	}
 	function abrirarquivos(indice)
 	{
@@ -563,8 +563,7 @@ if (ISSET($_GET["ATITUDE"]))
 											<BR> 
 											<div class="btn-group btn-group-justified" role="group" aria-label="...">
 												<div class="btn-group" role="group">
-												<button type="button" class="btn-success btn-sm" id="whstapp" data-target="#whatsapp" placement="bottom" id="whstapp" onclick="enviarmensagem('<?php ECHO $row["CELULAR"]?>','<?php echo $resp ?> <?php echo $row["RESPONSAVEL"] ?>. Sou <?php echo $TABUSER["NOME"]?> da Ga Informática, referente ao chamado <?php echo $_GET["ATITUDE"]?>.')" data-toggle="tooltip" data-placement="bottom" title="Enviar para whatsapp" onclick="autor(1)"> <span class="fa fa-whatsapp" aria-hidden="true"> <br><b>Whatsapp</b> </span></button>
-									
+												
 												<button class="btn-dark rounded-circle border-0" onclick="chamado_tela(<?PHP ECHO $row["CODIGO"]?>)" title="Abrir chamado detalhado"><i class="far fa-folder-open"></i></button>
 												<?PHP if (!empty($_SESSION["XNIVEL"])){
 													  if (($_SESSION["XNIVEL"])=="3"){?>
@@ -903,26 +902,29 @@ if (ISSET($_GET["ATITUDE"]))
 								<td >
 									<div class="btn-group btn-group-justified" role="group" aria-label="...">
 										<div class="btn-group" role="group">
-										<button class="btn-dark rounded-circle border-0" onclick="chamado_tela(<?PHP ECHO $xtab["CODIGO"]?>)" title="Abrir chamado detalhado"><i class="far fa-folder-open"></i></button>
-										<?PHP if (!empty($_SESSION["XNIVEL"])){
-											  if (($_SESSION["XNIVEL"])=="4"){?>
-												<button class="btn-danger rounded-circle border-0" onclick="deletar(<?PHP ECHO $xtab["CODIGO"]?>)">X</button>
-										<?PHP }
-										}?>
-										</div>
-										<div class="btn-group" role="group">
-											<button  class=" btn-warning rounded-circle border-0" onclick="status(<?PHP ECHO $xtab["CODIGO"]?>,'PA')" title="Colocar em Pause"><i class="fas fa-pause"></i></button>
+											<?php if (!empty($xtab["CELULAR"])) { ?>
+												<button type="button" class="btn-success rounded-circle border-0" id="whstapp" data-target="#whatsapp" placement="bottom" id="whstapp" onclick="enviarmensagem('<?php ECHO $xtab["CELULAR"]?>','<?php echo $resp ?> <?php echo $xtab["RESPONSAVEL"] ?>. Sou <?php echo $TABUSER["NOME"]?> da Ga Informatica, referente ao chamado <?php echo $xtab["CODIGO"]?> - <?php echo tirarAcentos($xtab["ASSUNTO"])?>')" data-toggle="tooltip" data-placement="bottom" title="Enviar para whatsapp" onclick="autor(1)"> <i class="fab fa-whatsapp"></i></button>
+											<?php } ?>
+											<button class="btn-dark rounded-circle border-0" onclick="chamado_tela(<?PHP ECHO $xtab["CODIGO"]?>)" title="Abrir chamado detalhado"><i class="far fa-folder-open"></i></button>
+											<?PHP if (!empty($_SESSION["XNIVEL"])){
+												  if (($_SESSION["XNIVEL"])=="4"){?>
+													<button class="btn-danger rounded-circle border-0" onclick="deletar(<?PHP ECHO $xtab["CODIGO"]?>)">X</button>
+											<?PHP }
+											}?>
+											</div>
+											<div class="btn-group" role="group">
+												<button  class=" btn-warning rounded-circle border-0" onclick="status(<?PHP ECHO $xtab["CODIGO"]?>,'PA')" title="Colocar em Pause"><i class="fas fa-pause"></i></button>
+											</div><br>
+											<div class="btn-group rounded-circle border-0" role="group">
+											
+											<button class=" btn-success rounded-circle border-0" onclick="status(<?PHP ECHO $xtab["CODIGO"]?>, 'PL')" title="Iniciar Chamado"><i class="fas fa-play"></i></button>
+											</div>
+											<div class="btn-group rounded-circle border-0" role="group">
+											
+											<button class=" btn-primary rounded-circle border-0" onclick="status(<?PHP ECHO $xtab["CODIGO"]?>, 'AG')" title="Agendar chamado"><i class="fas fa-calendar-alt"></i></button>
+											</div>
 										</div><br>
-										<div class="btn-group rounded-circle border-0" role="group">
-										
-										<button class=" btn-success rounded-circle border-0" onclick="status(<?PHP ECHO $xtab["CODIGO"]?>, 'PL')" title="Iniciar Chamado"><i class="fas fa-play"></i></button>
-										</div>
-										<div class="btn-group rounded-circle border-0" role="group">
-										
-										<button class=" btn-primary rounded-circle border-0" onclick="status(<?PHP ECHO $xtab["CODIGO"]?>, 'AG')" title="Agendar chamado"><i class="fas fa-calendar-alt"></i></button>
-										</div>
-									</div><br>
-									Fechado: <?php 
+										Fechado: <?php 
 								
 										if (date('d/m/Y', strtotime ($openx["DATA"]))!='31/12/1969'){
 											echo date("d/m/Y",strtotime($openx["DATA"]));

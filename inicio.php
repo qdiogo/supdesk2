@@ -341,7 +341,7 @@
 		
 		//Dados do e-mail de saida - autenticação
 		$Mailer->Username = 'gasupdesk@hotmail.com';
-		$Mailer->Password = 'ga@2016@';
+		$Mailer->Password = 'ga@2016@2';
 		
 		//E-mail remetente (deve ser o mesmo de quem fez a autenticação)
 		$Mailer->From = 'gasupdesk@hotmail.com';

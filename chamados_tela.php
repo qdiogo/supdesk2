@@ -845,95 +845,91 @@
 								<div class="col-md-10">
 									<p>
 										<a class="float-left" href="#"><strong>Técnico: <?PHP ECHO $xtabC["NOME"]?>-<span class="float-right"><?PHP ECHO $xtabC["DESCRICAO"]?></span></strong></a>
-										<!--<span class="float-right"><i class="text-warning fa fa-star"></i></span>
-										<span class="float-right"><i class="text-warning fa fa-star"></i></span>
-										<span class="float-right"><i class="text-warning fa fa-star"></i></span>
-										<span class="float-right"><i class="text-warning fa fa-star"></i></span>-->				
-								   <?PHP
-								   
-									$SQL="SELECT COUNT(CHAMADOS.CODIGO) AS QUANTIDADE, UPPER(NOME) AS NOME FROM CHAMADOS ".
-										 "INNER JOIN TECNICOS T ON (T.CODIGO=CHAMADOS.TECNICO) WHERE (1=1) AND ".$UNIDADE." STATUS='F' AND T.CODIGO='".$xtabC["TECNICO"]."' ".
-										 "GROUP BY  NOME ".
-										"ORDER BY COUNT(CHAMADOS.CODIGO) DESC";
-									$tabela=ibase_query($conexao,$SQL);
-									$row=ibase_fetch_assoc($tabela);
-									
-									?>
-									<span class="float-right">
-										<strong> <?PHP ECHO $row["QUANTIDADE"]?></strong>
-									</span>
-								   </p>
+											<!--<span class="float-right"><i class="text-warning fa fa-star"></i></span>
+											<span class="float-right"><i class="text-warning fa fa-star"></i></span>
+											<span class="float-right"><i class="text-warning fa fa-star"></i></span>
+											<span class="float-right"><i class="text-warning fa fa-star"></i></span>-->				
+									   <?PHP
+									   
+										$SQL="SELECT COUNT(CHAMADOS.CODIGO) AS QUANTIDADE, UPPER(NOME) AS NOME FROM CHAMADOS ".
+											 "INNER JOIN TECNICOS T ON (T.CODIGO=CHAMADOS.TECNICO) WHERE (1=1) AND ".$UNIDADE." STATUS='F' AND T.CODIGO='".$xtabC["TECNICO"]."' ".
+											 "GROUP BY  NOME ".
+											"ORDER BY COUNT(CHAMADOS.CODIGO) DESC";
+										$tabela=ibase_query($conexao,$SQL);
+										$row=ibase_fetch_assoc($tabela);
+										
+										?>
+										<span class="float-right">
+											<strong> <?PHP ECHO $row["QUANTIDADE"]?></strong>
+										</span>
+									</p>
 								   <div class="clearfix"></div>
 									<p><?PHP ECHO $xtabC["COMENTARIO"]?><br></p>
-									<p>
-										
-								   </p>
 								</div>
 							</div>
 							<?php }
 							}?>
 								<div class="card card-inner">
 									<div class="card-body">
-										<?php if (empty($_SESSION["USUARIOX"]))
-										{ ?>
+										<?php if (empty($_SESSION["USUARIOX"])) { ?>
 										<?php
 											$SQLL="select CODIGO, CHAMADO, TECNICO, (SELECT NOME FROM TECNICOS WHERE CODIGO=TECNICO) AS NOMETECNICO, (SELECT DESCRICAO FROM SETOR WHERE CODIGO=(SELECT FIRST 1 SETOR FROM TECNICOS WHERE CODIGO=TECNICO)) AS NOMESETORT, (SELECT DESCRICAO FROM SETOR WHERE CODIGO=(SELECT FIRST 1 SETOR FROM CLIENTES WHERE CODIGO=CLIENTE))  AS NOMESETOR, (SELECT FIRST 1 NOME FROM TECNICOS WHERE CODIGO=TECNICO) AS TECNICO, DATA, HORA, ACAO, QUEM, ".
 												"(SELECT FIRST 1 NOME FROM CLIENTES WHERE CODIGO=CLIENTE) AS CLIENTE ".
-												"from HISTORICO_AT_CHAMADOS WHERE  CHAMADO=" .$_GET["CODIGO"] . " ORDER BY HORA DESC   "; 
+												"from HISTORICO_AT_CHAMADOS WHERE  CHAMADO=" .$_GET["CODIGO"] . " ORDER BY 4 DESC, HORA ASC   "; 
 											$tabelaL= ibase_query ($conexao, $SQLL);
 											if (!empty($tabelaL))
 											{
-											while ($xtabL = ibase_fetch_assoc($tabelaL)){ 
-											$TENICO="";?>
-											<div class="row">
-												<div class="col-md-2">
-													<?PHP if($xtabL["TECNICO"]!=''){ ?>
-														<img src="<?php echo $_SESSION["LOGO"]?>" class="img img-rounded img-fluid"/>
-													<?php } ?>
-													<?PHP if($xtabL["CLIENTE"]!=''){ ?>
-														<img src="/img/def_face.jpg" class="img img-rounded img-fluid"/>
-													<?php } ?>
-													<p class="text-secondary text-center"><?PHP ECHO formatardata($xtabL["DATA"],1)?> às <?PHP ECHO $xtabL["HORA"]?></p>
-													
-												</div>
-												<div class="col-md-10">
-													<p><a href="#"><strong>
-														<?PHP if($xtabL["TECNICO"]!=''){
-														$TENICO="S";?>
-															<h5 class="mb-1">Técnico:<?PHP ECHO $xtabL["NOMETECNICO"]?><span class="float-right"><?PHP ECHO $xtabL["NOMESETORT"]?></span></h5><br>
+												while ($xtabL = ibase_fetch_assoc($tabelaL)){ 
+												$TENICO="";?>
+												<div class="row">
+													<div class="col-md-2">
+														<?PHP if($xtabL["TECNICO"]!=''){ ?>
+															<img src="<?php echo $_SESSION["LOGO"]?>" class="img img-rounded img-fluid"/>
 														<?php } ?>
 														<?PHP if($xtabL["CLIENTE"]!=''){ ?>
-															<h5 class="mb-1">Cliente:<?PHP ECHO $xtabL["CLIENTE"]?><span class="float-right"><?PHP ECHO $xtabL["NOMESETOR"]?><span></h5><br>
+															<img src="/img/def_face.jpg" class="img img-rounded img-fluid"/>
 														<?php } ?>
-													</strong></a></p>
-													<p>
-														<?PHP if($xtabL["ACAO"]=='INSERIU') { ?>
-																<h5 class="mb-1">Iniciou o Chamado</h5><br>
-														<?php }else{ 
-															echo str_replace("MOVIMENTADO","ALTEROU",trim($xtabL["ACAO"]));
-														} ?>
-													</p>
-													<p>
+														<p class="text-secondary text-center"><?PHP ECHO formatardata($xtabL["DATA"],1)?> às <?PHP ECHO $xtabL["HORA"]?></p>
 														
-												   <?PHP
-												   if (!empty($TENICO)){
-													$SQL="SELECT COUNT(CHAMADOS.CODIGO) AS QUANTIDADE, UPPER(NOME) AS NOME FROM CHAMADOS ".
-														 "INNER JOIN TECNICOS T ON (T.CODIGO=CHAMADOS.TECNICO) WHERE (1=1) AND ".$UNIDADE." STATUS='F' AND T.CODIGO='".$xtabL["TECNICO"]."' ".
-														 "GROUP BY  NOME ".
-														"ORDER BY COUNT(CHAMADOS.CODIGO) DESC";
-													$tabela=ibase_query($conexao,$SQL);
-													$rowx=ibase_fetch_assoc($tabela);
-													
-													?>
-													<span class="float-right">
-														<strong> <?PHP ECHO $rowx["QUANTIDADE"]?></strong>
-													</span>
-												   <?php } ?>
-												   </p>
+													</div>
+													<div class="col-md-10">
+														<p><a href="#"><strong>
+															<?PHP if($xtabL["TECNICO"]!=''){
+															$TENICO="S";?>
+																<h5 class="mb-1">Técnico:<?PHP ECHO $xtabL["NOMETECNICO"]?><span class="float-right"><?PHP ECHO $xtabL["NOMESETORT"]?></span></h5><br>
+															<?php } ?>
+															<?PHP if($xtabL["CLIENTE"]!=''){ ?>
+																<h5 class="mb-1">Cliente:<?PHP ECHO $xtabL["CLIENTE"]?><span class="float-right"><?PHP ECHO $xtabL["NOMESETOR"]?><span></h5><br>
+															<?php } ?>
+														</strong></a></p>
+														<p>
+															<?PHP if($xtabL["ACAO"]=='INSERIU') { ?>
+																	<h5 class="mb-1">Iniciou o Chamado</h5><br>
+															<?php }else{ 
+																echo str_replace("MOVIMENTADO","ALTEROU",trim($xtabL["ACAO"]));
+															} ?>
+														</p>
+														<p>
+															
+													   <?PHP
+													   if (!empty($TENICO)){
+														$SQL="SELECT COUNT(CHAMADOS.CODIGO) AS QUANTIDADE, UPPER(NOME) AS NOME FROM CHAMADOS ".
+															 "INNER JOIN TECNICOS T ON (T.CODIGO=CHAMADOS.TECNICO) WHERE (1=1) AND ".$UNIDADE." STATUS='F' AND T.CODIGO='".$xtabL["TECNICO"]."' ".
+															 "GROUP BY  NOME ".
+															"ORDER BY COUNT(CHAMADOS.CODIGO) DESC";
+														$tabela=ibase_query($conexao,$SQL);
+														$rowx=ibase_fetch_assoc($tabela);
+														
+														?>
+														<span class="float-right">
+															<strong> <?PHP ECHO $rowx["QUANTIDADE"]?></strong>
+														</span>
+													   <?php } ?>
+													   </p>
+													</div>
 												</div>
-											</div>
-										<?php }
-										}
+											<?php }
+											}
 										}
 										
 										if (!empty($_SESSION["TECNICO"])){
