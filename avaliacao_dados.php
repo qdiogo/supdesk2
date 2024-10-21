@@ -18,7 +18,7 @@
     $servidor="";
     $conexao="";
 
-    $servidor = "26.21.41.102:F:\SGBD\SUPDESK\GA\pessoal.fdb";
+    $servidor = "webmedical.sytes.net:F:\SGBD\SUPDESK\GA\pessoal.fdb";
 
 	if (!($conexao=ibase_connect(str_replace("'", "", $servidor), 'SYSDBA', 's@bia#:)ar@ra2021Ga','ISO8859_1', '9000', '1')))
 	die('Erro ao conectar: ' .  ibase_errmsg());

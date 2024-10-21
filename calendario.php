@@ -145,7 +145,7 @@ function calendario(){
 				die('Erro ao conectar: ' .  ibase_errmsg());
 				
                 $SQL2="SELECT FIRST 1 CODIGO FROM MARCACAO WHERE DATA='".$_GET["ano"]."-".$_GET["mes"]."-".$dia."' and TECNICO='".$_GET["prof"]."'";
-				$w_tabela=ibase_query(ibase_connect(str_replace("'", "", "26.21.41.102:F:\SGBD\SUPDESK\'$CNPJ\pessoal.fdb"), 'SYSDBA', 's@bia#:)ar@ra2021Ga','ISO8859_1', '9000', '1'),$SQL2); 
+				$w_tabela=ibase_query(ibase_connect(str_replace("'", "", "webmedical.sytes.net:F:\SGBD\SUPDESK\'$CNPJ\pessoal.fdb"), 'SYSDBA', 's@bia#:)ar@ra2021Ga','ISO8859_1', '9000', '1'),$SQL2); 
 				$qtabela=ibase_fetch_assoc($w_tabela);
 
 				$stylo="";

@@ -32,8 +32,8 @@
 		<a class="collapse-item" href="inicio"><i class="fas fa-user"></i> Inicio</a>
 		<?php if (($_SESSION["XNIVEL"])=="4"){ ?>
 			<a class="collapse-item" href="tecnicos"><i class="fas fa-user"></i> Técnicos</a>
+			<a class="collapse-item" href="Empresas"> <i class="fab fa-buffer"></i> Empresas</a>
 		<?php } ?> 
-		<a class="collapse-item" href="Empresas"> <i class="fab fa-buffer"></i> Empresas</a>
 		<a class="collapse-item" href="categorias"> <i class="fab fa-buffer"></i> Categorias</a>
 		<a class="collapse-item" href="setor"> <i class="fab fa-buffer"></i> Setor</a>
 	  </div>
