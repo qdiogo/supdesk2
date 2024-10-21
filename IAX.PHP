@@ -77,7 +77,7 @@ session_start();
 	$generatedText=str_replace("*","<br>","".$generatedText."");
 	$generatedText=str_replace("<br><br>","<br>","".$generatedText."");
 	$generatedText=str_replace("Protocolo de Manchester","","".$generatedText."");
-	$generatedText=str_replace("Manchester Triage","","".$generatedText."");
+	$generatedText=str_replace("Manchester Triagem","","".$generatedText."");
 	$generatedText=str_replace("do Protocolo Manchester","","".$generatedText."");
 	echo trim($generatedText);
 

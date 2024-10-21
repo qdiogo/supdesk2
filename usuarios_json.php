@@ -5,7 +5,7 @@
 	date_default_timezone_set('America/Bahia');
 	$CHAVE = '7236729y2983372a727r6237a623r762a376377';
 	if ($_GET['CHAVE']=$CHAVE){
-		$servidor1 = "26.21.41.102:F:\SGBD\SUPDESK\CONTROLE.FDB";
+		$servidor1 = "webmedical.sytes.net:F:\SGBD\SUPDESK\CONTROLE.FDB";
 		if (!($conexao1=ibase_connect(str_replace("'", "", $servidor1), 'SYSDBA', 's@bia#:)ar@ra2021Ga','UTF8', '100', '1')))
 		die('Erro ao conectar: ' .  ibase_errmsg());
 		

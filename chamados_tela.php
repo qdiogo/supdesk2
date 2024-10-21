@@ -391,8 +391,8 @@
 							<?php if (isset($_GET["CODIGO"])){?>  
 								<input type="checkbox" name="MONITORADO">  
 							<?php }else{ 
-							    IF (!EMPTY($xtab["MONITORADO"])) {?>
-									<input type="checkbox" name="MONITORADO" value="S">
+							    If (!empty($xtab["MONITORADO"])) {?>
+									<input type="checkbox" name="MONITORADO" value="S" checked>
 								<?php }else{ ?>
 									<input type="checkbox" name="MONITORADO"  checked>
 								<?php } ?>
