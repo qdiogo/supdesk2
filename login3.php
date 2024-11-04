@@ -46,7 +46,7 @@
 	
 	$_SESSION["XLOG_DB"]="".$_POST["EMPRESA"]."";
 	$CNPJ=$_SESSION["XLOG_DB"];
-	$servidor = "webmedical.sytes.net:F:\SGBD\SUPDESK\'$CNPJ\pessoal.fdb";
+	$servidor = "ga.sytes.net/30500:F:\SGBD\SUPDESK\'$CNPJ\pessoal.fdb";
 	
 	if (!($conexao=ibase_connect(str_replace("'", "", $servidor), 'SYSDBA', 's@bia#:)ar@ra2021Ga','UTF8', '100', '1')))
 	die('Erro ao conectar: ' .  ibase_errmsg());
