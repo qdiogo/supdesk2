@@ -152,37 +152,39 @@
 			<?php } ?>
 		</tbody>
     </table>
-	<?php }?>
-	<table width="100%">
-		<tr>
-			<td colspan=10><img width="400" height="80" class="img-rounded" src="<?PHP ECHO $_SESSION["LOGO"]?>"></td>
-			<td colspan=12><h2><?php echo $_SESSION["UNIDADE"]?></h2></td>
-		</tr>
-		<tr>
-			<td colspan=12 aling="center"><h2><center>Listagem de Chamados </center></h2></td>
-		</tr>
-		
-		<tr>
-			<th colspan=12><center>Chamados Fechados Por periodo</center></th>
-		</tr>
-		<tr>
-			<td colspan=12><h6>Intervalo: De <?php echo date("d/m/Y",strtotime($_POST["data1"]))?> Até <?php echo  date("d/m/Y",strtotime($_POST["data2"]))?>,  Status do chamado: <?php echo $filtro?> </h6></td>
-		</tr>
-		<tr>
-			<th>Qtde</th>
-			<th>Profissional</th>
-		</tr>
-		<?php
-			$SQL=" select COUNT(distinct CHAMADO) AS QTDE , (SELECT NOME FROM TECNICOS WHERE CODIGO=HISTORICO_AT_CHAMADOS.TECNICO) AS NOME from HISTORICO_AT_CHAMADOS
-					WHERE (1=1) AND HISTORICO_AT_CHAMADOS.DATA>='".$_POST["data1"]."' AND HISTORICO_AT_CHAMADOS.DATA<='".$_POST["data2"]."' and quem='TECNICO' and ACAO='FECHADO' GROUP BY HISTORICO_AT_CHAMADOS.TECNICO
-					order by   COUNT(CHAMADO) desc";
-			$tabela=ibase_query($conexao,$SQL); 
-			while ($xtab=$open=ibase_fetch_assoc($tabela)){ ?>
+	<?php }else{?>
+		<table width="100%">
 			<tr>
-				<td><?php echo $xtab["QTDE"]?></td>
-				<td><?php echo $xtab["NOME"]?></td>
+				<td colspan=10><img width="400" height="80" class="img-rounded" src="<?PHP ECHO $_SESSION["LOGO"]?>"></td>
+				<td colspan=12><h2><?php echo $_SESSION["UNIDADE"]?></h2></td>
 			</tr>
-		<?php } ?>
-	</table>
+			<tr>
+				<td colspan=12 aling="center"><h2><center>Listagem de Chamados </center></h2></td>
+			</tr>
+			
+			<tr>
+				<th colspan=12><center>Chamados Fechados Por periodo</center></th>
+			</tr>
+			<tr>
+				<td colspan=12><h6>Intervalo: De <?php echo date("d/m/Y",strtotime($_POST["data1"]))?> Até <?php echo  date("d/m/Y",strtotime($_POST["data2"]))?>,  Status do chamado: <?php echo $filtro?> </h6></td>
+			</tr>
+			<tr>
+				<th>Qtde</th>
+				<th>Profissional</th>
+			</tr>
+			<?php
+				$SQL=" select COUNT(distinct CHAMADO) AS QTDE , (SELECT NOME FROM TECNICOS WHERE CODIGO=HISTORICO_AT_CHAMADOS.TECNICO) AS NOME from HISTORICO_AT_CHAMADOS
+						WHERE (1=1) AND HISTORICO_AT_CHAMADOS.DATA>='".$_POST["data1"]."' AND HISTORICO_AT_CHAMADOS.DATA<='".$_POST["data2"]."' and quem='TECNICO' and ACAO='FECHADO' GROUP BY HISTORICO_AT_CHAMADOS.TECNICO
+						order by   COUNT(CHAMADO) desc";
+				$tabela=ibase_query($conexao,$SQL); 
+				while ($xtab=$open=ibase_fetch_assoc($tabela)){ ?>
+				<tr>
+					<td><?php echo $xtab["QTDE"]?></td>
+					<td><?php echo $xtab["NOME"]?></td>
+				</tr>
+			<?php } ?>
+		</table>
+	<?php } ?>
+	
 </body>
 </html>

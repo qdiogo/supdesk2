@@ -263,6 +263,20 @@ function pesquisacep(valor) {
 	.info:hover {
 		box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24),0 17px 50px 0 rgba(0,0,0,0.19);
 	}
+
+	input, select, textarea, .input-field, .form-control {
+		background-color: #FFFACD; /* Cor global */
+		color: #000; /* Cor do texto */
+		border: 1px solid #ccc; /* Cor da borda */
+		padding: 8px;
+		border-radius: 4px; /* Bordas arredondadas */
+		font-weight: bold;
+	}
+	input:focus, select:focus, textarea:focus{
+		background-color: #F0E68C; /* Cor de foco */
+		outline: none; /* Remover a borda de foco padrão */
+		box-shadow: 0 0 5px rgba(0, 123, 255, 0.5); /* Sombra de foco */
+	}
 </style>
 <script type="text/javascript" src="/jquery-1.7.2.min.js"></script>
 

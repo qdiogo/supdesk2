@@ -123,7 +123,7 @@
 		$SQLU="SELECT NOME, EMAIL FROM TECNICOS WHERE CODIGO=".$_SESSION["USUARIO"]." ";
 		$USER=ibase_query($conexao,$SQLU);
 		$TABUSER=ibase_fetch_assoc($USER);	
-		echo numerocelular($RTA["CELULAR"], "Chamado: ".$_GET["codigo"]." \n Solicitação: ". $RTA["ASSUNTO"] . " \n  *Serviço Executado: " . trim($RTA["FEITO"]) . "            Técnico: " . $TABUSER["NOME"]."* ");
+		echo numerocelular($RTA["CELULAR"], "Chamado: ".$_GET["codigo"]." \n Solicitação: ". $RTA["ASSUNTO"] . " \n  *Serviço Executado: " . trim($RTA["FEITO"]) . "            Técnico: " . $TABUSER["NOME"]."*   ");
 	}
 ?>
 

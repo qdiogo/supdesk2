@@ -166,7 +166,7 @@
 		h = screen.height;
 		meio1 = (h-570)/2;
 		meio2 = (w-780)/2;
-		window.open('enviozap.php?numero=55'+numero+'&text='+mensagem+'','Consulta','height=' + (h/2) + ', width=' + (w/2) + ', top='+meio1+', left='+meio2+' titlebar=no menubar=no status=no');
+		window.open('enviozap.php?numero='+numero+'&text='+mensagem+'','Consulta','height=' + (h/2) + ', width=' + (w/2) + ', top='+meio1+', left='+meio2+' titlebar=no menubar=no status=no');
 	}
 	function abrirarquivos(indice)
 	{

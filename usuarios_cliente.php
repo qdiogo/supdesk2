@@ -3,7 +3,7 @@
 <html lang="en">
 <head> 
 <?php 
-include "conexao.php";
+include "conexao2.php";
 include "css.php"?>
 <script> 
 function alterar(indice)  

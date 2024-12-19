@@ -57,8 +57,6 @@
 	  <div class="bg-white py-2 collapse-inner rounded">
 		<h6 class="collapse-header">Modulo</h6>
 		<a class="collapse-item" href="chamados"> <i class="fas fa-clipboard-check"></i> Chamados </a>
-		<a class="collapse-item" href="chamados_x"> <i class="fas fa-clipboard-check"></i> Chamados/Usuáos </a>
-		<a class="collapse-item" href="chamados_xE"> <i class="fas fa-clipboard-check"></i> Chamados/Empresas </a>
 		<a class="collapse-item" href="chamados?TIPO=2"> <i class="fas fa-clipboard-check"></i> Chamados (Fechados) </a>
 		<a class="collapse-item" href="chamados?TIPO=3"> <i class="fas fa-clipboard-check"></i> Chamados (Pausa) </a>
 		<a class="collapse-item" href="chamados?TIPO=4"> <i class="fas fa-clipboard-check"></i> Meus Chamados </a>
@@ -68,7 +66,6 @@
 		<a class="collapse-item" href="bloco"> <i class="fas fa-clipboard-check"></i> Bloco Anotações  </a>
 		<a class="collapse-item" href="QUADROS"> <i class="fas fa-clipboard-check"></i> Quadros/Rotinas  </a>
 		<a class="collapse-item" href="BOOT"> <i class="fas fa-clipboard-check"></i> Atendimento Eletronico  </a>
-		<a class="collapse-item" href="garemote"> <i class="fas fa-clipboard-check"></i> Acessos Remotos  </a>
 		<a class="collapse-item" href="sobreaviso_chamados"> <i class="fas fa-clipboard-check"></i> Sobreaviso </a>
 		<a class="collapse-item" href="controlevalidade"> <i class="fas fa-clipboard-check"></i> Controle </a>
 		<?php if ((($_SESSION["XNIVEL"])=="3") || (($_SESSION["XNIVEL"])=="4")){ ?>
@@ -102,38 +99,9 @@
   </li>
   
   
-  <!--<li class="nav-item">
-	<a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseUtilities" aria-expanded="true" aria-controls="collapseUtilities">
-	  <i class="fas fa-fw fa-wrench"></i>
-	  <span>Ultilitarios</span>
-	</a>
-	<div id="collapseUtilities" class="collapse" aria-labelledby="headingUtilities" data-parent="#accordionSidebar">
-	  <div class="bg-white py-2 collapse-inner rounded">
-		<h6 class="collapse-header">Ultilitarios:</h6>
-		<a class="collapse-item" href="utilities-color.html">Autoriza??o</a>
-		<a class="collapse-item" href="utilities-border.html">Borders</a>
-		<a class="collapse-item" href="utilities-animation.html">Animations</a>
-		<a class="collapse-item" href="utilities-other.html">Other</a>
-	  </div>
-	</div>
-  </li>
   
-  <li class="nav-item">
-	<a class="nav-link" href="charts.html">
-	  <i class="fas fa-fw fa-chart-area"></i>
-	  <span>Charts</span></a>
-  </li>
-
-  <li class="nav-item">
-	<a class="nav-link" href="tables.html">
-	  <i class="fas fa-fw fa-table"></i>
-	  <span>Tables</span></a>
-  </li>
-  -->
-  <!-- Divider -->
   <hr class="sidebar-divider d-none d-md-block">
 
-  <!-- Sidebar Toggler (Sidebar) -->
   <div class="text-center d-none d-md-inline">
 	<button class="rounded-circle border-0" id="sidebarToggle"></button>
   </div>
