@@ -31,7 +31,7 @@
 	}
 	
 	if ($_POST["RESPONSAVEL"]!=""){
-		$RESPONSAVEL="'".$_POST["RESPONSAVEL"]."'";
+		$RESPONSAVEL="'".tirarAcentos($_POST["RESPONSAVEL"])."'";
 	}ELSE{
 		$RESPONSAVEL="NULL";
 	}

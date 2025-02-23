@@ -805,7 +805,5 @@ if (ISSET($_GET["ATITUDE"])){
 	 });
 	
   </script>
-  <br><br>
-  <iframe src="http://gasuporte.sytes.net:5008/chhatx" frameborder=0 class="xflutuante"> </iframe>
 </body>
 </html> 

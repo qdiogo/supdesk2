@@ -50,7 +50,7 @@
 		$SUBCATEGORIAS="NULL";
 	}
 	if ($_POST["RESPONSAVEL"]!=""){
-		$RESPONSAVEL="'".$_POST["RESPONSAVEL"]."'";
+		$RESPONSAVEL="'".tirarAcentos($_POST["RESPONSAVEL"])."'";
 	}else{
 		$RESPONSAVEL="NULL";
 	}

@@ -281,3 +281,45 @@ function pesquisacep(valor) {
 <script type="text/javascript" src="/jquery-1.7.2.min.js"></script>
 
 <?php error_reporting(0);?>
+
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+<script>
+  $(document).ready(function () {
+    $('select.form-control').select2({
+      placeholder: 'Selecione uma opção',
+      allowClear: true,
+      theme: 'bootstrap4' // Você pode usar outros temas se preferir
+    });
+  });
+</script>
+
+<style>
+  /* Largura total */
+  .select2-container {
+    width: 100% !important;
+  }
+
+  /* Altura e tamanho grande */
+  .select2-container .select2-selection--single {
+    height: 40px; /* Altura do campo */
+    background-color: #FFFACD; /* Fundo amarelo claro */
+    border: 1px solid #000; /* Borda preta */
+    border-radius: 5px; /* Arredondamento */
+    display: flex; /* Alinha elementos internamente */
+    align-items: center; /* Centraliza verticalmente */
+  }
+
+  /* Texto centralizado no campo */
+  .select2-container .select2-selection__rendered {
+    line-height: 40px; /* Igual à altura do campo */
+    padding-left: 10px; /* Espaçamento do texto */
+    font-size: 14px; /* Ajusta o tamanho do texto */
+    color: #333; /* Cor do texto */
+  }
+
+  /* Ajuste da seta do dropdown */
+  .select2-container .select2-selection__arrow {
+    height: 40px; /* Igual à altura do campo */
+  }
+</style>

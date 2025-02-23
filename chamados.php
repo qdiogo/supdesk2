@@ -488,32 +488,34 @@ if (ISSET($_GET["ATITUDE"]))
 										<?php } ?>
 									</div>
 								</div>
-								<?php if (($_SESSION["XNIVEL"])=="4"){ ?>
-								<div class="row">
-									<div class="col-md-12">
-										<label>Técnico</label>
-										
-										<select name="TECNICO" id="TECNICO" class="form-control" onchange='alert("Por favor, alterar pela aba Cometarios (Internos);");location.reload();'>
-											<option></option>
-											<?php
-											$SQL1="SELECT CODIGO, NOME FROM TECNICOS ORDER BY NOME ASC ";
-											$tabelaX=ibase_query($conexao,$SQL1); 
-											while ($rowX=$open=ibase_fetch_assoc($tabelaX)){ ?>
-											<?php if (isset($_GET["ATITUDE"])){
-												if (TRIM($row["TECNICO"]) <> TRIM($rowX["CODIGO"])){ ?>  
-													<option value="<?php ECHO $rowX["CODIGO"]?>"><?php ECHO $rowX["NOME"]?></option>  
+								<?php if (($_GET["ATITUDE"] > 0)){?>
+									<?php if (($_SESSION["XNIVEL"])=="4"){ ?>
+									<div class="row">
+										<div class="col-md-12">
+											<label>Técnico</label>
+											
+											<select name="TECNICO" id="TECNICO" class="form-control" onchange='alert("Por favor, alterar pela aba Comentarios (Internos);");location.reload();'>
+												<option></option>
+												<?php
+												$SQL1="SELECT CODIGO, NOME FROM TECNICOS ORDER BY NOME ASC ";
+												$tabelaX=ibase_query($conexao,$SQL1); 
+												while ($rowX=$open=ibase_fetch_assoc($tabelaX)){ ?>
+												<?php if (isset($_GET["ATITUDE"])){
+													if (TRIM($row["TECNICO"]) <> TRIM($rowX["CODIGO"])){ ?>  
+														<option value="<?php ECHO $rowX["CODIGO"]?>"><?php ECHO $rowX["NOME"]?></option>  
+													<?php }else{ ?>
+														<option value="<?php ECHO $rowX["CODIGO"]?>" SELECTED><?php ECHO $rowX["NOME"]?></option>  
+													<?php } ?>
 												<?php }else{ ?>
-													<option value="<?php ECHO $rowX["CODIGO"]?>" SELECTED><?php ECHO $rowX["NOME"]?></option>  
-												<?php } ?>
-											<?php }else{ ?>
-												<option value="<?php ECHO $rowX["CODIGO"]?>"><?php ECHO $rowX["NOME"]?></option>  
-											<?php } 
-											}?>  
-										</select>
+													<option value="<?php ECHO $rowX["CODIGO"]?>"><?php ECHO $rowX["NOME"]?></option>  
+												<?php } 
+												}?>  
+											</select>
+										</div>
 									</div>
-								</div>
-								<?php }else{ ?>
-									<input type="hidden" name="TECNICO" id="TECNICO" value="<?php echo TRIM($row["TECNICO"]) ?>" maxlength="12" class="form-control"> 
+									<?php }else{ ?>
+										<input type="hidden" name="TECNICO" id="TECNICO" value="<?php echo TRIM($row["TECNICO"]) ?>" maxlength="12" class="form-control"> 
+									<?php } ?>
 								<?php } ?>
 								<div class="row">
 									<div class="col-md-12">
@@ -779,9 +781,22 @@ if (ISSET($_GET["ATITUDE"]))
 					if ($empresa!=$xtab["RAZAOSOCIAL"]){
 						$empresa=$xtab["RAZAOSOCIAL"];
 					?> 
-					<tr>
-						<td colspan=13 style="background-image: linear-gradient(to right top, #504a55, #48444d, #403d46, #39373e, #323137); text-align:center; font-weight:bold; COLOR:WHITE; border-radius: 25px;"><?php echo strtoupper($xtab["RAZAOSOCIAL"])?></td>
-					
+					<tr style="background-image: linear-gradient(to right top, #504a55, #48444d, #403d46, #39373e, #323137);  text-align:center; font-weight:bold; color:white;">
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						
+						<td style="color: white;"><?php echo strtoupper($xtab["RAZAOSOCIAL"])?></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						
+						
 					</tr>
 					<?php } 
 					if ((!EMPTY($xtab["MONITORADO"]))) {?>

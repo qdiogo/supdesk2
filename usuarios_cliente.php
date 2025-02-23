@@ -88,9 +88,10 @@ $SQL="SELECT C.CODIGO, C.NOME, C.EMAIL, (S.DESCRICAO) AS NOMESETOR, MD5, C.UNIDA
 "LEFT JOIN SETOR S ON (S.CODIGO=C.SETOR) ".
 "LEFT JOIN NIVEL N ON (N.CODIGO=C.NIVEL) ";
 $ATITUDE=$_SESSION["USUARIOX"]; 
-$SQL=$SQL . " AND C.CODIGO=0". $_SESSION["USUARIOX"];
+$SQL=$SQL . " WHERE C.CODIGO=0". $_SESSION["USUARIOX"];
 $tabela=ibase_query($conexao,$SQL); 
-$row=$open=ibase_fetch_assoc($tabela); 
+$row=ibase_fetch_assoc($tabela);
+ 
 ?>   
   
 <div id="content-wrapper" class="d-flex flex-column">   

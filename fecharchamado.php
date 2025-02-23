@@ -22,7 +22,7 @@
 	$sql2="INSERT INTO HISTORICO_AT_CHAMADOS (TECNICO, ACAO, QUEM, CLIENTE, CHAMADO, UNIDADE) VALUES (".$_SESSION["USUARIO"].", 'FECHADO', 'TECNICO', 0, ".$_GET["codigo"].", ".$UNIDADE.")";
 	$tabela= ibase_query ($conexao, $sql2);
 	
-	$SQLE="SELECT E.CODIGO, E.ASSUNTO, COALESCE(E.CELULAR, C.CELULAR) AS CELULAR, CAST(E.FEITO AS VARCHAR(2000)) AS FEITO, CAST(E.CONTEUDO AS VARCHAR(2000)) AS CONTEUDO, C.EMAIL FROM CHAMADOS E, CLIENTES C WHERE (E.CLIENTE=C.CODIGO) AND E.CODIGO='".$_GET["codigo"]."' AND C.EMAIL IS NOT NULL AND E.ENVIADO_EMAIL IS NULL ";
+	$SQLE="SELECT E.CODIGO, E.ASSUNTO, COALESCE(E.CELULAR, C.CELULAR) AS CELULAR, CAST(E.FEITO AS VARCHAR(2000)) AS FEITO, CAST(E.CONTEUDO AS VARCHAR(2000)) AS CONTEUDO, C.EMAIL, E.CLIENTE, C.CELULAR AS CELULARCLIENTE FROM CHAMADOS E, CLIENTES C WHERE (E.CLIENTE=C.CODIGO) AND E.CODIGO='".$_GET["codigo"]."' AND C.EMAIL IS NOT NULL AND E.ENVIADO_EMAIL IS NULL ";
 	$TABELAW=ibase_query($conexao,$SQLE);
 	$RTA=ibase_fetch_assoc($TABELAW);
 
@@ -124,6 +124,14 @@
 		$USER=ibase_query($conexao,$SQLU);
 		$TABUSER=ibase_fetch_assoc($USER);	
 		echo numerocelular($RTA["CELULAR"], "Chamado: ".$_GET["codigo"]." \n Solicitação: ". $RTA["ASSUNTO"] . " \n  *Serviço Executado: " . trim($RTA["FEITO"]) . "            Técnico: " . $TABUSER["NOME"]."*   ");
+		
+		if ($RTA["EMPERSA"]=="263")
+		{
+			echo numerocelular($RTA["CELULARCLIENTE"], "Chamado: ".$_GET["codigo"]." \n Solicitação: ". $RTA["ASSUNTO"] . " \n  *Serviço Executado: " . trim($RTA["FEITO"]) . "            Técnico: " . $TABUSER["NOME"]."*   ");	
+		}
+		
+		echo numerocelular($RTA["CELULAR"], "Chamado: ".$_GET["codigo"]." \n Solicitação: ". $RTA["ASSUNTO"] . " \n  *Serviço Executado: " . trim($RTA["FEITO"]) . "            Técnico: " . $TABUSER["NOME"]."*   ");
+	
 	}
 ?>
 
