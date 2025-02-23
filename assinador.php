@@ -1,6 +1,4 @@
 <?php
-
-echo "Esperando...\n";
 if (time_nanosleep(2, 500000000)) { // 2.5 segundos (2s + 500ms)
     echo "Continuando!\n";
 } else {
@@ -33,14 +31,14 @@ function signPdf($inputPdf, $outputPdf, $pfxPath, $pfxPassword, $logoPath) {
     $certInfo = openssl_x509_parse($certificate);
     $assinante = $certInfo['subject']['CN'] ?? 'Desconhecido';
     $issuer = $certInfo['issuer']['O'] ?? 'Emitente Desconhecido';
-    $validacaoSite = 'https://www.digicert.com/';
+    $validacaoSite =  $certInfo['issuer']['O'] ?? 'Emitente Desconhecido';;
 
     // Criar uma instância do FPDI
     $pdf = new Fpdi();
     $pageCount = $pdf->setSourceFile($inputPdf);
     $token = bin2hex(random_bytes(16));
     $pdfHash = hash('sha256', file_get_contents($inputPdf));
-    $dataHora = date('Y-m-d H:i:s');
+    $dataHora = date('d-m-Y H:i:s');
 
     for ($i = 1; $i <= $pageCount; $i++) {
         $templateId = $pdf->importPage($i);
