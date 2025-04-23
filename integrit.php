@@ -17,12 +17,12 @@
 		 
 		
 		
-		$servidor = "ga.sytes.net/30500:F:\SGBD\SUPDESK\GA\PESSOAL.FDB";
+		$servidor = "gasuporte.sytes.net/30500:F:\SGBD\SUPDESK\GA\PESSOAL.FDB";
 
 		if (!($conexao=ibase_connect(str_replace("'", "", $servidor), 'SYSDBA', 's@bia#:)ar@ra2021Ga','UTF-8', '9000', '1')))
 		die('Erro ao conectar: ' .  ibase_errmsg());
 
-		$servidor = "ga.sytes.net/30500:F:\SGBD\SUPDESK\CONTROLE.FDB";
+		$servidor = "gasuporte.sytes.net/30500:F:\SGBD\SUPDESK\CONTROLE.FDB";
 		if (!($controle=ibase_connect(str_replace("'", "", $servidor), 'SYSDBA', 's@bia#:)ar@ra2021Ga','UTF-8', '9000', '1')))
 		die('Erro ao conectar: ' .  ibase_errmsg());
 		

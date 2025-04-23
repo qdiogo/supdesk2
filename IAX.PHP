@@ -2,7 +2,7 @@
 <?php
 session_start(); 
     function generateAIContent($apiKey, $prompt) {
-        $url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key={$apiKey}";
+        $url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key={$apiKey}";
 
         $postData = json_encode([
             "contents" => [

@@ -178,6 +178,98 @@
 			 document.getElementById("texto2").innerHTML='';
 		}
 	}
+	
+  </script>
+  <script>
+	 function falarTexto() {
+      // Pega o valor do texto digitado no input
+      var texto = document.getElementById("textoconteudo").value;
+
+      // Verifica se há texto
+      if (texto !== "") {
+        var sintese = new SpeechSynthesisUtterance(texto); // Cria a instância da fala
+        
+        // Obtém todas as vozes disponíveis
+        var vozes = window.speechSynthesis.getVoices();
+
+        // Se as vozes não estiverem carregadas, tenta novamente
+        if (vozes.length === 0) {
+          setTimeout(falarTexto, 100); // Tenta novamente após 100ms
+          return;
+        }
+
+        // Seleciona uma voz feminina em português
+        for (var i = 0; i < vozes.length; i++) {
+          if (vozes[i].lang === "pt-BR" && vozes[i].name.toLowerCase().includes("feminine")) {
+            sintese.voice = vozes[i]; // Atribui a voz feminina em português
+            break;
+          }
+        }
+
+        // Caso não encontre uma voz feminina, seleciona a primeira voz em português
+        if (!sintese.voice) {
+          for (var i = 0; i < vozes.length; i++) {
+            if (vozes[i].lang === "pt-BR") {
+              sintese.voice = vozes[i]; // Atribui a primeira voz em português disponível
+              break;
+            }
+          }
+        }
+
+        // Ajusta a velocidade, tom e volume para algo mais natural e humano
+        sintese.rate = 1.4;   // Velocidade normal
+        sintese.pitch = -1;  // Tom de voz normal
+        sintese.volume = 100; // Volume máximo
+
+        // Faz a síntese de fala
+        window.speechSynthesis.speak(sintese);
+      } else {
+        alert("Por favor, digite algo!");
+      }
+    }
+
+    // Carregar vozes quando o evento 'voiceschanged' for disparado
+    window.speechSynthesis.onvoiceschanged = function() {
+      // Tenta falar o texto após as vozes estarem carregadas
+      falarTexto();
+    };
+  </script>
+  
+  <script>
+     // Verifica se o navegador suporta a API de Speech Recognition
+    var recognition = null;
+    if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
+      recognition = 'SpeechRecognition' in window ? new SpeechRecognition() : new webkitSpeechRecognition(); // Inicia o reconhecimento de fala
+      recognition.lang = "pt-BR"; // Define o idioma para português do Brasil
+      recognition.continuous = true; // Continua ouvindo até o usuário parar de falar
+      recognition.interimResults = true; // Exibe resultados intermediários enquanto o usuário fala
+      recognition.maxAlternatives = 1; // Limita o número de alternativas de resultados
+
+      // Quando a fala for reconhecida, adiciona o texto à textarea
+      recognition.onresult = function(event) {
+        var textoReconhecido = event.results[event.resultIndex][0].transcript;
+        document.getElementById("textotecnico").value = textoReconhecido; // Exibe na textarea
+      };
+
+      // Quando a gravação da fala é finalizada (usuário parou de falar)
+      recognition.onend = function() {
+        console.log("Reconhecimento de fala finalizado.");
+      };
+
+      // Em caso de erro no reconhecimento de fala
+      recognition.onerror = function(event) {
+        console.error("Erro no reconhecimento de fala: " + event.error);
+      };
+    } else {
+    }
+
+    // Função para iniciar o reconhecimento de fala
+    function iniciarReconhecimento() {
+      if (recognition) {
+        recognition.start(); // Inicia a captura de fala
+      } else {
+      }
+    }
   </script>
   <style>
 	.xresp{
@@ -306,6 +398,7 @@
 			<button type="button" class="close" data-dismiss="modal" aria-label="Fechar">
 				<span aria-hidden="true">&times;</span>
 			</button>
+			
 		  </div>
 		  <form method="post" action="fecharchamado.php?codigo=<?php echo $_GET["CODIGO"]?>">
 			<div class="modal-body">
@@ -528,13 +621,14 @@
 				<div class="card-header alert alert-info">
 			<?php } ?>
               <h3 class="card-title"><?PHP ECHO $xtab["ASSUNTO"]?></h3>
-              <p class="card-category">Protocolo:<?PHP ECHO $xtab["CODIGO"]?> Responsável: <?PHP ECHO $xtab["RESPONSAVEL"]?></p>
+              <p class="card-category">Protocolo:<?PHP ECHO $xtab["CODIGO"]?> Responsável: <?PHP ECHO $xtab["RESPONSAVEL"]?></p> </p>
             </div>
+			<input type="hidden" id="textoconteudo" value="<?PHP ECHO str_replace("/", "-",($xtab["CONTEUDO"]))?>">
             <div class="card-body">
               <div class="row">
                 <div class="col-md-7">
 					<div class="row">
-						<div class="col-md-12">
+						<div class="col-md-12" id="texto">
 							<p style="text-align: justify; text-justify: inter-word;"><?PHP ECHO $xtab["CONTEUDO"]?></p>
 						</div>
 							<?PHP if (!empty($xtab["FEITO"])){?>
@@ -576,7 +670,7 @@
 					</div>					
                 </div>
                 <div class="col-md-5" style="font-size: 20px;">
-                 <h4 class="card-title">Categorias do chamado</h4>
+                 <h4 class="card-title">Categorias do chamado <button onclick="falarTexto()" type="button">Reproduzir</button></h4>
 				<center class="col-md-12">
 					<?php $tabela= ibase_query ($conexao, $SQL);
 					 while ($xtab = ibase_fetch_assoc($tabela)){

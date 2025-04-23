@@ -57,6 +57,10 @@
 			$SQL=$SQL . " AND UPPER(E.RAZAOSOCIAL) LIKE '%" . strtoupper(TRIM($_POST["Empresa"])) . "%' ";
 			$Empresa=$_POST["Empresa"];
 		}
+		if (!empty($_POST["UNIDADENEGOCIO"]))
+		{
+			$SQL=$SQL . " AND M.UNIDADENEGOCIO=" . $_POST["UNIDADENEGOCIO"];
+		}
 		if (!empty($_SESSION["UNIDADENEGOCIO"]))
 		{
 			//$SQL=$SQL . " AND UNIDADE=" . $_SESSION["UNIDADENEGOCIO"];
@@ -101,6 +105,7 @@
 			</tr>
 			
 			<tr>
+				<td>Seq</td>
 				<td>N</td>
 				<td>Assunto</td> 
 				
@@ -118,9 +123,11 @@
 		</thead>
 		<tbody>
 			<?php
-				while ($xtab=$open=ibase_fetch_assoc($tabela)){ ?>
+				while ($xtab=$open=ibase_fetch_assoc($tabela)){ 
+				$i=$i +1 ;?>
 				
 				   <tr style="border: 1px solid black;">
+						<td><?php echo $i?></td> 
 						<td><?php echo $xtab["CODIGO"]?></td>        
 						<td><?php echo $xtab["ASSUNTO"]?></td> 
 						<td><?php echo $xtab["UNIDADE2"]?></td>        
@@ -151,8 +158,13 @@
 					<?php } ?>
 			<?php } ?>
 		</tbody>
+		<tr>
+			<td colspan=12>Total de Chamados: <?php echo $i?></td>
+		</tr>
     </table>
-	<?php }else{?>
+	<?php 
+	
+	}else{?>
 		<table width="100%">
 			<tr>
 				<td colspan=10><img width="400" height="80" class="img-rounded" src="<?PHP ECHO $_SESSION["LOGO"]?>"></td>

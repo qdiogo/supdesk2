@@ -73,12 +73,12 @@
 	$string = ".$email..$senha.";
 	$codificada = "'".md5($string)."'";
 	
-	$servidor1 = "ga.sytes.net/30500:F:\SGBD\SUPDESK\CONTROLE.FDB";
+	$servidor1 = "gasuporte.sytes.net/30500:F:\SGBD\SUPDESK\CONTROLE.FDB";
 	if (!($conexao1=ibase_connect(str_replace("'", "", $servidor1), 'SYSDBA', 's@bia#:)ar@ra2021Ga','UTF8', '100', '1')))
 	die('Erro ao conectar: ' .  ibase_errmsg());
 
 	$CNPJ=$_SESSION["XLOG_DB"];
-	$servidor = "ga.sytes.net/30500:F:\SGBD\SUPDESK\'$CNPJ\pessoal.fdb";
+	$servidor = "gasuporte.sytes.net/30500:F:\SGBD\SUPDESK\'$CNPJ\pessoal.fdb";
 	
 	$SQLw="SELECT CODIGO FROM HASH WHERE HASH=".$codificada." AND TIPO='T' " ; 
 	$tabelaX=ibase_query($conexao1,$SQLw); 

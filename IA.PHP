@@ -2,13 +2,15 @@
 <?php
 session_start(); 
     function generateAIContent($apiKey, $prompt) {
-        $url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key={$apiKey}";
+        $url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key={$apiKey}";
 
         $postData = json_encode([
             "contents" => [
                 [
                     "parts" => [
-                        ["text" => $prompt]
+                        ["text" => $prompt],
+						["text" => "um bom texto e limpo, sem Assunto"],
+						["text" => $_GET["tipo"]]
                     ]
                 ]
             ],
@@ -60,15 +62,16 @@ session_start();
         }
     }
 
-    $apiKey="AIzaSyDUGbQFwT8B-b9B2B08F78dTS3X7iZfShs";
+    $apiKey="AIzaSyDgIYPsyX6e2FCdlqe_kfq8cXbf-f5ixqE";
 	
 	function tirarAcentos($string){
 		return preg_replace(array("/(á|à|ã|â|ä)/","/(Á|À|Ã|Â|Ä)/","/(é|è|ê|ë)/","/(É|È|Ê|Ë)/","/(í|ì|î|ï)/","/(Í|Ì|Î|Ï)/","/(ó|ò|õ|ô|ö)/","/(Ó|Ò|Õ|Ô|Ö)/","/(ú|ù|û|ü)/","/(Ú|Ù|Û|Ü)/","/(ñ)/","/(Ñ)/"),explode(" ","a A e E i I o O u U n N"),$string);
 	}
 	
-    $prompt="".$_GET["tipo"].", sem *, sem Assunto: ".tirarAcentos($_GET["texto"]);
+    $prompt="sem *, sem Assunto: ".tirarAcentos($_GET["texto"]);
 
     $generatedText = generateAIContent($apiKey, $prompt);
+	$generatedText=str_replace("Formalização do texto concluída.","","".$generatedText."");
 	$generatedText=str_replace("[Seu nome]","".$_SESSION["NOMEUSUARIO"]."","".$generatedText."");
 	$generatedText=str_replace("[Nome do destinatário]","Cliente","".$generatedText."");
 	$generatedText=str_replace("[Nome do Destinatário]","Cliente","".$generatedText."");

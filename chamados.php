@@ -102,7 +102,7 @@
 		$('#dataTable').DataTable( {
 			"order": [[ 0, "desc"], [3, "asc"], [4, "desc" ]],
 			"language": {
-				"lengthMenu": " _MENU_ Registros (Para direcionar ou abrir o modo de visualização simples. clique duas vezes encima do registro!)",
+				"lengthMenu": " _MENU_ Registros (Para direcionar ou abrir o modo de visualização simples, clique duas vezes sobre",
 				"zeroRecords": "Nenhum registro encontrado!",
 				"info": "Páginas _PAGE_ até _PAGES_",
 				"infoEmpty": "Nenhum registro encontrado!",

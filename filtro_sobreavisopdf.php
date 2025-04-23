@@ -46,6 +46,19 @@
 								</select>
 							</div>
 							<div class="col-md-6">
+								<label class="basic-url">Unidade</label>
+								<select name="UNIDADENEGOCIO" id="UNIDADENEGOCIO" class="form-control">
+									<option></option>
+									<?php
+									$SQL1="SELECT CODIGO, RAZAOSOCIAL FROM UNIDADENEGOCIO ORDER BY RAZAOSOCIAL ASC";
+									$tabelaX=ibase_query($conexao,$SQL1); 
+									while ($rowX=ibase_fetch_assoc($tabelaX)){ ?>
+									   <option value="<?php ECHO $rowX["CODIGO"]?>"><?php ECHO $rowX["RAZAOSOCIAL"]?></option>  
+									<?php
+									}?>  
+								</select>
+							</div>
+							<div class="col-md-6">
 								<label class="basic-url">Técnicos</label>
 								<select name="usuario" id="usuario" class="form-control">
 									<option></option>

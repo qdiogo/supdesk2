@@ -38,6 +38,10 @@ if (!empty($_POST["Empresa"]))
 	$SQL=$SQL . " AND UPPER((SELECT FIRST 1 RAZAOSOCIAL FROM EMPRESAS WHERE CODIGO=EMPRESA)) LIKE '%" . strtoupper(TRIM($_POST["Empresa"])) . "%' ";
 	$Empresa=$_POST["Empresa"];
 }
+if (!empty($_POST["UNIDADENEGOCIO"]))
+{
+	$SQL=$SQL . " AND SOBREAVISO_CHAMADOS2.UNIDADE=" . $_POST["UNIDADENEGOCIO"];
+}
 if (!empty($_POST["usuario"]))
 {
 	$SQL=$SQL . " AND UPPER(S.USUARIO) = " . strtoupper(TRIM($_POST["usuario"])) . "";
@@ -102,6 +106,10 @@ if (!empty($_POST["usuario"]))
 {
 	$SQL=$SQL . " AND UPPER(S.USUARIO) = " . strtoupper(TRIM($_POST["usuario"])) . "";
 }
+if (!empty($_POST["UNIDADENEGOCIO"]))
+{
+	$SQL=$SQL . " AND SOBREAVISO_CHAMADOS2.UNIDADE=" . $_POST["UNIDADENEGOCIO"];
+}
 $SQL=$SQL . " GROUP BY SOBREAVISO_CHAMADOS2.UNIDADE, EMPRESA ";
 $SQL=$SQL . "  ORDER BY COUNT(S.CODIGO) DESC  ";
 
@@ -152,6 +160,10 @@ if (!empty($_POST["Empresa"]))
 if (!empty($_POST["usuario"]))
 {
 	$SQL=$SQL . " AND UPPER(S.USUARIO) = " . strtoupper(TRIM($_POST["usuario"])) . "";
+}
+if (!empty($_POST["UNIDADENEGOCIO"]))
+{
+	$SQL=$SQL . " AND SOBREAVISO_CHAMADOS2.UNIDADE=" . $_POST["UNIDADENEGOCIO"];
 }
 $SQL=$SQL . " GROUP BY S.USUARIO ";
 $SQL=$SQL . "  ORDER BY count(S.CODIGO) DESC  ";

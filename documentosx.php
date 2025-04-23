@@ -1,7 +1,7 @@
 <?php
 	$CHAVE = '7236729y2983372a727r6237a623r762a376377';
 	if ($_GET['CHAVE']=$CHAVE){
-		$servidor = "ga.sytes.net/30500:F:\SGBD\SUPDESK\GA\PESSOAL.FDB";
+		$servidor = "gasuporte.sytes.net/30500:F:\SGBD\SUPDESK\GA\PESSOAL.FDB";
 		if (!($conexao=ibase_connect(str_replace("'", "", $servidor), 'SYSDBA', 's@bia#:)ar@ra2021Ga','UTF8', '100', '1')))
 		die('Erro ao conectar: ' .  ibase_errmsg());
 
