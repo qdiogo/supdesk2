@@ -102,7 +102,7 @@ $row=ibase_fetch_assoc($tabela);
     <div class="card-header py-3 sistema2"> 
         <h6 class="m-0 font-weight-bold"><?php echo $ACESSO?></h6> 
     </div>
-    <form method="post" action="cliente_dados2.php">    
+    <form method="post" action="cliente_dados2.php?MUDANCASENHA=S">    
     <div class="modal-body">  
     <?php if (isset($ATITUDE)){?>  
         <input type="hidden" name="CODIGO" value="<?php ECHO $row["CODIGO"]?>" id="CODIGO" maxlength="4" class="form-control">  

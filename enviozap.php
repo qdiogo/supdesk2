@@ -33,7 +33,24 @@ $response = file_get_contents($url);
 // Verificar se a requisição foi bem-sucedida
 
 // URL do endpoint para enviar a mensagem
-$url = 'http://gasuporte.sytes.net:7000/enviarmensagem/'.$numero.'/' . str_replace('+', '%20', (urlencode(removerAcentos($_GET["text"]))));
+if (!empty($_SESSION["USUARIO"]))
+{
+	$usuario="";
+	if ($_SESSION["USUARIO"]=="35"){
+		$usuario="diogo";
+	}elseif ($_SESSION["USUARIO"]=="27"){
+		$usuario="carlos";
+	}elseif ($_SESSION["USUARIO"]=="86"){
+		$usuario="nicolas";
+	}elseif ($_SESSION["USUARIO"]=="39"){
+		$usuario="jeferson";
+	}elseif ($_SESSION["USUARIO"]=="80"){
+		$usuario="kevin";
+	}elseif ($_SESSION["USUARIO"]=="48"){
+		$usuario="marcio";
+	}
+}
+$url = 'http://gasuporte.sytes.net:7000/enviarmensagem/'.$numero.'/' . str_replace('+', '%20', (urlencode(removerAcentos($_GET["text"])))) . '?nome=' . $usuario;
 
 // Fazer a requisição GET para o endpoint
 $response = file_get_contents($url);

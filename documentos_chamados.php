@@ -56,8 +56,8 @@
 				$error = array();
 		 
 				// Verifica se o arquivo é uma imagem
-				if(!preg_match("/^image\/(pjpeg|jpeg|png|gif|bmp||pdf||xls)$/", $foto["type"])){
-				   //$error[1] = "Esse documento não é valido.";
+				if(!preg_match("/^image\/(pjpeg|jpeg|png|gif|bmp|pdf|xls)$/", $foto["type"])){
+				   $error[1] = "Esse documento não é valido.";
 				} 
 			
 				// Pega as dimensões da imagem
@@ -80,7 +80,6 @@
 		 
 				// Se não houver nenhum erro
 				if (count($error) == 0) {
-				
 					// Pega extensão da imagem
 					preg_match("/\.(gif|bmp|png|jpg|jpeg){1}$/i", $foto["name"], $ext);
 					// Gera um nome único para a imagem

@@ -124,7 +124,23 @@
 	$HTMLX= $HTMLX. '<td colspan="3">Solicitado <br> <strong>'.$RTA["CONTEUDO"].'</strong> <BR><BR> Resposta do Técnico <br><br> <strong>'.$_POST["COMENTARIO"].'</strong></td>';
 	$HTMLX= $HTMLX. '</tr>';
 	$HTMLX= $HTMLX. '<tr> ';
-	$HTMLX= $HTMLX. '<td colspan="3"><br> Técnico Responsável <br> '.$TABUSER["NOME"].' </td>';
+	
+	$usuario="";
+	if ($_SESSION["USUARIO"]=="35"){
+		$usuario="diogo";
+	}elseif ($_SESSION["USUARIO"]=="27"){
+		$usuario="carlos";
+	}elseif ($_SESSION["USUARIO"]=="86"){
+		$usuario="nicolas";
+	}elseif ($_SESSION["USUARIO"]=="39"){
+		$usuario="jeferson";
+	}elseif ($_SESSION["USUARIO"]=="80"){
+		$usuario="kevin";
+	}elseif ($_SESSION["USUARIO"]=="48"){
+		$usuario="marcio";
+	}
+	
+	$HTMLX= $HTMLX. '<td colspan="3"><br> <img src="http://www.webmedical.com.br/downloads/imagemcartao/'.$usuario.'.png"> </td>';
 	$HTMLX= $HTMLX. '</tr>';
 	$HTMLX= $HTMLX. '</body></html>';
 	

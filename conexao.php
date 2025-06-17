@@ -272,18 +272,39 @@ function rtf2text($filename) {
 	
 	
 	function numerocelular($numero, $mensagem) {
-		$mensagem=str_replace('/','%20',$mensagem);
-		$mensagem=str_replace('"','*', $mensagem);
-		$mensagem = preg_replace('/[^A-Za-z0-9\s]/', '', $mensagem);
-		
-		if (strlen($numero)==11){
-			$numerox=substr($numero,0,2) . substr($numero,3,10);
-		}else{
-			$numerox=substr($numero,0,2) . substr($numero,2,10);
+		// Limpa e prepara a mensagem
+		$mensagem = str_replace('/', '%20', $mensagem);
+		$mensagem = str_replace('"', '*', $mensagem);
+		$mensagem = str_replace('<br>', '\n', $mensagem);
+
+		if (strlen($numero) == 11) {
+			$numerox = substr($numero, 0, 2) . substr($numero, 3, 10);
+		} else {
+			$numerox = substr($numero, 0, 2) . substr($numero, 2, 10);
 		}
-	?>
-		<iframe style="position: absolute;width:0;height:0;border:0;" src='http://gasuporte.sytes.net:7000/enviarmensagem/<?php echo $numerox?>/<?php echo $mensagem?>                                                                                                     *Por favor responder via chamado*'></iframe>
-	<?php }
+		if (!empty($_SESSION["USUARIO"]))
+{
+			$usuario="";
+			if ($_SESSION["USUARIO"]=="35"){
+				$usuario="diogo";
+			}elseif ($_SESSION["USUARIO"]=="27"){
+				$usuario="carlos";
+			}elseif ($_SESSION["USUARIO"]=="86"){
+				$usuario="nicolas";
+			}elseif ($_SESSION["USUARIO"]=="39"){
+				$usuario="jeferson";
+			}elseif ($_SESSION["USUARIO"]=="80"){
+				$usuario="kevin";
+			}elseif ($_SESSION["USUARIO"]=="48"){
+				$usuario="marcio";
+			}
+		}
+		?>
+		<iframe style="position: absolute;width:0;height:0;border:0;" 
+				src='http://gasuporte.sytes.net:7000/enviarmensagem/<?php echo $numerox ?>/<?php echo $mensagem ?> *Por favor responder via chamado* ?nome=<?php echo $usuario?>'>
+		</iframe>
+<?php
+	}
 ?>
 
 

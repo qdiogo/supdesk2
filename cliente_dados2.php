@@ -61,7 +61,12 @@
 		$sql="INSERT INTO CLIENTES (NOME, EMAIL, SENHA, EMPRESA, CELULAR, TELEFONE, SETOR, NIVEL, MD5, UNIDADE) VALUES (".$nome.", ".$email.", ".$senha.", ".$xempresa.", ".$CELULAR.", ".$TELEFONE.", ".$SETOR.", ".$NIVEL.", ".$codificada.", ".$UNIDADE.")";
 		$tabela= ibase_query ($conexao, $sql);
 	}else{
-		$sql="UPDATE CLIENTES SET SETOR=".$SETOR.", NOME=".$nome.", SENHA=".$senha.", EMAIL=".$email.", MD5=".$codificada.", TELEFONE=".$TELEFONE.", CELULAR=".$CELULAR.", NIVEL=".$NIVEL.", UNIDADE=".$UNIDADE.", EMPRESA=".$xempresa." WHERE CODIGO=" .$_POST["CODIGO"];
+		if (!empty($_GET["MUDANCASENHA"]))
+		{
+			$sql="UPDATE CLIENTES SET SETOR=".$SETOR.", NOME=".$nome.", SENHA=".$senha.", EMAIL=".$email.", MD5=".$codificada.", TELEFONE=".$TELEFONE.", CELULAR=".$CELULAR." WHERE CODIGO=" .$_POST["CODIGO"];
+		}else{
+			$sql="UPDATE CLIENTES SET SETOR=".$SETOR.", NOME=".$nome.", SENHA=".$senha.", EMAIL=".$email.", MD5=".$codificada.", TELEFONE=".$TELEFONE.", CELULAR=".$CELULAR.", NIVEL=".$NIVEL.", UNIDADE=".$UNIDADE.", EMPRESA=".$xempresa." WHERE CODIGO=" .$_POST["CODIGO"];
+		}
 		$tabela= ibase_query ($conexao, $sql);
 	}
 	
