@@ -56,9 +56,11 @@
 				$error = array();
 		 
 				// Verifica se o arquivo é uma imagem
-				if(!preg_match("/^image\/(pjpeg|jpeg|png|gif|bmp|pdf|xls)$/", $foto["type"])){
-				   $error[1] = "Esse documento não é valido.";
-				} 
+				
+				if (preg_match("/application\/(msword|vnd.openxmlformats-officedocument.wordprocessingml.document)/", $foto["type"])) {
+					$error[1] = "Esse documento não é válido.";
+				}
+				
 			
 				// Pega as dimensões da imagem
 				$dimensoes = getimagesize($foto["tmp_name"]);

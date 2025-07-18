@@ -110,7 +110,7 @@
 	$HTMLX= $HTMLX. '	h = screen.height;';
 	$HTMLX= $HTMLX. '	meio1 = (h-1000)/2;';
 	$HTMLX= $HTMLX. '	meio2 = (w-1200)/2;';
-	$HTMLX= $HTMLX. 'window.open("http://gasuporte.sytes.net/30500:5008/satistafacao.php?CHAMADO='.$_GET["CODIGO"].'","Consulta","height=" + 900 + ", width=" + 1200 + ", top="+meio1+", left="+meio2+"");';
+	$HTMLX= $HTMLX. 'window.open("http://ga.sytes.net/30500:5008/satistafacao.php?CHAMADO='.$_GET["CODIGO"].'","Consulta","height=" + 900 + ", width=" + 1200 + ", top="+meio1+", left="+meio2+"");';
 	$HTMLX= $HTMLX. '} ';
 	$HTMLX= $HTMLX. '</script></head><body>';
 	//$SQLX="UPDATE CHAMADOS SET ENVIADO_EMAIL='S' WHERE CODIGO=" . ='".$_GET["codigo"]."';
