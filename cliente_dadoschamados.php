@@ -76,6 +76,14 @@
 	}
 	
 	if (empty($_POST["CODIGO"])){
+		$SQLXX= "SELECT CODIGO FROM CHAMADOS WHERE CLIENTE=".$_SESSION["USUARIOX"]." AND STATUS='F' AND ASSINADO_USER IS NULL ORDER BY CODIGO DESC ";
+		$tabelaw2=ibase_query($conexao,$SQLXX); 
+		$open2=ibase_fetch_assoc($tabelaw2);
+		if (!empty($open2))
+		{
+			echo "<script>alert('Existem chamados que ainda precisam ser validados N° ".$open2["CODIGO"].".'); history.go(-1)</script>";
+			exit;
+		}
 		$SQLX= "SELECT CODIGO FROM CHAMADOS WHERE ASSUNTO=".$assunto." AND DATAHORA='". date('Y-m-d H:i:s') ."' AND CLIENTE=".$_SESSION["USUARIOX"]." ";
 		$tabelaw=ibase_query($conexao,$SQLX); 
 		$open=ibase_fetch_assoc($tabelaw);

@@ -55,6 +55,18 @@
 			location.href="status?CODIGO="  + chave + "&STATUS=" + STATUS;
 		}
 	}
+
+	function assinarchamado(indice)
+	{
+		if (confirm("Deseja Realmente assinar esse chamado?")==true)
+		{
+			location.href="assinarchamado?CODIGO=" + indice;
+		}
+		else
+		{
+			alert("Assinatura cancelada!");
+		}
+	}
 	
 	function abrirarquivos(indice)
 	{
@@ -210,7 +222,7 @@ if (!empty($_GET["TIPO"]))
 }else{
 	$_SESSION["TIPO"]="";
 }
-$SQL="SELECT M.CODIGO, E.RAZAOSOCIAL, SE.DESCRICAO AS NOMESETOR, M.UNIDADENEGOCIO, (SELECT FIRST 1 RAZAOSOCIAL FROM UNIDADENEGOCIO WHERE CODIGO=M.UNIDADENEGOCIO) AS UNIDADE2, CAST(M.FEITO AS VARCHAR(20000)) AS FEITO, (U.RAZAOSOCIAL) AS NOMEUNIDADE, M.DATAHORA, M.EMAIL, M.TELEFONE, M.CELULAR, M.RESPONSAVEL, M.SUBCATEGORIA, S.DESCRICAO AS NOMESUBCATEGORIA, CA.DESCRICAO AS NOMECATEGORIA, CAST(CONTEUDO AS VARCHAR(20000)) AS CONTEUDO, M.CATEGORIA, M.ASSUNTO, M.EMPRESA, COALESCE(RESPONSAVEL,COALESCE(C.NOME,T.NOME)) AS NOME, UPPER(C.SETOR) AS SETOR, M.USUARIO, (SELECT DESCRICAO FROM MANUTENCAO WHERE CODIGO=M.manutencao) AS MANUTENCAO, (T.NOME) AS NOMETECNICO, M.TECNICO, (SELECT DESCRICAO FROM CATEGORIA WHERE CODIGO=M.CATEGORIA) AS CATEGORIA, M.ASSUNTO, M.AGENDAMENTO, M.PRIORIDADE, M.STATUS FROM CHAMADOS M ".
+$SQL="SELECT M.CODIGO, E.RAZAOSOCIAL, SE.DESCRICAO AS NOMESETOR, ASSINADO_USER, M.UNIDADENEGOCIO, (SELECT FIRST 1 RAZAOSOCIAL FROM UNIDADENEGOCIO WHERE CODIGO=M.UNIDADENEGOCIO) AS UNIDADE2, CAST(M.FEITO AS VARCHAR(20000)) AS FEITO, (U.RAZAOSOCIAL) AS NOMEUNIDADE, M.DATAHORA, M.EMAIL, M.TELEFONE, M.CELULAR, M.RESPONSAVEL, M.SUBCATEGORIA, S.DESCRICAO AS NOMESUBCATEGORIA, CA.DESCRICAO AS NOMECATEGORIA, CAST(CONTEUDO AS VARCHAR(20000)) AS CONTEUDO, M.CATEGORIA, M.ASSUNTO, M.EMPRESA, COALESCE(RESPONSAVEL,COALESCE(C.NOME,T.NOME)) AS NOME, UPPER(C.SETOR) AS SETOR, M.USUARIO, (SELECT DESCRICAO FROM MANUTENCAO WHERE CODIGO=M.manutencao) AS MANUTENCAO, (T.NOME) AS NOMETECNICO, M.TECNICO, (SELECT DESCRICAO FROM CATEGORIA WHERE CODIGO=M.CATEGORIA) AS CATEGORIA, M.ASSUNTO, M.AGENDAMENTO, M.PRIORIDADE, M.STATUS FROM CHAMADOS M ".
 "INNER JOIN EMPRESAS E ON (E.CODIGO=M.EMPRESA) ".
 "LEFT JOIN CLIENTES C ON (C.CODIGO=COALESCE(M.CLIENTE,M.TECNICO)) ".
 "LEFT JOIN UNIDADENEGOCIO U ON (U.CODIGO=C.UNIDADE) ".
@@ -254,7 +266,7 @@ if (ISSET($_GET["ATITUDE"])){
 			$SQL=$SQL . " (M.STATUS IS NULL OR M.STATUS='' OR  M.STATUS='PA' OR M.STATUS='A' OR  M.STATUS='PL' OR M.STATUS='AG')  ";
 		}
 	}else{
-		$SQL=$SQL . "AND (M.STATUS <> 'F' OR  M.STATUS IS NULL) ";	
+		$SQL=$SQL . "AND (M.STATUS <> 'F' OR  M.STATUS IS NULL OR ASSINADO_USER IS NULL) ";	
 	}
 	$UNIDADENEGOCIO_MULTIPLA="";
 	
@@ -495,6 +507,7 @@ if (ISSET($_GET["ATITUDE"])){
 						<th>Responsável</th>
 						<th>Data/Hora</th>
 						<th>Status</th>
+						<th>Validado</th>
 						<th><center>Setor</center></th>
 						<th><center>Contato</center></th>
 						<th style="width: 160px;"><button title="Abrir Novo Chamado" class="btn btn-success" type="button" onclick="alterar('0')"> Novo Chamado <i class="fas fa-plus-square"></i></button></th>  
@@ -509,6 +522,7 @@ if (ISSET($_GET["ATITUDE"])){
 						<th>Responsável</th>
 						<th>Data/Hora</th>
 						<th>Status</th>
+						<th>Validado</th>
 						<th><center>Setor</center></th>
 						<th><center>Contato</center></th>
 						<th>Ação</th>
@@ -544,6 +558,12 @@ if (ISSET($_GET["ATITUDE"])){
 								<button class="btn btn-success"><i class="fas fa-thumbs-up"></i></button>
 							<?php } ?>
 						</td>
+						<td width=1>
+							<?PHP if (!empty($xtab["ASSINADO_USER"])) {?>
+								<button class="btn btn-success"><i class="fas fa-thumbs-up"></i></button>
+							<?php } ?>
+						</td>
+						
 						<td style="paddinC: 10px;">
 							<center>
 								<?PHP 									
@@ -567,10 +587,13 @@ if (ISSET($_GET["ATITUDE"])){
 								<td colspan=5>
 									<div class="btn-group btn-group-justified" role="group" aria-label="...">
 									<div class="btn-group" role="group">
-										<button class="btn btn-success" onclick="chamado_tela(<?PHP ECHO $xtab["CODIGO"]?>)"><i class="fas fa-edit"></i></button>
+										<button class="btn btn-primary" title='Visualizar Chamado' onclick="chamado_tela(<?PHP ECHO $xtab["CODIGO"]?>)"><i class="fas fa-edit"></i></button>
 									</div>
 									<div class="btn-group" role="group">
-										<button class="btn btn-dark" onclick="abrirarquivos(<?PHP ECHO $xtab["CODIGO"]?>)"><i class="far fa-folder-open"></i></button>
+										<button class="btn btn-dark" title='Anexar arquivos no Chamado' onclick="abrirarquivos(<?PHP ECHO $xtab["CODIGO"]?>)"><i class="far fa-folder-open"></i></button>
+									</div>
+									<div class="btn-group" role="group">
+										<button class="btn btn-success" title='Validar Chamado' onclick="assinarchamado(<?PHP ECHO $xtab["CODIGO"]?>)"><i class="fa fa-assistive-listening-systems"></i></button>
 									</div>
 								</td>
 							</table>
