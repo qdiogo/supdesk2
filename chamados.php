@@ -776,10 +776,11 @@ if (ISSET($_GET["ATITUDE"]))
 					}
 					$interval = $datetime1->diff($datetime2);
 					
-					$MUDACOR=$MUDACOR + 1;
+					
 					$sequencia=$xtab["CODIGO"];
 					if ($empresa!=$xtab["RAZAOSOCIAL"]){
 						$empresa=$xtab["RAZAOSOCIAL"];
+						$MUDACOR=0;
 					?> 
 					<tr style="background-image: linear-gradient(to right top, #504a55, #48444d, #403d46, #39373e, #323137);  text-align:center; font-weight:bold; color:white;">
 						<td></td>
@@ -798,7 +799,10 @@ if (ISSET($_GET["ATITUDE"]))
 						
 						
 					</tr>
-					<?php } 
+					<?php }
+					
+					$MUDACOR=$MUDACOR + 1;
+					
 					if ((!EMPTY($xtab["MONITORADO"]))) {?>
 						<tr title="<?PHP ECHO  str_replace('"', "", $xtab["CONTEUDO"]);?>" bgcolor="FFFF00" style="font-weight:bold; COLOR:WHITE; border-radius: 25px;" ondblclick='location.href="chamados.php?ATITUDE=<?PHP ECHO $xtab["CODIGO"]?>&TIPO=<?php echo $_SESSION["TIPO"]?>"'>
 					<?php }else{?>
