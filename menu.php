@@ -57,6 +57,7 @@
 	  <div class="bg-white py-2 collapse-inner rounded">
 		<h6 class="collapse-header">Modulo</h6>
 		<a class="collapse-item" href="chamados"> <i class="fas fa-clipboard-check"></i> Chamados </a>
+		<a class="collapse-item" href="chamados?TIPO=5"> <i class="fas fa-clipboard-check"></i> Chamados (Pendentes) </a>
 		<a class="collapse-item" href="chamados?TIPO=2"> <i class="fas fa-clipboard-check"></i> Chamados (Fechados) </a>
 		<a class="collapse-item" href="chamados?TIPO=3"> <i class="fas fa-clipboard-check"></i> Chamados (Pausa) </a>
 		<a class="collapse-item" href="chamados?TIPO=4"> <i class="fas fa-clipboard-check"></i> Meus Chamados </a>

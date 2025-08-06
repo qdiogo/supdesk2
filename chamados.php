@@ -228,22 +228,27 @@ if (ISSET($_GET["ATITUDE"]))
 }else{ 
 	
 	if (!empty($_SESSION["TIPO"])){
-		if ($_SESSION["TIPO"]=="1")
+		if ($_SESSION["TIPO"]=="5")
 		{
-			$SQL=$SQL . " AND (M.STATUS = 'AG' AND M.TECNICO=" . $_SESSION["USUARIO"]. ")";
-		}else if ($_SESSION["TIPO"]=="2"){		
-			$SQL=$SQL . "AND (M.STATUS = 'F') ";
-		}else if ($_SESSION["TIPO"]=="3"){
-			$SQL=$SQL . " AND (M.STATUS='PA') ";
-		}else if ($_SESSION["TIPO"]=="4"){
-			$SQL=$SQL . " AND (M.TECNICO=" . $_SESSION["USUARIO"] . ")";
-			$SQL=$SQL . " AND (M.STATUS <> 'F' OR M.STATUS IS NULL) ";
+			$SQL=$SQL . " AND (M.STATUS = 'F') AND ASSINADO_USER IS NULL ";
 		}else{
-			$SQL=$SQL . " (M.STATUS IS NULL OR M.STATUS='' OR  M.STATUS='PA' OR M.STATUS='A' OR  M.STATUS='PL' OR M.STATUS='AG')  ";
+			if ($_SESSION["TIPO"]=="1")
+			{
+				$SQL=$SQL . " AND (M.STATUS = 'AG' AND M.TECNICO=" . $_SESSION["USUARIO"]. ")";
+			}else if ($_SESSION["TIPO"]=="2"){		
+				$SQL=$SQL . "AND (M.STATUS = 'F') ";
+			}else if ($_SESSION["TIPO"]=="3"){
+				$SQL=$SQL . " AND (M.STATUS='PA') ";
+			}else if ($_SESSION["TIPO"]=="4"){
+				$SQL=$SQL . " AND (M.TECNICO=" . $_SESSION["USUARIO"] . ")";
+				$SQL=$SQL . " AND (M.STATUS <> 'F' OR M.STATUS IS NULL) ";
+			}else{
+				$SQL=$SQL . " (M.STATUS IS NULL OR M.STATUS='' OR  M.STATUS='PA' OR M.STATUS='A' OR  M.STATUS='PL' OR M.STATUS='AG')  ";
+			}
 		}
 		
 	}else{
-		$SQL=$SQL . " AND (M.STATUS <> 'F' OR M.STATUS IS NULL) OR ASSINADO_USER IS NULL ";	
+		$SQL=$SQL . " AND (M.STATUS <> 'F' OR M.STATUS IS NULL) AND ASSINADO_USER IS NULL ";	
 	}
 	if (!empty($_SESSION["UNIDADENEGOCIO"]))
 	{
