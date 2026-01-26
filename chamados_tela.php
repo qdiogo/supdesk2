@@ -693,6 +693,12 @@
 							
 								<td class="npe"><center>Whatsapp</center><BR>
 									<img src="/geraqrcode.php?s=qrl&d=https://api.whatsapp.com/send?phone=+55<?PHP ECHO $xtab["CELULAR"]?>&text=Ola chamado aberto com no numero de protocolo <?PHP ECHO $xtab["CODIGO"]?> podemos verificar ? Segue o assunto, <?PHP ECHO $xtab["ASSUNTO"]?>&chs=120x120" alt="<?PHP ECHO $xtab["CELULAR"]?>"/>
+									
+									<a href="https://api.whatsapp.com/send?phone=55<?php echo $xtab["CELULAR"]; ?>&text=Ola chamado aberto com no numero de protocolo <?php echo $xtab["CODIGO"]; ?> podemos verificar ? Segue o assunto, <?php echo $xtab["ASSUNTO"]; ?>" 
+									   target="_blank" 
+									   style="display: inline-block; background-color: #25D366; color: white; padding: 10px 20px; text-decoration: none; border-radius: 8px; font-weight: bold; font-family: Arial, sans-serif; border: 2px solid #25D366;">
+									   WhatsApp
+									</a>
 								</td>
 							</DIV>
 						</td>

@@ -76,7 +76,7 @@
 			$SQL=$SQL . " AND UPPER(T.CODIGO) = " . strtoupper(TRIM($_POST["usuario"])) . "";
 			$usuario=$_GET["usuario"];
 		}
-        $SQL=$SQL . " AND CAST((SELECT FIRST 1 DATA FROM HISTORICO_AT_CHAMADOS WHERE CHAMADO=M.CODIGO ORDER BY DATA DESC) AS DATE)>='".$_POST["data1"]."' AND CAST((SELECT FIRST 1 DATA FROM HISTORICO_AT_CHAMADOS WHERE CHAMADO=M.CODIGO ORDER BY DATA DESC) AS DATE)<='".$_POST["data2"]."' ";
+        $SQL=$SQL . " AND CAST(M.DATAHORA AS DATE)>='".$_POST["data1"]."' AND CAST(M.DATAHORA AS DATE)<='".$_POST["data2"]."' ";
         $SQL=$SQL . " ORDER BY E.CODIGO ASC, M.UNIDADENEGOCIO ASC, M.DATAHORA DESC";
         $tabela=ibase_query($conexao,$SQL); 
 
@@ -95,13 +95,13 @@
         <thead>
 			<tr>
 				<td colspan=10><img width="400" height="80" class="img-rounded" src="<?PHP ECHO $_SESSION["LOGO"]?>"></td>
-				<td colspan=12><h2><?php echo $_SESSION["UNIDADE"]?></h2></td>
+				<td COLSPAN=13><h2><?php echo $_SESSION["UNIDADE"]?></h2></td>
 			</tr>
 			<tr>
-				<td colspan=12 aling="center"><h2><center>Listagem de Chamados </center></h2></td>
+				<td COLSPAN=13 aling="center"><h2><center>Listagem de Chamados </center></h2></td>
 			</tr>
 			<tr>
-				<td colspan=12><h6>Intervalo: De <?php echo date("d/m/Y",strtotime($_POST["data1"]))?> Até <?php echo  date("d/m/Y",strtotime($_POST["data2"]))?>,  Status do chamado: <?php echo $filtro?> </h6></td>
+				<td COLSPAN=13><h6>Intervalo: De <?php echo date("d/m/Y",strtotime($_POST["data1"]))?> Até <?php echo  date("d/m/Y",strtotime($_POST["data2"]))?>,  Status do chamado: <?php echo $filtro?> </h6></td>
 			</tr>
 			
 			<tr>
@@ -138,7 +138,7 @@
 						<td><?php echo $xtab["NOMETECNICO"]?></td>
 						<td><?php echo $xtab["STATUS"]?></td>
 						<td><?php echo $xtab["NOMECATEGORIA"]?></td>
-						
+						<td></td>
 						<td align="right">
 							<?php if ($xtab["MONITORADO"]=="S") { ?>
 								Aguardando Liberação
@@ -149,17 +149,17 @@
 
 					</tr>
 					<tr>
-						<td COLSPAN=12>Chamado N° <?php echo $xtab["CODIGO"]?> - <?php echo $xtab["CONTEUDO"]?></td>
+						<td COLSPAN=13>Chamado N° <?php echo $xtab["CODIGO"]?> - <?php echo $xtab["CONTEUDO"]?></td>
 					</tr>
 					<?PHP if (!empty($xtab["FEITO"])){?>
 					<tr>
-						<td COLSPAN=12 style="color:red; font-weight:bold">Resposta: <?php echo $xtab["FEITO"]?></td>
+						<td COLSPAN=13 style="color:red; font-weight:bold">Resposta: <?php echo $xtab["FEITO"]?></td>
 					</tr>
 					<?php } ?>
 			<?php } ?>
 		</tbody>
 		<tr>
-			<td colspan=12>Total de Chamados: <?php echo $i?></td>
+			<td COLSPAN=13>Total de Chamados: <?php echo $i?></td>
 		</tr>
     </table>
 	<?php 
@@ -168,17 +168,17 @@
 		<table width="100%">
 			<tr>
 				<td colspan=10><img width="400" height="80" class="img-rounded" src="<?PHP ECHO $_SESSION["LOGO"]?>"></td>
-				<td colspan=12><h2><?php echo $_SESSION["UNIDADE"]?></h2></td>
+				<td COLSPAN=13><h2><?php echo $_SESSION["UNIDADE"]?></h2></td>
 			</tr>
 			<tr>
-				<td colspan=12 aling="center"><h2><center>Listagem de Chamados </center></h2></td>
+				<td COLSPAN=13 aling="center"><h2><center>Listagem de Chamados </center></h2></td>
 			</tr>
 			
 			<tr>
-				<th colspan=12><center>Chamados Fechados Por periodo</center></th>
+				<th COLSPAN=13><center>Chamados Fechados Por periodo</center></th>
 			</tr>
 			<tr>
-				<td colspan=12><h6>Intervalo: De <?php echo date("d/m/Y",strtotime($_POST["data1"]))?> Até <?php echo  date("d/m/Y",strtotime($_POST["data2"]))?>,  Status do chamado: <?php echo $filtro?> </h6></td>
+				<td COLSPAN=13><h6>Intervalo: De <?php echo date("d/m/Y",strtotime($_POST["data1"]))?> Até <?php echo  date("d/m/Y",strtotime($_POST["data2"]))?>,  Status do chamado: <?php echo $filtro?> </h6></td>
 			</tr>
 			<tr>
 				<th>Qtde</th>

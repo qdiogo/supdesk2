@@ -50,32 +50,40 @@ if (!empty($_SESSION["USUARIO"]))
 		$usuario="marcio";
 	}
 }
-$url = 'http://gasuporte.sytes.net:7000/enviarmensagem/'.$numero.'/' . str_replace('+', '%20', (urlencode(removerAcentos($_GET["text"])))) . '?nome=' . $usuario;
 
-// Fazer a requisição GET para o endpoint
-$response = file_get_contents($url);
-// Decodificar a resposta JSON
-$responseData = json_decode($response, true);
-$enviado="";
-// Verificar se a resposta contém os dados esperados
-if ($responseData && isset($responseData['status']) && isset($responseData['message'])) {
-	// Exibir a mensagem de sucesso
-	echo "<p>Status: " . htmlspecialchars($responseData['status']) . "</p>";
-	echo "<p>Mensagem: " . htmlspecialchars($responseData['message']) . "</p>";
-	
-	// Acessar os dados do campo 'remote' (caso esteja presente)
-	if (isset($responseData['response']['to'])) {
-		$remote = $responseData['response']['to'];
-		echo "<p>Remote: " . htmlspecialchars($remote) . "</p>";
-	} else {
-		echo "<p>Campo 'remote' não encontrado na resposta JSON.</p>";
-	}
-	$enviado="S";
-	 
+$instance = 'suporte_supdesk'; 
+
+
+// monta payload JSON
+$payload = json_encode([
+	"number"  => '55' . $numero,
+	"message" => $_GET["text"]
+]);
+
+// endpoint do Node (ajuste a porta se necessário)
+$url = "http://gasuporte.sytes.net:7000/api/instances/" . urlencode($instance) . "/send";
+
+// inicializa cURL
+$ch = curl_init($url);
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+curl_setopt($ch, CURLOPT_POST, true);
+curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
+
+// executa
+$resposta = curl_exec($ch);
+
+// trata erros
+if (curl_errno($ch)) {
+	echo 'Erro cURL: ' . curl_error($ch);
 } else {
-	echo "<p>Resposta inválida ou erro ao processar a resposta JSON.</p>";
-	$enviado="N";
+	// imprime resposta do Node
+	header('Content-Type: application/json; charset=utf-8');
+	echo $resposta;
 }
+
+curl_close($ch);
+			
 if ($enviado=="S")
 {
 	//ECHO "<script>window.close()</script>";

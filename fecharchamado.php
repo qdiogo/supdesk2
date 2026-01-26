@@ -74,7 +74,7 @@
 		$HTMLX= $HTMLX. '<td colspan="3"><br> <img src="http://www.webmedical.com.br/downloads/imagemcartao/'.$usuario.'.png"> </td>';
 		$HTMLX= $HTMLX. '</tr>';
 		$HTMLX= $HTMLX. '<tr> ';
-		$HTMLX= $HTMLX. '<td colspan="3"><br><b style="color:red">Prezado(a), Gostaria de solicitar sua avaliação sobre nosso atendimento recente. Sua opinião é muito importante para nós e nos ajuda a aprimorar nossos serviços.</b> <br> <a href="http://mypc.sytes.net:5008/satistafacao.php?index=S&TOKEN='.$_GET["codigo"].'87JSHDFFSFDF5464D65SD57854DS545DSAD45ASD555C&CHAMADO='.$_GET["codigo"].'">Avaliar Atendimento</a> </td>';
+		$HTMLX= $HTMLX. '<td colspan="3"><br><b style="color:red">Prezado(a), Gostaria de solicitar sua avaliação sobre nosso atendimento recente. Sua opinião é muito importante para nós e nos ajuda a aprimorar nossos serviços.</b> <br> <a href="http://gasuporte.sytes.net:5008/satistafacao.php?index=S&TOKEN='.$_GET["codigo"].'87JSHDFFSFDF5464D65SD57854DS545DSAD45ASD555C&CHAMADO='.$_GET["codigo"].'">Avaliar Atendimento</a> </td>';
 		$HTMLX= $HTMLX. '</tr>';
 		$HTMLX= $HTMLX. '<tr> ';
 		$HTMLX= $HTMLX. '<td colspan="3"><br> Por favor não responder por esse endereço de E-mail. </td>';
@@ -138,14 +138,20 @@
 		$SQLU="SELECT NOME, EMAIL FROM TECNICOS WHERE CODIGO=".$_SESSION["USUARIO"]." ";
 		$USER=ibase_query($conexao,$SQLU);
 		$TABUSER=ibase_fetch_assoc($USER);	
-		echo numerocelular($RTA["CELULAR"], "Chamado: ".$_GET["codigo"]." \n Solicitação: ". $RTA["ASSUNTO"] . " \n  *Serviço Executado: " . trim($RTA["FEITO"]) . "            Técnico: " . $TABUSER["NOME"]."*   ");
+		//echo numerocelular($RTA["CELULAR"], "Chamado: ".$_GET["codigo"]." %0A%0A Solicitação: ". $RTA["ASSUNTO"] . " %0A%0A  *Serviço Executado: " . trim($RTA["FEITO"]) . "            Técnico: " . $TABUSER["NOME"]."*   ");
 		
 		if ($RTA["EMPERSA"]=="263")
 		{
-			echo numerocelular($RTA["CELULARCLIENTE"], "Chamado: ".$_GET["codigo"]." \n Solicitação: ". $RTA["ASSUNTO"] . " \n  *Serviço Executado: " . trim($RTA["FEITO"]) . "            Técnico: " . $TABUSER["NOME"]."*   ");	
+			//echo numerocelular($RTA["CELULARCLIENTE"], "Chamado: ".$_GET["codigo"]." %0A%0A Solicitação: ". $RTA["ASSUNTO"] . " %0A%0A  *Serviço Executado: " . trim($RTA["FEITO"]) . "            Técnico: " . $TABUSER["NOME"]."*   ");	
 		}
 		
-		echo numerocelular($RTA["CELULAR"], "Chamado: ".$_GET["codigo"]." \n Solicitação: ". $RTA["ASSUNTO"] . " \n  *Serviço Executado: " . trim($RTA["FEITO"]) . "            Técnico: " . $TABUSER["NOME"]."*   ");
+		$mensagem="";
+		$mensagem = "Chamado ".$_GET["codigo"]." Solicitação: ". $RTA["ASSUNTO"] .
+					" Serviço Executado: " . trim($RTA["FEITO"]) . 
+					" Técnico: " . $TABUSER["NOME"] . 
+					" Avalie o meu atendimento: https://encurtador.com.br/FzkXd?index=S&TOKEN=".$_GET["codigo"]."87JSHDFFSFDF5464D65SD57854DS545DSAD45ASD555C&CHAMADO=".$_GET["codigo"]."";
+		echo numerocelular($RTA["CELULAR"], $mensagem);
+		
 	
 	}
 ?>

@@ -264,7 +264,7 @@
 	$date="";
 	$date=date('Y-m-d');
 	$stop_date = new DateTime($date);
-	$stop_date->modify('+4 day');
+	$stop_date->modify('+10 day');
 	
 	$stop_date2 = new DateTime($date);
 	$stop_date2->modify('+3 day');
@@ -280,7 +280,7 @@
 	
 	$dias="";
 	
-	$SQLE="SELECT CODIGO, CLIENTE, VALIDADE, CNPJ FROM CONTROLE_VALIDADE WHERE (1=1) AND (VALIDADE='".($stop_date->format('Y-m-d'))."' OR VALIDADE='".($stop_date2->format('Y-m-d'))."' OR VALIDADE='".($stop_date3->format('Y-m-d'))."' OR VALIDADE='".($stop_date4->format('Y-m-d'))."' OR VALIDADE='".($stop_date5->format('Y-m-d'))."') AND ENVIADO IS NULL ";
+	$SQLE="SELECT DISTINCT CODIGO, CLIENTE, VALIDADE, CNPJ FROM CONTROLE_VALIDADE WHERE EXTRACT(MONTH FROM VALIDADE)='".date('m')."' ORDER BY VALIDADE ASC  ";
 	$VALIDADE=ibase_query($conexao,$SQLE);
 	
 	if (!empty($VALIDADE))
@@ -301,84 +301,22 @@
 	$HTMLX="";
 	$item="";
 	
-	$HTMLX= $HTMLX. '<html><head></head><body>';
+	$HTMLX= $HTMLX. '<html><head></head><body><table class="table">';
 	while ($TR=ibase_fetch_assoc($VALIDADE)){
-		$SQLX="UPDATE CONTROLE_VALIDADE SET ENVIADO='S' WHERE CODIGO=" . $TR["CODIGO"];
-		$SETAVALIDADE=ibase_query($conexao,$SQLX); 
+		//$SQLX="UPDATE CONTROLE_VALIDADE SET ENVIADO='S' WHERE CODIGO=" . $TR["CODIGO"];
+		//$SETAVALIDADE=ibase_query($conexao,$SQLX); 
 		
-		$item=$TR["CLIENTE"];
-		$HTMLX= $HTMLX. '<center><img align="center" src="'.$_SESSION["LOGO"].'" width="900px" height="180px"/></center> ';
-		$HTMLX= $HTMLX. '<h2 align="center">Licença que expiram nos próximos '.$dias.' dias </h2> ';
-		
-		$HTMLX= $HTMLX. '<tr> ';
-		$HTMLX= $HTMLX. '<td colspan="3">CLIENTE: '.$TR["CLIENTE"]. " VALIDADE: " . date('d/m/Y', strtotime ($TR["VALIDADE"])).'CLIENTE: '.$TR["CLIENTE"]. " VALIDADE: " . date('d/m/Y', strtotime ($TR["VALIDADE"])).'</td>';
-		$HTMLX= $HTMLX. '</tr>';
-		
+		IF ($item!=$TR["CLIENTE"]){
+			$item=$TR["CLIENTE"];
+			$HTMLX= $HTMLX. '<h2 align="center">Licença de Clientes</h2> ';
+			
+			$HTMLX= $HTMLX. '<tr> ';
+			$HTMLX= $HTMLX. '<td stle="color: red" colspan="3">CLIENTE: '.$TR["CLIENTE"]. " VALIDADE: " . date('d/m/Y', strtotime ($TR["VALIDADE"])).'</td>';
+			$HTMLX= $HTMLX. '</tr>';
+		}
 		$WCLIENTE=$WCLIENTE . " CLIENTE: ".$TR["CLIENTE"]. " VALIDADE: " . date('d/m/Y', strtotime ($TR["VALIDADE"])) . ",";
 	}
-	$HTMLX= $HTMLX. '</body></html>';
-	if (!empty($item))
-	{
-	
-		$Mailer = new PHPMailer();
-		
-		//Define que serÃ¡ usado SMTP
-		$Mailer->IsSMTP();
-		
-		//Enviar e-mail em HTML
-		$Mailer->isHTML(true);
-		
-		//Aceitar carasteres especiais
-		$Mailer->Charset = 'UTF-8';
-		
-		$Mailer->SMTPAuth = false;
-		$Mailer->SMTPSecure = 'tls';
-		
-		//nome do servidor
-		$Mailer->Host = 'smtp.office365.com';
-		//Porta de saida de e-mail 
-		$Mailer->Port = 587;
-		
-		//Dados do e-mail de saida - autenticaÃ§Ã£o
-		$Mailer->Username = 'gasupdesk@hotmail.com';
-		$Mailer->Password = 'ga@2016@2';
-		
-		//E-mail remetente (deve ser o mesmo de quem fez a autenticaÃ§Ã£o)
-		$Mailer->From = 'gasupdesk@hotmail.com';
-		
-		//Nome do Remetente
-		$Mailer->FromName = 'Controle de Vencimento ' . $_SESSION["UNIDADE"];
-		
-		//Assunto da mensagem
-		$Mailer->Subject = 'Controle de Vencimentos ' . $_SESSION["UNIDADE"];
-		
-		//Corpo da Mensagem
-		//$Mailer->Body = 'Procedimento agendado em '. formatardata($row["DATA"],1) .' às '.$row["HORA"].'';
-		
-		
-		//Corpo da mensagem em texto
-		$Mailer->Body = ''.$HTMLX.'';
-		//$Mailer->AltBody = ''.$HTMLX.'';
-		
-		//Destinatario 
-		$Mailer->AddAddress('diogo120897@gmail.com');
-		//$Mailer->AddAddress('lucas388@gmail.com');
-		//$Mailer->AddAddress('financeiro.syshosp@hotmail.com');
-		//$Mailer->AddAddress('elnpe@hotmail.com');
-		$Mailer->AddAddress('carlos@webmedical.com.br');
-		$Mailer->AddAddress('leandrosilveiralts@gmail.com');
-		
-		if($Mailer->Send()){
-			//echo "E-mail enviado com sucesso";
-		}else{
-			echo "Erro no envio do e-mail: " . $Mailer->ErrorInfo;
-		}
-	}
-	IF (!empty($WCLIENTE)){
-		echo numerocelular("71991669809", $WCLIENTE);
-		echo numerocelular("71999021283", $WCLIENTE);
-		echo numerocelular("71992536486", $WCLIENTE);
-	}
+	$HTMLX= $HTMLX. '</table></body></html>';
 }
 
 
@@ -395,7 +333,9 @@ while ($TR=ibase_fetch_assoc($w_tabela)) {
 
 $lembretes="Por gentileza, não forneça suporte referente a alterações de senhas, informações de usuários, cadastros ou alterações de informações para a empresa Fabamed. Essa solicitação foi feita pela responsável de TI, que deseja acompanhar esses procedimentos.";  
 $lembretes2="Para garantir um acompanhamento eficiente dos chamados, é essencial que qualquer atualização de status, incluindo a incapacidade de concluir um chamado devido à falta de contato com o usuário responsável, seja registrada nos comentários do chamado. Esta informação é crucial para que outros técnicos possam acompanhar o andamento e o status dos chamados, permitindo uma coordenação eficaz. Além disso, se um chamado estiver sendo monitorado, é solicitado que o chamado seja colocado em pausa para indicar que está sendo acompanhado.";
-?>
+
+
+echo $HTMLX;?>
 
 <?php if (!empty($lembretes)) { ?>
 <script>

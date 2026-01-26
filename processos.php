@@ -1,6 +1,7 @@
-<?php include "sessaotecnico87588834.php"; 
-
-
+<?php 
+	if (empty($_GET["LOCAL"])){
+		include "sessaotecnico87588834.php";
+	}
 ?>
 
 
@@ -12,10 +13,11 @@
 	}
 ?>
 <!DOCTYPE html>
+
 <html lang="en">
 
 <head>
-<meta http-equiv="refresh" content="1200">
+<meta http-equiv="refresh" content="120">
   <?php include "css.php"?>
   <script type="text/javascript" src="/cavas/canvasjs.min.js"></script></head>
   <script>
@@ -33,14 +35,18 @@
 	<?php
 	IF (EMPTY($_GET["BASICO"]))
 	{
-		include "menu.php";
+		if (empty($_GET["LOCAL"])){
+			include "menu.php";
+		}
 	}?>
     <div id="content-wrapper" class="d-flex flex-column">
 	  <div id="content">
 		<?php 
 		IF (EMPTY($_GET["BASICO"]))
 		{
-			include "menuh.php";
+			if (empty($_GET["LOCAL"])){
+				include "menuh.php";
+			}
 					?>
 		<div class="container-fluid">
 		  <div class="d-sm-flex align-items-center justify-content-between mb-4">
@@ -152,6 +158,20 @@
 					"WHERE (1=1) AND ".$UNIDADE." ACAO='INSERIU' AND QUEM='CLIENTE' AND CAST(DATAHORA AS DATE)>='".date('Y-m-d')."' "; 
             $ABERTOSHOJE=ibase_fetch_assoc(ibase_query($conexao,$SQLINS));
 			//ECHO $SQLao;
+			
+			if (!isset($_SESSION["QTDE"])) {
+				$_SESSION["QTDE"] = 0;
+			}
+
+			// Supondo que $open["QTDE"] vem do banco
+			$novoChamado = false;
+
+			// Compara com a sessão
+			if ($open["QTDE"] > $_SESSION["QTDE"]) {
+				$novoChamado = true;
+				// Atualiza a sessão com o valor atual
+				$_SESSION["QTDE"] = $open["QTDE"];
+			}
 			?>
             <!-- Earnings (Monthly) Card Example -->
             <div class="col-xl-3 col-md-3 mb-4">
@@ -300,6 +320,58 @@
                 </div>
               </div>
             </div>
+			
+			<?PHP   		
+				$XFECH="select COUNT(CHAMADO) AS QTDE , (SELECT NOME FROM TECNICOS WHERE CODIGO=HISTORICO_AT_CHAMADOS.TECNICO) AS NOME , DATA AS ULTIMAENTRADA ".
+					   "from HISTORICO_AT_CHAMADOS ".
+					   " WHERE (1=1) AND ".$UNIDADE."  HISTORICO_AT_CHAMADOS.DATA='".$hoje."' and quem='TECNICO' and ACAO='FECHADO' AND EXTRACT(YEAR FROM HISTORICO_AT_CHAMADOS.DATA)='".$ANO."' ".
+					   "GROUP BY HISTORICO_AT_CHAMADOS.TECNICO, DATA ORDER BY COUNT(CHAMADO) DESC ";
+				$TABFECH=ibase_query($conexao,$XFECH);
+				
+				
+				while ($tabfech=ibase_fetch_assoc($TABFECH)){
+				?>
+				 <div class="col-xl-3 col-md-3 mb-4">
+				  <div class="card border-left-success shadow h-100 py-2">
+					<div class="card-body">
+					  <div class="row no-gutters align-items-center">
+						<div class="col mr-2">
+						  <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Chamados Fechados: <?php echo $tabfech["NOME"]?></div>
+						  <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo ($tabfech["QTDE"])?></div>
+						</div>
+						<div class="col-auto">
+						   
+						</div>
+					  </div>
+					</div>
+				  </div>
+				</div>
+			<?php } ?>
+			
+			<?php 
+				$SQL11="SELECT COUNT(TECNICO) AS QTDE, UPPER(NOME) AS NOME FROM REGISTRO_TAREFAS ".
+				"INNER JOIN TECNICOS T ON (T.CODIGO=REGISTRO_TAREFAS.TECNICO) WHERE (1=1) AND ".$UNIDADE." (1=1) AND EXTRACT(YEAR FROM REGISTRO_TAREFAS.DATA)='".$ANO."' AND REGISTRO_TAREFAS.DATA='".$hoje."'  ".
+				"GROUP BY NOME ".
+				"ORDER BY COUNT(TECNICO) DESC";
+				$tabela11=ibase_query($conexao,$SQL11);
+				while ($row11=ibase_fetch_assoc($tabela11)){?>
+					<div class="col-xl-3 col-md-3 mb-4">
+					  <div class="card border-left-success shadow h-100 py-2">
+						<div class="card-body">
+						  <div class="row no-gutters align-items-center">
+							<div class="col mr-2">
+							  <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Registro de Tarefas: <?php echo $row11["NOME"]?></div>
+							  <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo ($row11["QTDE"])?></div>
+							</div>
+							<div class="col-auto">
+							   
+							</div>
+						  </div>
+						</div>
+					  </div>
+					</div>
+				<?php } 
+			?>
           </div>
 		  
 		  <?PHP
@@ -1189,6 +1261,21 @@
       </div>
     </div>
   </div>
+  
+  <?php if ($novoChamado): ?>
+		<audio id="alertaAudio" autoplay>
+			<source src="vozchamado.mp3" type="audio/mpeg">
+		</audio>
+
+		<script>
+			var audio = document.getElementById("alertaAudio");
+			audio.play();
+			audio.onended = function() {
+				console.log("Áudio finalizado.");
+			};
+		</script>
+	<?php endif; ?>
+
   <?php include "rodape.php"?>
   <?PHP } ?>
 </body>

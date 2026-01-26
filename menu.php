@@ -95,6 +95,7 @@
 		<a class="collapse-item" href="FILTRO_CHAMADOSPDF"> <i class="fas fa-chart-bar"></i> Rel por Chamados (PDF)</a>
 		<a class="collapse-item" href="FILTRO_TAREFAS"> <i class="fas fa-chart-bar"></i> Rel de Tarefas (PDF)</a>
 		<a class="collapse-item" href="FILTRO_SOBREAVISOPDF"> <i class="fas fa-chart-bar"></i> Sobreaviso Rel (PDF)</a>
+		<a class="collapse-item" href="filtrovalidade"> <i class="fas fa-chart-bar"></i> Controle Licença</a>
 	  </div>
 	</div>
   </li>

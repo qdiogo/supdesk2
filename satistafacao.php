@@ -86,17 +86,24 @@
 		var http1 = createRequestObject();
 		function avaliacao(campo)
 		{
-			if (campo==1){
-			  var texto = prompt("Conte a gente o que aconteceu ?", "");
-			}
-			
-			if ((campo==1) && (texto==""))
-			{
-				alert("Por favor informe o que aconteceu com esse atendimento");
+			var numerchamado = prompt("Informe o número do chamado para confirmar:");
+			if (numerchamado) {
+				if (campo==1){
+				  var texto = prompt("Conte a gente o que aconteceu ?", "");
+				}
+				
+				if ((campo==1) && (texto==""))
+				{
+					alert("Por favor informe o que aconteceu com esse atendimento");
+				}else{
+					var texto = prompt("Seu nome ?", "");
+					http1.open('get', 'avaliacao_dados?chamado='+numerchamado+'&avaliacao='+ campo + "&texto="+texto);
+					http1.onreadystatechange = xcatx1;
+					http1.send(null);
+				}
 			}else{
-				http1.open('get', 'avaliacao_dados?chamado=<?php echo $_GET["CHAMADO"]?>&avaliacao='+ campo + "&texto="+texto);
-				http1.onreadystatechange = xcatx1;
-				http1.send(null);
+				alert('informe o número do chamado para continuar');
+				var numerchamado = prompt("Informe o número do chamado para confirmar:");
 			}
 			
 		}

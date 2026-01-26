@@ -1,149 +1,121 @@
- <!DOCTYPE html>
- <html>
- <head>
- <meta charset="UTF-8">  
- <title>PresTO - Assinatura Digital</title>
- <!-- Jquery -->
- <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
- <style type="text/css">
- #canvas{
-  background-color: #EFC;
- }
- body {
-  background:#eee;
-}
-#canvas {
-  background:#fff;
-}
-</style>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
-<div id="canvasDiv"></div>
- <script type="text/javascript">
- var canvasWidth = 300;
-var canvasHeight = 150;
-var canvasDiv = document.getElementById('canvasDiv');
-canvas = document.createElement('canvas');
-canvas.setAttribute('width', canvasWidth);
-canvas.setAttribute('height', canvasHeight);
-canvas.setAttribute('id', 'canvas');
-canvasDiv.appendChild(canvas);
-if(typeof G_vmlCanvasManager != 'undefined') {
-	canvas = G_vmlCanvasManager.initElement(canvas);
-}
-context = canvas.getContext("2d");
+<?php
+// api_simples_php5.php - Compatível com PHP 5.x
+// Uso: http://localhost/api_simples_php5.php?q=sua pergunta
 
+header('Content-Type: text/plain; charset=utf-8');
 
-$('#canvas').mousedown(function(e){
-  var mouseX = e.pageX - this.offsetLeft;
-  var mouseY = e.pageY - this.offsetTop;
-		
-  paint = true;
-  addClick(e.pageX - this.offsetLeft, e.pageY - this.offsetTop);
-  redraw();
-});
+// Configurações
+$OLLAMA_HOST = 'http://localhost:11434';
+$MODEL = 'gemma:2b'; // Modelo mais leve para PHP antigo
 
-$('#canvas').mousemove(function(e){
-  if(paint){
-    addClick(e.pageX - this.offsetLeft, e.pageY - this.offsetTop, true);
-    redraw();
-  }
-});
-
-$('#canvas').mouseup(function(e){
-  paint = false;
-});
-
-$('#canvas').mouseleave(function(e){
-  paint = false;
-});
-
-var clickX = new Array();
-var clickY = new Array();
-var clickDrag = new Array();
-var paint;
-
-function addClick(x, y, dragging)
-{
-  clickX.push(x);
-  clickY.push(y);
-  clickDrag.push(dragging);
+// Função para chamar Ollama
+function callOllama($prompt, $model = '') {
+    global $OLLAMA_HOST, $MODEL;
+    
+    if (empty($model)) {
+        $model = $MODEL;
+    }
+    
+    $url = $OLLAMA_HOST . '/api/generate';
+    
+    $data = array(
+        'model' => $model,
+        'prompt' => "Responda em portugues de forma clara: " . $prompt,
+        'stream' => false,
+        'options' => array(
+            'temperature' => 0.7,
+            'num_predict' => 200
+        )
+    );
+    
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+    curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
+    curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+    
+    $response = curl_exec($ch);
+    $error = curl_error($ch);
+    curl_close($ch);
+    
+    if ($error) {
+        return 'Erro na conexao: ' . $error;
+    }
+    
+    $result = json_decode($response, true);
+    
+    if (isset($result['response'])) {
+        return trim($result['response']);
+    }
+    
+    return 'Nao foi possivel obter resposta.';
 }
 
-// Set up touch events for mobile, etc
-canvas.addEventListener("touchstart", function (e) {
-        mousePos = getTouchPos(canvas, e);
-  var touch = e.touches[0];
-  var mouseEvent = new MouseEvent("mousedown", {
-    clientX: touch.clientX,
-    clientY: touch.clientY
-  });
-  canvas.dispatchEvent(mouseEvent);
-}, false);
+// Processar requisição
+$pergunta = '';
 
-canvas.addEventListener("touchend", function (e) {
-  var mouseEvent = new MouseEvent("mouseup", {});
-  canvas.dispatchEvent(mouseEvent);
-}, false);
-
-canvas.addEventListener("touchmove", function (e) {
-  var touch = e.touches[0];
-  var mouseEvent = new MouseEvent("mousemove", {
-    clientX: touch.clientX,
-    clientY: touch.clientY
-  });
-  canvas.dispatchEvent(mouseEvent);
-}, false);
-
-// Get the position of a touch relative to the canvas
-function getTouchPos(canvasDom, touchEvent) {
-  var rect = canvasDom.getBoundingClientRect();
-  return {
-    x: touchEvent.touches[0].clientX - rect.left,
-    y: touchEvent.touches[0].clientY - rect.top
-  };
+// Verificar GET
+if (isset($_GET['q']) && !empty($_GET['q'])) {
+    $pergunta = $_GET['q'];
+} elseif (isset($_GET['text']) && !empty($_GET['text'])) {
+    $pergunta = $_GET['text'];
+} elseif (isset($_GET['pergunta']) && !empty($_GET['pergunta'])) {
+    $pergunta = $_GET['pergunta'];
 }
 
-// Prevent scrolling when touching the canvas
-document.body.addEventListener("touchstart", function (e) {
-  if (e.target == canvas) {
-    e.preventDefault();
-  }
-}, false);
-document.body.addEventListener("touchend", function (e) {
-  if (e.target == canvas) {
-    e.preventDefault();
-  }
-}, false);
-document.body.addEventListener("touchmove", function (e) {
-  if (e.target == canvas) {
-    e.preventDefault();
-  }
-}, false);
 
-function redraw(){
-  context.clearRect(0, 0, context.canvas.width, context.canvas.height); // Clears the canvas
-  
-  context.strokeStyle = "#000";
-  context.lineJoin = "round";
-  context.lineWidth = 1;
-			
-  for(var i=0; i < clickX.length; i++) {		
-    context.beginPath();
-    if(clickDrag[i] && i){
-      context.moveTo(clickX[i-1], clickY[i-1]);
-     }else{
-       context.moveTo(clickX[i]-1, clickY[i]);
-     }
-     context.lineTo(clickX[i], clickY[i]);
-     context.closePath();
-     context.stroke();
-  }
+if (!empty($_GET["tipo"])) {
+	$pergunta .= $_GET["tipo"];
 }
- </script>
-</head>
-<body>
 
- <div id="canvasDiv"></div>  
+// Verificar POST
+if (empty($pergunta) && isset($_POST['q']) && !empty($_POST['q'])) {
+    $pergunta = $_POST['q'];
+} elseif (empty($pergunta) && isset($_POST['text']) && !empty($_POST['text'])) {
+    $pergunta = $_POST['text'];
+}
 
-</body>
-</html>
+// Verificar JSON input
+if (empty($pergunta)) {
+    $input = file_get_contents('php://input');
+    if (!empty($input)) {
+        $json = json_decode($input, true);
+        if ($json) {
+            if (isset($json['q']) && !empty($json['q'])) {
+                $pergunta = $json['q'];
+            } elseif (isset($json['text']) && !empty($json['text'])) {
+                $pergunta = $json['text'];
+            } elseif (isset($json['question']) && !empty($json['question'])) {
+                $pergunta = $json['question'];
+            }
+        }
+    }
+}
+
+// Se não tem pergunta, mostrar ajuda
+if (empty($pergunta)) {
+    echo "API Ollama - Retorna apenas texto\n";
+    echo "=================================\n";
+    echo "Uso: " . $_SERVER['PHP_SELF'] . "?q=sua pergunta\n";
+    echo "Exemplo: " . $_SERVER['PHP_SELF'] . "?q=O que e PHP?\n";
+    echo "\nParametros:\n";
+    echo "  q= Sua pergunta\n";
+    echo "  text= Sua pergunta\n";
+    echo "  model= Modelo a usar (opcional)\n";
+    exit;
+}
+
+// Obter modelo
+$modelo = $MODEL;
+if (isset($_GET['model']) && !empty($_GET['model'])) {
+    $modelo = $_GET['model'];
+} elseif (isset($_POST['model']) && !empty($_POST['model'])) {
+    $modelo = $_POST['model'];
+}
+
+// Obter resposta
+$resposta = callOllama($pergunta, $modelo);
+echo $resposta;
+?>

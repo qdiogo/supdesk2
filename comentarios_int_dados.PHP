@@ -40,26 +40,16 @@
 			$RTA222=ibase_fetch_assoc($tabelax212);
 			
 			if (!empty($RTA2["CELULAR"])){
-				echo numerocelular($RTA2["CELULAR"], "".$RTA222["CONTEUDO"]." ". PHP_EOL ." Prezado(a), Entro em contato para informá-lo(a) sobre um chamado que foi direcionado ao seu nome.. N° Chamado: ".$_GET["GRUPO"]." \n  Transferido por: ".$RTA22["NOME"].". Segue o Contato da Pessoa: ".$RTA222["CELULAR"]. "");
+				echo numerocelular($RTA2["CELULAR"], "*".$RTA222["CONTEUDO"]." ". PHP_EOL ."* Prezado(a), Entro em contato para informá-lo(a) sobre um chamado que foi direcionado ao seu nome.. N Chamado: ".$_GET["GRUPO"]." Transferido por: ".$RTA22["NOME"].".Segue o Contato da Pessoa: ".$RTA222["CELULAR"]. "");
 			}
 			echo "<script>alert('Chamado Transfêrido com Sucesso!!');</script>";	
 		}
 		if (!empty($_SESSION["CLIENTE"]))
 		{
 			header("Location: cliente_chamados_tela.php?CODIGO=". $CODIGO);
-		}else{?>
-			<SCRIPT>
-				window.onload = function e ()
-				{
-					<?php if (!empty($enviado_email))
-					{
-						echo "alert('Resposta enviada para o Cliente');";
-					}?>
-					location.href="/comentarios_internos.php?GRUPO=" + <?php echo $CODIGO?>;
-				}
-			</SCRIPT>
-		<?php }
-	} catch (Exception $e) {
-		echo "Não foi possivel incluir esses dados!";
-	}
+		}else	
+			header("Location: /comentarios_internos.php?GRUPO=". $CODIGO);
+		} catch (Exception $e) {
+			echo "Não foi possivel incluir esses dados!";
+		}
 ?>

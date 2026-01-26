@@ -1,81 +1,121 @@
- 
 <?php
-session_start(); 
-    function generateAIContent($apiKey, $prompt) {
-        $url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key={$apiKey}";
+// api_simples_php5.php - Compatível com PHP 5.x
+// Uso: http://localhost/api_simples_php5.php?q=sua pergunta
 
-        $postData = json_encode([
-            "contents" => [
-                [
-                    "parts" => [
-                        ["text" => $prompt],
-						["text" => "um bom texto e limpo, sem Assunto"],
-						["text" => $_GET["tipo"]]
-                    ]
-                ]
-            ],
-            "generationConfig" => [
-                "temperature" => 0.9,
-                "topK" => 1,
-                "topP" => 1,
-                "maxOutputTokens" => 2000,
-                "stopSequences" => []
-            ],
-            "safetySettings" => [
-                [
-                    "category" => "HARM_CATEGORY_HARASSMENT",
-                    "threshold" => "BLOCK_ONLY_HIGH"
-                ],
-                [
-                    "category" => "HARM_CATEGORY_HATE_SPEECH",
-                    "threshold" => "BLOCK_ONLY_HIGH"
-                ],
-                [
-                    "category" => "HARM_CATEGORY_SEXUALLY_EXPLICIT",
-                    "threshold" => "BLOCK_ONLY_HIGH"
-                ],
-                [
-                    "category" => "HARM_CATEGORY_DANGEROUS_CONTENT",
-                    "threshold" => "BLOCK_ONLY_HIGH"
-                ]
-            ]
-        ]);
+header('Content-Type: text/plain; charset=utf-8');
 
-        $ch = curl_init($url);
-        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $postData);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            'Content-Type: application/json',
-            'Content-Length: ' . strlen($postData)
-        ]);
+// Configurações
+$OLLAMA_HOST = 'http://localhost:11434';
+$MODEL = 'gemma:2b'; // Modelo mais leve para PHP antigo
 
-        $response = curl_exec($ch);
-        curl_close($ch);
+// Função para chamar Ollama
+function callOllama($prompt, $model = '') {
+    global $OLLAMA_HOST, $MODEL;
+    
+    if (empty($model)) {
+        $model = $MODEL;
+    }
+    
+    $url = $OLLAMA_HOST . '/api/generate';
+    
+    $data = array(
+        'model' => $model,
+        'prompt' => $_GET["tipo"]. ": criar um texto para o email com o texto a seguir, texto limpo: " . $prompt,
+        'stream' => false,
+        'options' => array(
+            'temperature' => 0.7,
+            'num_predict' => 200
+        )
+    );
+    
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+    curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
+    curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+    
+    $response = curl_exec($ch);
+    $error = curl_error($ch);
+    curl_close($ch);
+    
+    if ($error) {
+        return 'Erro na conexao: ' . $error;
+    }
+    
+    $result = json_decode($response, true);
+    
+    if (isset($result['response'])) {
+        return trim($result['response']);
+    }
+    
+    return 'Nao foi possivel obter resposta.';
+}
 
-        $responseData = json_decode($response, true);
+// Processar requisição
+$pergunta = '';
 
-        if (isset($responseData['candidates'][0]['content']['parts'][0]['text'])) {
-            return $responseData['candidates'][0]['content']['parts'][0]['text'];
-        } else {
-            return "Texto não gerado.";
+// Verificar GET
+if (isset($_GET['q']) && !empty($_GET['q'])) {
+    $pergunta = $_GET['q'];
+} elseif (isset($_GET['texto']) && !empty($_GET['texto'])) {
+    $pergunta = $_GET['texto'];
+} elseif (isset($_GET['pergunta']) && !empty($_GET['pergunta'])) {
+    $pergunta = $_GET['pergunta'];
+}
+
+
+if (!empty($_GET["tipo"])) {
+	$pergunta = $_GET["tipo"] . ' '. $pergunta. '';
+}
+
+// Verificar POST
+if (empty($pergunta) && isset($_POST['q']) && !empty($_POST['q'])) {
+    $pergunta = $_POST['q'];
+} elseif (empty($pergunta) && isset($_POST['text']) && !empty($_POST['text'])) {
+    $pergunta = $_POST['text'];
+}
+
+// Verificar JSON input
+if (empty($pergunta)) {
+    $input = file_get_contents('php://input');
+    if (!empty($input)) {
+        $json = json_decode($input, true);
+        if ($json) {
+            if (isset($json['q']) && !empty($json['q'])) {
+                $pergunta = $json['q'];
+            } elseif (isset($json['text']) && !empty($json['text'])) {
+                $pergunta = $json['text'];
+            } elseif (isset($json['question']) && !empty($json['question'])) {
+                $pergunta = $json['question'];
+            }
         }
     }
+}
 
-    $apiKey="AIzaSyDgIYPsyX6e2FCdlqe_kfq8cXbf-f5ixqE";
-	
-	function tirarAcentos($string){
-		return preg_replace(array("/(á|à|ã|â|ä)/","/(Á|À|Ã|Â|Ä)/","/(é|è|ê|ë)/","/(É|È|Ê|Ë)/","/(í|ì|î|ï)/","/(Í|Ì|Î|Ï)/","/(ó|ò|õ|ô|ö)/","/(Ó|Ò|Õ|Ô|Ö)/","/(ú|ù|û|ü)/","/(Ú|Ù|Û|Ü)/","/(ñ)/","/(Ñ)/"),explode(" ","a A e E i I o O u U n N"),$string);
-	}
-	
-    $prompt="sem *, sem Assunto: ".tirarAcentos($_GET["texto"]);
+// Se não tem pergunta, mostrar ajuda
+if (empty($pergunta)) {
+    echo "API Ollama - Retorna apenas texto\n";
+    echo "=================================\n";
+    echo "Uso: " . $_SERVER['PHP_SELF'] . "?q=sua pergunta\n";
+    echo "Exemplo: " . $_SERVER['PHP_SELF'] . "?q=O que e PHP?\n";
+    echo "\nParametros:\n";
+    echo "  q= Sua pergunta\n";
+    echo "  text= Sua pergunta\n";
+    echo "  model= Modelo a usar (opcional)\n";
+    exit;
+}
 
-    $generatedText = generateAIContent($apiKey, $prompt);
-	$generatedText=str_replace("Formalização do texto concluída.","","".$generatedText."");
-	$generatedText=str_replace("[Seu nome]","".$_SESSION["NOMEUSUARIO"]."","".$generatedText."");
-	$generatedText=str_replace("[Nome do destinatário]","Cliente","".$generatedText."");
-	$generatedText=str_replace("[Nome do Destinatário]","Cliente","".$generatedText."");
-	$generatedText=str_replace("[Seu Nome]","".$_SESSION["NOMEUSUARIO"]."","".$generatedText."");
-    echo trim($generatedText);
+// Obter modelo
+$modelo = $MODEL;
+if (isset($_GET['model']) && !empty($_GET['model'])) {
+    $modelo = $_GET['model'];
+} elseif (isset($_POST['model']) && !empty($_POST['model'])) {
+    $modelo = $_POST['model'];
+}
 
-    ?>
+// Obter resposta
+$resposta = callOllama($pergunta, $modelo);
+echo $resposta;
+?>
