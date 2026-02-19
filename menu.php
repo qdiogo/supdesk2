@@ -30,7 +30,7 @@
 	  <div class="bg-white py-2 collapse-inner rounded">
 		<h6 class="collapse-header">Cadastros</h6>
 		<a class="collapse-item" href="inicio"><i class="fas fa-user"></i> Inicio</a>
-		<?php if (($_SESSION["XNIVEL"])=="4"){ ?>
+		<?php if ((($_SESSION["XNIVEL"])=="3") || (($_SESSION["XNIVEL"])=="4") || (($_SESSION["XNIVEL"])=="5")){ ?>
 			<a class="collapse-item" href="tecnicos"><i class="fas fa-user"></i> Técnicos</a>
 			<a class="collapse-item" href="Empresas"> <i class="fab fa-buffer"></i> Empresas</a>
 		<?php } ?> 
@@ -69,7 +69,7 @@
 		<a class="collapse-item" href="BOOT"> <i class="fas fa-clipboard-check"></i> Atendimento Eletronico  </a>
 		<a class="collapse-item" href="sobreaviso_chamados"> <i class="fas fa-clipboard-check"></i> Sobreaviso </a>
 		<a class="collapse-item" href="controlevalidade"> <i class="fas fa-clipboard-check"></i> Controle </a>
-		<?php if ((($_SESSION["XNIVEL"])=="3") || (($_SESSION["XNIVEL"])=="4")){ ?>
+		<?php if ((($_SESSION["XNIVEL"])=="3") || (($_SESSION["XNIVEL"])=="4") || (($_SESSION["XNIVEL"])=="5")){ ?>
 			
 			<a class="collapse-item" href="monitorrespostas"> <i class="fas fa-clipboard-check"></i> Monitor de Respostas </a>
 			<a class="collapse-item" href="financeiro"> <i class="fas fa-clipboard-check"></i> Despesas (Viagens) </a>

@@ -144,10 +144,13 @@ if (ISSET($_GET["ATITUDE"]))
 	$row=$open=ibase_fetch_assoc($tabela); 
     echo "<script> window.onload=function e(){ $('#ExemploModalCentralizado').modal(); } </script>";
 }else{
-	if (!empty($_SESSION["UNIDADENEGOCIO"]))
-	{
-		$SQL=$SQL . " AND M.TECNICO=" . $_SESSION["USUARIO"];
+	if (($_SESSION["XNIVEL"])!="5"){
+		if (!empty($_SESSION["UNIDADENEGOCIO"]))
+		{
+			$SQL=$SQL . " AND M.TECNICO=" . $_SESSION["USUARIO"];
+		}
 	}
+	
     $SQL=$SQL . " ORDER BY M.DATA DESC "; 
 	$tabela=ibase_query($conexao,$SQL);
 } 
@@ -168,7 +171,7 @@ if (ISSET($_GET["ATITUDE"]))
 		<div class="modal-dialog modal-lg" role="document" width="1200px"> 
 		<div class="modal-content" width="1200px">
 			<div class="modal-header"  width="100%" style="background-image: linear-gradient(to right top, #504a55, #48444d, #403d46, #39373e, #323137); color: white; font-weight: bold; font-size: 70px;">  
-			<h5 class="modal-title" id="TituloModalCentralizado" align="center">Tarefa - <?PHP ECHO $_GET["ATITUDE"]?></h5> 
+			<h5 class="modal-title" id="TituloModalCentralizado" align="center">Despesas - <?PHP ECHO $_GET["ATITUDE"]?></h5> 
 			<button type="button" class="close" data-dismiss="modal" aria-label="Fechar" onclick='location.href=location.href="financeiro.php"'> 
 				<span aria-hidden="true" >&times;</span> 
 			</button>
@@ -191,10 +194,7 @@ if (ISSET($_GET["ATITUDE"]))
                         <button type="button" class="btn btn-success" data-dismiss="modal" onclick='location.href=location.href="financeiro.php?ATITUDE=0"'>+</button>
                         <button type="button" class="btn btn-danger" data-dismiss="modal" onclick='location.href=location.href="financeiro.php"'>Fechas</button>
                         <button type="submit" class="btn btn-success">Salvar mudanças</button>
-						<?php if (($_GET["ATITUDE"] > "0")){?> 
-							<button class="button buttoninfo" type="button" onclick="abrirficha_visita('<?PHP ECHO $_GET["ATITUDE"]?>')"><i class="fas fa-print"></i></button>
-						<?php } ?> 
-                    </div>
+					</div>
                     <div class="modal-body">  
                         <?php if (isset($_GET["ATITUDE"])){?>
                             <input type="hidden" name="CODIGO" value="<?php ECHO $_GET["ATITUDE"]?>" id="CODIGO" maxlength="4" class="form-control"> 
@@ -275,7 +275,7 @@ if (ISSET($_GET["ATITUDE"]))
 	<div class="container-fluid"> 
 		<div class="card shadow mb-4">
 		<div class="card-header py-3 sistema2">
-			<h6 class="m-0 font-weight-bold">Registros de Tarefas</h6> 
+			<h6 class="m-0 font-weight-bold">Registros de Despesas</h6> 
 		</div> 
 		<div class="card-body"> 
 			<div class="table-responsive">

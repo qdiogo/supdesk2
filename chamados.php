@@ -573,7 +573,7 @@ if (ISSET($_GET["ATITUDE"]))
 												
 												<button class="btn-dark rounded-circle border-0" onclick="chamado_tela(<?PHP ECHO $row["CODIGO"]?>)" title="Abrir chamado detalhado"><i class="far fa-folder-open"></i></button>
 												<?PHP if (!empty($_SESSION["XNIVEL"])){
-													  if (($_SESSION["XNIVEL"])=="3"){?>
+													  if (($_SESSION["XNIVEL"])=="5"){?>
 														<button class="btn-danger rounded-circle border-0" onclick="deletar(<?PHP ECHO $row["CODIGO"]?>)">X</button>
 												<?PHP }
 												}?>
@@ -936,7 +936,7 @@ if (ISSET($_GET["ATITUDE"]))
 											<?php } ?>
 											<button class="btn-dark rounded-circle border-0" onclick="chamado_tela(<?PHP ECHO $xtab["CODIGO"]?>)" title="Abrir chamado detalhado"><i class="far fa-folder-open"></i></button>
 											<?PHP if (!empty($_SESSION["XNIVEL"])){
-												  if (($_SESSION["XNIVEL"])=="4"){?>
+												  if (($_SESSION["XNIVEL"])=="5"){?>
 													<button class="btn-danger rounded-circle border-0" onclick="deletar(<?PHP ECHO $xtab["CODIGO"]?>)">X</button>
 											<?PHP }
 											}?>
