@@ -1,0 +1,39 @@
+[2026-02-21 18:32:03] Requisição: GET - /paciente.php
+[2026-02-21 18:32:04] Erro de conexão: Unable to complete network request to host "192.168.15.5". Failed to establish a connection. 
+[2026-02-21 18:32:19] Requisição: GET - /paciente.php
+[2026-02-21 18:32:19] Tabela PACIENTES não existe. Criando...
+[2026-02-21 18:32:19] Tabela PACIENTES criada com sucesso
+[2026-02-21 18:32:19] Endpoint: paciente.php
+[2026-02-21 18:49:04] Requisição: GET - /paciente
+[2026-02-21 18:49:04] Tabela PACIENTES já existe
+[2026-02-21 18:49:04] Endpoint: paciente
+[2026-02-21 18:49:16] Requisição: GET - /paciente
+[2026-02-21 18:49:16] Tabela PACIENTES já existe
+[2026-02-21 18:49:16] Endpoint: paciente
+[2026-02-21 18:50:04] Requisição: GET - /paciente/status
+[2026-02-21 18:50:04] Tabela PACIENTES já existe
+[2026-02-21 18:50:04] Endpoint: status
+[2026-02-21 18:51:04] Requisição: GET - /paciente/paciente
+[2026-02-21 18:51:04] Tabela PACIENTES já existe
+[2026-02-21 18:51:04] Endpoint: paciente
+[2026-02-21 18:51:09] Requisição: GET - /paciente/pacientes
+[2026-02-21 18:51:09] Tabela PACIENTES já existe
+[2026-02-21 18:51:09] Endpoint: pacientes
+[2026-02-21 18:51:18] Requisição: GET - /paciente/paciente?test
+[2026-02-21 18:51:18] Tabela PACIENTES já existe
+[2026-02-21 18:51:18] Endpoint: paciente
+[2026-02-21 18:51:32] Requisição: GET - /paciente/paciente?test=1
+[2026-02-21 18:51:32] Tabela PACIENTES já existe
+[2026-02-21 18:51:32] Endpoint: paciente
+[2026-02-21 18:54:46] Conexão com Firebird estabelecida
+[2026-02-21 18:54:46] Tabela PACIENTES já existe
+[2026-02-21 18:54:46] Método: GET, URI: /paciente/paciente?test=1, Endpoint: paciente
+[2026-02-21 18:54:46] Conexão com Firebird estabelecida
+[2026-02-21 19:04:39] Conexão com Firebird estabelecida
+[2026-02-21 19:04:39] Tabela PACIENTES já existe
+[2026-02-21 19:04:39] Método: GET, URI: /paciente/paciente?test=1, Endpoint: paciente
+[2026-02-21 19:04:39] Conexão com Firebird estabelecida
+[2026-02-21 19:05:17] Conexão com Firebird estabelecida
+[2026-02-21 19:05:17] Tabela PACIENTES já existe
+[2026-02-21 19:05:17] Método: GET, URI: /paciente/paciente?test=1, Endpoint: paciente
+[2026-02-21 19:05:17] Conexão com Firebird estabelecida

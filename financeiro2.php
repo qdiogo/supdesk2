@@ -24,6 +24,37 @@ function formatMoney($value) {
     return floatval($value);
 }
 
+// Função para converter data do formato brasileiro para o banco
+function convertDateToDB($dateBr) {
+    if (empty($dateBr)) return null;
+    // Remove espaços e caracteres especiais
+    $dateBr = trim($dateBr);
+    // Verifica se está no formato dd/mm/aaaa
+    if (preg_match('/^(\d{2})\/(\d{2})\/(\d{4})$/', $dateBr, $matches)) {
+        // Retorna no formato aaaa-mm-dd para o banco
+        return $matches[3] . '-' . $matches[2] . '-' . $matches[1];
+    }
+    return null;
+}
+
+// Função para converter data do banco para formato brasileiro
+function convertDateFromDB($dateDB) {
+    if (empty($dateDB)) return date('d/m/Y');
+    // Se já estiver no formato brasileiro, retorna
+    if (preg_match('/^\d{2}\/\d{2}\/\d{4}$/', $dateDB)) {
+        return $dateDB;
+    }
+    // Se estiver no formato americano (YYYY-MM-DD)
+    if (preg_match('/^(\d{4})-(\d{2})-(\d{2})$/', $dateDB, $matches)) {
+        return $matches[3] . '/' . $matches[2] . '/' . $matches[1];
+    }
+    // Se for timestamp
+    if (preg_match('/^(\d{4})-(\d{2})-(\d{2})/', $dateDB, $matches)) {
+        return $matches[3] . '/' . $matches[2] . '/' . $matches[1];
+    }
+    return date('d/m/Y');
+}
+
 // Processamento do formulário (Inserção/Edição)
 $message = '';
 $messageType = '';
@@ -39,6 +70,11 @@ if (isset($_GET['EDIT']) && $_GET['EDIT'] > 0) {
     $sqlEdit = "SELECT * FROM DESPESAS WHERE CODIGO = " . $editId;
     $queryEdit = ibase_query($conexao, $sqlEdit);
     $editData = ibase_fetch_assoc($queryEdit);
+    
+    // Converte a data para o formato brasileiro para exibição
+    if (isset($editData['DATA'])) {
+        $editData['DATA'] = convertDateFromDB($editData['DATA']);
+    }
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['nome'])) {
@@ -49,6 +85,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['nome'])) {
         $natureza = filter_input(INPUT_POST, 'NATUREZA', FILTER_SANITIZE_NUMBER_INT);
         $valor = formatMoney($_POST['valor']);
         $tipo = ($_POST['TIPO'] === 'E') ? 'E' : 'S';
+        
+        // Processa a data
+        $dataBr = isset($_POST['DATA']) ? $_POST['DATA'] : date('d/m/Y');
+        $dataDB = convertDateToDB($dataBr);
+        
+        if (!$dataDB) {
+            throw new Exception("Data inválida. Use o formato dd/mm/aaaa");
+        }
+        
         $codigo = filter_input(INPUT_GET, 'CODIGO', FILTER_SANITIZE_NUMBER_INT);
         $editId = isset($_POST['edit_id']) ? filter_input(INPUT_POST, 'edit_id', FILTER_SANITIZE_NUMBER_INT) : 0;
         
@@ -99,6 +144,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['nome'])) {
                 $sql = "UPDATE DESPESAS SET 
                         NOME = '" . strtoupper($nome) . "',
                         IMAGEM = '" . $nome_imagem . "',
+                        DATA = '" . $dataDB . "',
                         VALOR = " . $valor . ",
                         NATUREZA = " . $natureza . ",
                         CCUSTO = " . $centroCusto . ",
@@ -108,6 +154,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['nome'])) {
                 // Se não tem nova imagem, mantém a imagem existente
                 $sql = "UPDATE DESPESAS SET 
                         NOME = '" . strtoupper($nome) . "',
+                        DATA = '" . $dataDB . "',
                         VALOR = " . $valor . ",
                         NATUREZA = " . $natureza . ",
                         CCUSTO = " . $centroCusto . ",
@@ -119,14 +166,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['nome'])) {
             if ($result) {
                 $message = "Lançamento atualizado com sucesso!";
                 $messageType = "success";
-                $editMode = false;
+                // Redireciona para limpar o modo de edição
+                echo "<script>window.location.href = '?CODIGO=" . $codigo . "';</script>";
+                exit();
             } else {
-                throw new Exception("Erro ao atualizar no banco de dados.");
+                throw new Exception("Erro ao atualizar no banco de dados: " . ibase_errmsg());
             }
         } else {
             // Modo inserção - INSERT
-            $sql = "INSERT INTO DESPESAS (NOME, IMAGEM, ID, TABELA, VALOR, NATUREZA, CCUSTO, TIPO) 
-                    VALUES ('" . strtoupper($nome) . "', '" . $nome_imagem . "', " . $codigo . ", 'NOTAS', " . $valor . ", " . $natureza . ", " . $centroCusto . ", '" . $tipo . "')";
+            $sql = "INSERT INTO DESPESAS (NOME, IMAGEM, ID, TABELA, VALOR, NATUREZA, CCUSTO, TIPO, DATA) 
+                    VALUES ('" . strtoupper($nome) . "', " . ($nome_imagem ? "'" . $nome_imagem . "'" : "NULL") . ", " . $codigo . ", 'NOTAS', " . $valor . ", " . $natureza . ", " . $centroCusto . ", '" . $tipo . "', '" . $dataDB . "')";
             
             $result = ibase_query($conexao, $sql);
             
@@ -134,10 +183,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['nome'])) {
                 $message = "Lançamento realizado com sucesso!";
                 $messageType = "success";
             } else {
-                throw new Exception("Erro ao inserir no banco de dados.");
+                throw new Exception("Erro ao inserir no banco de dados: " . ibase_errmsg());
             }
         }
         
+    } catch (Exception $e) {
+        $message = "Erro: " . $e->getMessage();
+        $messageType = "danger";
+    }
+}
+
+// Processamento da exclusão via GET
+if (isset($_GET['DELETE']) && $_GET['DELETE'] > 0 && isset($_GET['CODIGO'])) {
+    $deleteId = filter_input(INPUT_GET, 'DELETE', FILTER_SANITIZE_NUMBER_INT);
+    $codigo_pai = filter_input(INPUT_GET, 'CODIGO', FILTER_SANITIZE_NUMBER_INT);
+    
+    try {
+        // Busca informações da imagem para excluir o arquivo
+        $sqlImg = "SELECT IMAGEM FROM DESPESAS WHERE CODIGO = " . $deleteId;
+        $queryImg = ibase_query($conexao, $sqlImg);
+        $imgData = ibase_fetch_assoc($queryImg);
+        
+        // Exclui do banco
+        $sqlDelete = "DELETE FROM DESPESAS WHERE CODIGO = " . $deleteId;
+        $result = ibase_query($conexao, $sqlDelete);
+        
+        if ($result) {
+            // Exclui o arquivo físico se existir
+            if (!empty($imgData['IMAGEM']) && file_exists("arquivos/" . $imgData['IMAGEM'])) {
+                unlink("arquivos/" . $imgData['IMAGEM']);
+            }
+            $message = "Registro excluído com sucesso!";
+            $messageType = "success";
+        } else {
+            throw new Exception("Erro ao excluir registro.");
+        }
     } catch (Exception $e) {
         $message = "Erro: " . $e->getMessage();
         $messageType = "danger";
@@ -149,7 +229,7 @@ if (isset($_GET['export']) && $_GET['export'] == 'excel' && !empty($_GET['CODIGO
     $codigo_export = filter_input(INPUT_GET, 'CODIGO', FILTER_SANITIZE_NUMBER_INT);
     
     // Busca todos os registros
-    $sqlExport = "SELECT d.CODIGO, d.NOME, d.VALOR, d.TIPO, d.DATA_CADASTRO,
+    $sqlExport = "SELECT d.CODIGO, d.NOME, d.VALOR, d.TIPO, d.DATA AS DATA_CADASTRO,
                          (SELECT DESCRICAO FROM CCUSTO WHERE CODIGO = d.CCUSTO) AS CCUSTO_DESC,
                          (SELECT DESCRICAO FROM NATUREZA WHERE CODIGO = d.NATUREZA) AS NATUREZA_DESC
                   FROM DESPESAS d 
@@ -158,74 +238,85 @@ if (isset($_GET['export']) && $_GET['export'] == 'excel' && !empty($_GET['CODIGO
     
     $queryExport = ibase_query($conexao, $sqlExport);
     
-    // Calcula totais
-    $totalEntrada = 0;
-    $totalSaida = 0;
+    if (!$queryExport) {
+        die("Erro na consulta: " . ibase_errmsg());
+    }
     
-    // Configurações do Excel
-    header("Content-Type: application/vnd.ms-excel");
+    // Configurações do Excel - headers corrigidos
+    header("Content-Type: application/vnd.ms-excel; charset=UTF-8");
     header("Content-Disposition: attachment; filename=relatorio_despesas_" . date('d-m-Y_H-i') . ".xls");
     header("Pragma: no-cache");
     header("Expires: 0");
+    header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
     
-    echo "<html>";
-    echo "<head>";
-    echo "<meta charset='UTF-8'>";
-    echo "</head>";
-    echo "<body>";
+    // Abre a saída
+    echo '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">';
+    echo '<head>';
+    echo '<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">';
+    echo '<title>Relatório de Despesas</title>';
+    echo '</head>';
+    echo '<body>';
     
     // Cabeçalho do arquivo Excel
-    echo "<table border='1'>";
-    echo "<tr>";
-    echo "<th colspan='7' style='background-color: #4CAF50; color: white; font-size: 16px; text-align: center;'>RELATÓRIO DE DESPESAS</th>";
-    echo "</tr>";
-    echo "<tr>";
-    echo "<th>Código</th>";
-    echo "<th>Descrição</th>";
-    echo "<th>Forma de Pagamento</th>";
-    echo "<th>Natureza</th>";
-    echo "<th>Valor</th>";
-    echo "<th>Tipo</th>";
-    echo "<th>Data Cadastro</th>";
-    echo "</tr>";
+    echo '<table border="1">';
+    echo '<tr>';
+    echo '<th colspan="8" style="background-color: #4CAF50; color: white; font-size: 16px; text-align: center;">RELATÓRIO DE DESPESAS</th>';
+    echo '</tr>';
+    echo '<tr>';
+    echo '<th style="background-color: #f2f2f2;">Código</th>';
+    echo '<th style="background-color: #f2f2f2;">Descrição</th>';
+    echo '<th style="background-color: #f2f2f2;">Forma de Pagamento</th>';
+    echo '<th style="background-color: #f2f2f2;">Natureza</th>';
+    echo '<th style="background-color: #f2f2f2;">Valor</th>';
+    echo '<th style="background-color: #f2f2f2;">Tipo</th>';
+    echo '<th style="background-color: #f2f2f2;">Data</th>';
+    echo '<th style="background-color: #f2f2f2;">Data Cadastro</th>';
+    echo '</tr>';
+    
+    $totalEntrada = 0;
+    $totalSaida = 0;
     
     while ($row = ibase_fetch_assoc($queryExport)) {
         $valor = $row['VALOR'];
         if ($row['TIPO'] == 'E') {
             $totalEntrada += $valor;
+            $corLinha = '#d4edda';
         } else {
             $totalSaida += $valor;
+            $corLinha = '#f8d7da';
         }
         
         $tipoTexto = ($row['TIPO'] == 'E') ? 'Entrada' : 'Saída';
-        $corLinha = ($row['TIPO'] == 'E') ? '#d4edda' : '#f8d7da';
+        $dataFormatada = convertDateFromDB($row['DATA']);
+        $dataCadastroFormatada = convertDateFromDB($row['DATA_CADASTRO']);
         
         echo "<tr style='background-color: $corLinha;'>";
         echo "<td>" . $row['CODIGO'] . "</td>";
         echo "<td>" . $row['NOME'] . "</td>";
         echo "<td>" . $row['CCUSTO_DESC'] . "</td>";
         echo "<td>" . $row['NATUREZA_DESC'] . "</td>";
-        echo "<td>R$ " . number_format($valor, 2, ',', '.') . "</td>";
+        echo "<td style='text-align: right;'>R$ " . number_format($valor, 2, ',', '.') . "</td>";
         echo "<td>" . $tipoTexto . "</td>";
-        echo "<td>" . $row['DATA_CADASTRO'] . "</td>";
+        echo "<td style='text-align: center;'>" . $dataFormatada . "</td>";
+        echo "<td style='text-align: center;'>" . $dataCadastroFormatada . "</td>";
         echo "</tr>";
     }
     
     $totalGeral = $totalEntrada - $totalSaida;
     
     // Linhas de totais
-    echo "<tr><td colspan='7'>&nbsp;</td></tr>";
+    echo "<tr><td colspan='8'>&nbsp;</td></tr>";
     echo "<tr style='background-color: #e9ecef; font-weight: bold;'>";
     echo "<td colspan='4'><strong>TOTAL ENTRADAS</strong></td>";
-    echo "<td colspan='3'><strong>R$ " . number_format($totalEntrada, 2, ',', '.') . "</strong></td>";
+    echo "<td colspan='4' style='text-align: right;'><strong>R$ " . number_format($totalEntrada, 2, ',', '.') . "</strong></td>";
     echo "</tr>";
     echo "<tr style='background-color: #e9ecef; font-weight: bold;'>";
     echo "<td colspan='4'><strong>TOTAL SAÍDAS</strong></td>";
-    echo "<td colspan='3'><strong>R$ " . number_format($totalSaida, 2, ',', '.') . "</strong></td>";
+    echo "<td colspan='4' style='text-align: right;'><strong>R$ " . number_format($totalSaida, 2, ',', '.') . "</strong></td>";
     echo "</tr>";
     echo "<tr style='background-color: #cce5ff; font-weight: bold;'>";
     echo "<td colspan='4'><strong>SALDO (ENTRADAS - SAÍDAS)</strong></td>";
-    echo "<td colspan='3'><strong>R$ " . number_format($totalGeral, 2, ',', '.') . "</strong></td>";
+    echo "<td colspan='4' style='text-align: right;'><strong>R$ " . number_format($totalGeral, 2, ',', '.') . "</strong></td>";
     echo "</tr>";
     echo "</table>";
     echo "</body>";
@@ -233,12 +324,12 @@ if (isset($_GET['export']) && $_GET['export'] == 'excel' && !empty($_GET['CODIGO
     exit();
 }
 
-// Processamento da exportação HTML (para visualização)
+// Processamento da exportação HTML
 if (isset($_GET['export']) && $_GET['export'] == 'html' && !empty($_GET['CODIGO'])) {
     $codigo_export = filter_input(INPUT_GET, 'CODIGO', FILTER_SANITIZE_NUMBER_INT);
     
     // Busca todos os registros
-    $sqlExport = "SELECT d.CODIGO, d.NOME, d.VALOR, d.TIPO, d.DATA_CADASTRO,
+    $sqlExport = "SELECT d.CODIGO, d.NOME, d.VALOR, d.TIPO, d.DATA AS  DATA_CADASTRO,
                          (SELECT DESCRICAO FROM CCUSTO WHERE CODIGO = d.CCUSTO) AS CCUSTO_DESC,
                          (SELECT DESCRICAO FROM NATUREZA WHERE CODIGO = d.NATUREZA) AS NATUREZA_DESC
                   FROM DESPESAS d 
@@ -247,12 +338,17 @@ if (isset($_GET['export']) && $_GET['export'] == 'html' && !empty($_GET['CODIGO'
     
     $queryExport = ibase_query($conexao, $sqlExport);
     
-    // Calcula totais
-    $totalEntrada = 0;
-    $totalSaida = 0;
+    if (!$queryExport) {
+        die("Erro na consulta: " . ibase_errmsg());
+    }
     
     header("Content-Type: text/html; charset=UTF-8");
     header("Content-Disposition: attachment; filename=relatorio_despesas_" . date('d-m-Y_H-i') . ".html");
+    header("Pragma: no-cache");
+    header("Expires: 0");
+    
+    $totalEntrada = 0;
+    $totalSaida = 0;
     
     echo "<!DOCTYPE html>";
     echo "<html lang='pt-br'>";
@@ -290,6 +386,7 @@ if (isset($_GET['export']) && $_GET['export'] == 'html' && !empty($_GET['CODIGO'
     echo "<th>Natureza</th>";
     echo "<th>Valor</th>";
     echo "<th>Tipo</th>";
+    echo "<th>Data</th>";
     echo "<th>Data Cadastro</th>";
     echo "</tr>";
     
@@ -305,14 +402,18 @@ if (isset($_GET['export']) && $_GET['export'] == 'html' && !empty($_GET['CODIGO'
             $tipoTexto = 'Saída';
         }
         
+        $dataFormatada = convertDateFromDB($row['DATA']);
+        $dataCadastroFormatada = convertDateFromDB($row['DATA_CADASTRO']);
+        
         echo "<tr class='$classeLinha'>";
         echo "<td>" . $row['CODIGO'] . "</td>";
         echo "<td>" . htmlspecialchars($row['NOME']) . "</td>";
         echo "<td>" . htmlspecialchars($row['CCUSTO_DESC']) . "</td>";
         echo "<td>" . htmlspecialchars($row['NATUREZA_DESC']) . "</td>";
-        echo "<td>R$ " . number_format($valor, 2, ',', '.') . "</td>";
+        echo "<td style='text-align: right;'>R$ " . number_format($valor, 2, ',', '.') . "</td>";
         echo "<td>" . $tipoTexto . "</td>";
-        echo "<td>" . $row['DATA_CADASTRO'] . "</td>";
+        echo "<td style='text-align: center;'>" . $dataFormatada . "</td>";
+        echo "<td style='text-align: center;'>" . $dataCadastroFormatada . "</td>";
         echo "</tr>";
     }
     
@@ -324,15 +425,15 @@ if (isset($_GET['export']) && $_GET['export'] == 'html' && !empty($_GET['CODIGO'
     echo "<table style='width: 50%; margin: 0 auto;'>";
     echo "<tr class='total-entrada'>";
     echo "<td><strong>TOTAL DE ENTRADAS</strong></td>";
-    echo "<td><strong>R$ " . number_format($totalEntrada, 2, ',', '.') . "</strong></td>";
+    echo "<td style='text-align: right;'><strong>R$ " . number_format($totalEntrada, 2, ',', '.') . "</strong></td>";
     echo "</tr>";
     echo "<tr class='total-saida'>";
     echo "<td><strong>TOTAL DE SAÍDAS</strong></td>";
-    echo "<td><strong>R$ " . number_format($totalSaida, 2, ',', '.') . "</strong></td>";
+    echo "<td style='text-align: right;'><strong>R$ " . number_format($totalSaida, 2, ',', '.') . "</strong></td>";
     echo "</tr>";
     echo "<tr class='total-saldo'>";
     echo "<td><strong>SALDO (ENTRADAS - SAÍDAS)</strong></td>";
-    echo "<td><strong>R$ " . number_format($totalGeral, 2, ',', '.') . "</strong></td>";
+    echo "<td style='text-align: right;'><strong>R$ " . number_format($totalGeral, 2, ',', '.') . "</strong></td>";
     echo "</tr>";
     echo "</table>";
     
@@ -350,8 +451,10 @@ function getSelectOptions($conexao, $tabela) {
     $options = array();
     $sql = "SELECT CODIGO, DESCRICAO FROM " . $tabela . " ORDER BY DESCRICAO ASC";
     $query = ibase_query($conexao, $sql);
-    while ($row = ibase_fetch_assoc($query)) {
-        $options[] = $row;
+    if ($query) {
+        while ($row = ibase_fetch_assoc($query)) {
+            $options[] = $row;
+        }
     }
     return $options;
 }
@@ -369,6 +472,7 @@ $codigo = filter_input(INPUT_GET, 'CODIGO', FILTER_SANITIZE_NUMBER_INT);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistema de Despesas</title>
     <?php include "css.php"; ?>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
         .table-responsive {
             overflow-x: auto;
@@ -443,6 +547,18 @@ $codigo = filter_input(INPUT_GET, 'CODIGO', FILTER_SANITIZE_NUMBER_INT);
         .summary-card .label {
             font-size: 1.1em;
             opacity: 0.9;
+        }
+        .date-input {
+            position: relative;
+        }
+        .date-input input {
+            padding-right: 35px;
+        }
+        .date-input i {
+            position: absolute;
+            right: 10px;
+            top: 35px;
+            color: #6c757d;
         }
     </style>
 </head>
@@ -530,14 +646,23 @@ $codigo = filter_input(INPUT_GET, 'CODIGO', FILTER_SANITIZE_NUMBER_INT);
                     </div>
 
                     <div class="row">
-                        <div class="col-md-6 mb-3">
+                        <div class="col-md-4 mb-3">
                             <label for="valor">Valor (R$)</label>
                             <input type="text" name="valor" id="valor" class="form-control money" 
                                    value="<?php echo $editMode ? number_format($editData['VALOR'], 2, ',', '.') : '0,00'; ?>" required>
                             <div class="invalid-feedback">Informe um valor válido</div>
                         </div>
 
-                        <div class="col-md-6 mb-3">
+                        <div class="col-md-4 mb-3 date-input">
+                            <label for="DATA">Data</label>
+                            <input type="text" name="DATA" id="DATA" class="form-control date" 
+                                   value="<?php echo $editMode && !empty($editData['DATA']) ? $editData['DATA'] : date('d/m/Y'); ?>" 
+                                   placeholder="dd/mm/aaaa" required maxlength="10">
+                            <i class="fas fa-calendar-alt"></i>
+                            <div class="invalid-feedback">Informe uma data válida (dd/mm/aaaa)</div>
+                        </div>
+
+                        <div class="col-md-4 mb-3">
                             <label for="TIPO">Tipo</label>
                             <select name="TIPO" id="TIPO" class="form-control" required>
                                 <option value="E" <?php echo ($editMode && isset($editData['TIPO']) && $editData['TIPO'] == 'E') ? 'selected' : ''; ?>>Entrada (Receita)</option>
@@ -555,6 +680,14 @@ $codigo = filter_input(INPUT_GET, 'CODIGO', FILTER_SANITIZE_NUMBER_INT);
                         <?php if ($editMode && !empty($editData['IMAGEM'])): ?>
                             <div class="mt-2">
                                 <small>Documento atual: <?php echo $editData['IMAGEM']; ?></small>
+                                <?php
+                                $filePath = "arquivos/" . $editData['IMAGEM'];
+                                $fileExt = strtolower(pathinfo($editData['IMAGEM'], PATHINFO_EXTENSION));
+                                if (in_array($fileExt, array('jpg', 'jpeg', 'png', 'gif', 'bmp')) && file_exists($filePath)):
+                                ?>
+                                    <br>
+                                    <img src="<?php echo $filePath; ?>" style="max-height: 100px; margin-top: 5px;">
+                                <?php endif; ?>
                             </div>
                         <?php endif; ?>
                     </div>
@@ -588,19 +721,14 @@ $codigo = filter_input(INPUT_GET, 'CODIGO', FILTER_SANITIZE_NUMBER_INT);
                       WHERE TABELA = 'NOTAS' AND ID = " . $codigo;
         
         $queryTotals = ibase_query($conexao, $sqlTotals);
-        $totals = ibase_fetch_assoc($queryTotals);
-        
-        $totalEntrada = 0;
-        $totalSaida = 0;
-        
-        if (isset($totals['TOTAL_ENTRADA']) && $totals['TOTAL_ENTRADA'] !== null) {
-            $totalEntrada = $totals['TOTAL_ENTRADA'];
+        if ($queryTotals) {
+            $totals = ibase_fetch_assoc($queryTotals);
+            $totalEntrada = isset($totals['TOTAL_ENTRADA']) && $totals['TOTAL_ENTRADA'] !== null ? $totals['TOTAL_ENTRADA'] : 0;
+            $totalSaida = isset($totals['TOTAL_SAIDA']) && $totals['TOTAL_SAIDA'] !== null ? $totals['TOTAL_SAIDA'] : 0;
+        } else {
+            $totalEntrada = 0;
+            $totalSaida = 0;
         }
-        
-        if (isset($totals['TOTAL_SAIDA']) && $totals['TOTAL_SAIDA'] !== null) {
-            $totalSaida = $totals['TOTAL_SAIDA'];
-        }
-        
         $totalGeral = $totalEntrada - $totalSaida;
         ?>
         
@@ -633,10 +761,10 @@ $codigo = filter_input(INPUT_GET, 'CODIGO', FILTER_SANITIZE_NUMBER_INT);
             <div class="card-header py-3 bg-primary text-white d-flex justify-content-between align-items-center">
                 <h6 class="m-0 font-weight-bold">Documentos Lançados</h6>
                 <div class="export-buttons">
-                    <a href="?CODIGO=<?php echo $codigo; ?>&export=excel" class="btn btn-sm btn-light" title="Exportar para Excel">
+                    <a href="?CODIGO=<?php echo $codigo; ?>&export=excel" class="btn btn-sm btn-light" title="Exportar para Excel" onclick="return confirm('Exportar para Excel?')">
                         <i class="fas fa-file-excel"></i> Excel
                     </a>
-                    <a href="?CODIGO=<?php echo $codigo; ?>&export=html" class="btn btn-sm btn-light" title="Exportar para HTML">
+                    <a href="?CODIGO=<?php echo $codigo; ?>&export=html" class="btn btn-sm btn-light" title="Exportar para HTML" onclick="return confirm('Exportar para HTML?')">
                         <i class="fas fa-file-code"></i> HTML
                     </a>
                 </div>
@@ -647,6 +775,7 @@ $codigo = filter_input(INPUT_GET, 'CODIGO', FILTER_SANITIZE_NUMBER_INT);
                         <thead class="thead-light">
                             <tr>
                                 <th width="100">Ações</th>
+                                <th>Data</th>
                                 <th>Forma de Pagamento</th>
                                 <th>Natureza</th>
                                 <th>Documento</th>
@@ -655,24 +784,26 @@ $codigo = filter_input(INPUT_GET, 'CODIGO', FILTER_SANITIZE_NUMBER_INT);
                         </thead>
                         <tbody>
                             <?php
-                            $sql = "SELECT d.CODIGO, d.IMAGEM, d.NOME, d.VALOR, d.TIPO,
+                            $sql = "SELECT d.CODIGO, d.IMAGEM, d.NOME, d.VALOR, d.TIPO, d.DATA,
                                            (SELECT DESCRICAO FROM CCUSTO WHERE CODIGO = d.CCUSTO) AS CCUSTO_DESC,
                                            (SELECT DESCRICAO FROM NATUREZA WHERE CODIGO = d.NATUREZA) AS NATUREZA_DESC
                                     FROM DESPESAS d 
                                     WHERE d.TABELA = 'NOTAS' 
                                       AND d.ID = " . $codigo . " 
-                                    ORDER BY d.CODIGO DESC";
+                                    ORDER BY d.DATA DESC, d.CODIGO DESC";
                             
                             $query = ibase_query($conexao, $sql);
                             
                             $totalRegistros = 0;
-                            while ($row = ibase_fetch_assoc($query)):
-                                $totalRegistros++;
-                                
-                                $ccusto_desc = isset($row['CCUSTO_DESC']) ? $row['CCUSTO_DESC'] : '-';
-                                $natureza_desc = isset($row['NATUREZA_DESC']) ? $row['NATUREZA_DESC'] : '-';
-                                $tipo_icone = ($row['TIPO'] == 'E') ? 'text-success' : 'text-danger';
-                                $tipo_texto = ($row['TIPO'] == 'E') ? '(Entrada)' : '(Saída)';
+                            if ($query) {
+                                while ($row = ibase_fetch_assoc($query)):
+                                    $totalRegistros++;
+                                    
+                                    $ccusto_desc = isset($row['CCUSTO_DESC']) ? $row['CCUSTO_DESC'] : '-';
+                                    $natureza_desc = isset($row['NATUREZA_DESC']) ? $row['NATUREZA_DESC'] : '-';
+                                    $tipo_icone = ($row['TIPO'] == 'E') ? 'text-success' : 'text-danger';
+                                    $tipo_texto = ($row['TIPO'] == 'E') ? '(Entrada)' : '(Saída)';
+                                    $dataFormatada = convertDateFromDB($row['DATA']);
                             ?>
                                 <tr>
                                     <td class="text-center">
@@ -681,13 +812,15 @@ $codigo = filter_input(INPUT_GET, 'CODIGO', FILTER_SANITIZE_NUMBER_INT);
                                                class="btn btn-sm btn-warning" title="Editar">
                                                 <i class="fas fa-edit"></i>
                                             </a>
-                                            <button class="btn btn-sm btn-danger" 
-                                                    onclick="deletar(<?php echo $row['CODIGO']; ?>)"
-                                                    title="Excluir documento">
+                                            <a href="?CODIGO=<?php echo $codigo; ?>&DELETE=<?php echo $row['CODIGO']; ?>" 
+                                               class="btn btn-sm btn-danger" 
+                                               onclick="return confirm('Deseja realmente excluir este documento?')"
+                                               title="Excluir documento">
                                                 <i class="fas fa-trash-alt"></i>
-                                            </button>
+                                            </a>
                                         </div>
                                     </td>
+                                    <td><?php echo $dataFormatada; ?></td>
                                     <td><?php echo htmlspecialchars($ccusto_desc); ?></td>
                                     <td><?php echo htmlspecialchars($natureza_desc); ?></td>
                                     <td>
@@ -705,28 +838,36 @@ $codigo = filter_input(INPUT_GET, 'CODIGO', FILTER_SANITIZE_NUMBER_INT);
                                             $filePath = "arquivos/" . $row['IMAGEM'];
                                             $fileExt = strtolower(pathinfo($row['IMAGEM'], PATHINFO_EXTENSION));
                                             
-                                            if (in_array($fileExt, array('jpg', 'jpeg', 'png', 'gif', 'bmp'))):
+                                            if (file_exists($filePath)) {
+                                                if (in_array($fileExt, array('jpg', 'jpeg', 'png', 'gif', 'bmp'))):
+                                                ?>
+                                                    <img src="<?php echo $filePath; ?>" 
+                                                         class="img-preview img-fluid" 
+                                                         onclick="window.open('<?php echo $filePath; ?>', '_blank')"
+                                                         alt="Documento"
+                                                         style="max-height: 100px; cursor: pointer;">
+                                                <?php else: ?>
+                                                    <a href="<?php echo $filePath; ?>" target="_blank" class="btn btn-sm btn-info">
+                                                        <i class="fas fa-file-pdf"></i> Visualizar PDF
+                                                    </a>
+                                                <?php 
+                                                endif;
+                                            } else {
+                                                echo '<span class="text-muted">Arquivo não encontrado</span>';
+                                            }
                                             ?>
-                                                <img src="<?php echo $filePath; ?>" 
-                                                     class="img-preview img-fluid" 
-                                                     onclick="window.open('<?php echo $filePath; ?>', '_blank')"
-                                                     alt="Documento"
-                                                     style="max-height: 100px; cursor: pointer;">
-                                            <?php else: ?>
-                                                <a href="<?php echo $filePath; ?>" target="_blank" class="btn btn-sm btn-info">
-                                                    <i class="fas fa-file-pdf"></i> Visualizar PDF
-                                                </a>
-                                            <?php endif; ?>
                                         <?php else: ?>
                                             <span class="text-muted">Sem anexo</span>
                                         <?php endif; ?>
                                     </td>
                                 </tr>
-                            <?php endwhile; ?>
+                            <?php 
+                                endwhile;
+                            }
                             
-                            <?php if ($totalRegistros == 0): ?>
+                            if ($totalRegistros == 0): ?>
                                 <tr>
-                                    <td colspan="5" class="text-center text-muted">
+                                    <td colspan="6" class="text-center text-muted">
                                         Nenhum documento encontrado.
                                     </td>
                                 </tr>
@@ -760,9 +901,11 @@ $codigo = filter_input(INPUT_GET, 'CODIGO', FILTER_SANITIZE_NUMBER_INT);
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
     <script>
-        // Máscara para campo de dinheiro
+        // Máscaras
         $('.money').mask('#.##0,00', {reverse: true});
+        $('.date').mask('00/00/0000');
         
         // Validação do formulário
         (function() {
@@ -775,26 +918,64 @@ $codigo = filter_input(INPUT_GET, 'CODIGO', FILTER_SANITIZE_NUMBER_INT);
                             event.preventDefault();
                             event.stopPropagation();
                         }
+                        
+                        // Validação adicional da data
+                        var dataInput = document.getElementById('DATA');
+                        if (dataInput) {
+                            var dataRegex = /^\d{2}\/\d{2}\/\d{4}$/;
+                            if (!dataRegex.test(dataInput.value)) {
+                                dataInput.setCustomValidity('Data inválida');
+                                event.preventDefault();
+                                event.stopPropagation();
+                            } else {
+                                dataInput.setCustomValidity('');
+                            }
+                        }
+                        
                         form.classList.add('was-validated');
                     }, false);
                 });
             }, false);
         })();
 
-        function deletar(indice) {
-            if (confirm("Deseja realmente excluir este documento?")) {
-                $.post("DELETE.PHP", {
-                    TABELA: "DESPESAS",
-                    CODIGO: indice
-                }, function(data, status) {
-                    if (status == 'success') {
-                        location.reload();
-                    } else {
-                        alert("Erro ao excluir o documento.");
-                    }
-                });
-            }
+        // Validação de data em tempo real
+        function isValidDate(dateString) {
+            if (!/^\d{2}\/\d{2}\/\d{4}$/.test(dateString)) return false;
+            
+            var parts = dateString.split('/');
+            var day = parseInt(parts[0], 10);
+            var month = parseInt(parts[1], 10);
+            var year = parseInt(parts[2], 10);
+            
+            if (month < 1 || month > 12) return false;
+            
+            var daysInMonth = new Date(year, month, 0).getDate();
+            return day >= 1 && day <= daysInMonth;
         }
+        
+        $('#DATA').on('blur', function() {
+            if (!isValidDate($(this).val())) {
+                $(this).addClass('is-invalid');
+                if ($(this).nextAll('.invalid-feedback').length === 0) {
+                    $(this).after('<div class="invalid-feedback d-block">Data inválida</div>');
+                }
+            } else {
+                $(this).removeClass('is-invalid');
+                $(this).nextAll('.invalid-feedback.d-block').remove();
+            }
+        });
+
+        // Auto-formatação da data enquanto digita
+        $('#DATA').on('input', function() {
+            var value = $(this).val().replace(/\D/g, '');
+            if (value.length >= 2) {
+                value = value.substring(0,2) + '/' + value.substring(2);
+            }
+            if (value.length >= 5) {
+                value = value.substring(0,5) + '/' + value.substring(5,9);
+            }
+            $(this).val(value);
+        });
     </script>
 </body>
 </html>
