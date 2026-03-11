@@ -264,4 +264,5 @@ function rtf2text($filename) {
   exit;
 }
 
-
+?>
+<meta charset="ISO-8859-1">

@@ -28,17 +28,19 @@
 		$SQL=$SQL . " ORDER BY VALIDADE ASC "; 
 		$tabela=ibase_query($conexao,$SQL);?>
     
-  
-    
-    <table class="table">
-        <thead>
+	<table class="table">
+		<thead>
 			<tr>
 				<td><img width="400" height="100" class="img-rounded" src="<?PHP ECHO $_SESSION["LOGO"]?>"></td>
-				<td colspan=3><br><h2><?php echo $_SESSION["UNIDADE"]?></h2></td>
 			</tr>
 			<tr>
 				<td colspan=12 aling="center"><h2><center>Listagem de Licenças </center></h2></td>
 			</tr>
+		</thead>
+	</table>
+    <table class="table">
+        
+		<thead>
 			<tr>
 				<th width=1>Código</th>
 				<th>Razão Social</th>

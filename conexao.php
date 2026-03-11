@@ -365,5 +365,5 @@ function rtf2text($filename) {
 <?php
 	}
 ?>
-
+<meta charset="ISO-8859-1">
 

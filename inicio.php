@@ -302,13 +302,14 @@
 	$item="";
 	
 	$HTMLX= $HTMLX. '<html><head></head><body><table class="table">';
+	$HTMLX= $HTMLX. '<h2 align="center">Licença de Clientes</h2> ';
+			
 	while ($TR=ibase_fetch_assoc($VALIDADE)){
 		//$SQLX="UPDATE CONTROLE_VALIDADE SET ENVIADO='S' WHERE CODIGO=" . $TR["CODIGO"];
 		//$SETAVALIDADE=ibase_query($conexao,$SQLX); 
 		
 		IF ($item!=$TR["CLIENTE"]){
 			$item=$TR["CLIENTE"];
-			$HTMLX= $HTMLX. '<h2 align="center">Licença de Clientes</h2> ';
 			
 			$HTMLX= $HTMLX. '<tr> ';
 			$HTMLX= $HTMLX. '<td stle="color: red" colspan="3">CLIENTE: '.$TR["CLIENTE"]. " VALIDADE: " . date('d/m/Y', strtotime ($TR["VALIDADE"])).'</td>';
