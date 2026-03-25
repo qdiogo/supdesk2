@@ -72,8 +72,9 @@
 		<?php if ((($_SESSION["XNIVEL"])=="3") || (($_SESSION["XNIVEL"])=="4") || (($_SESSION["XNIVEL"])=="5")){ ?>
 			
 			<a class="collapse-item" href="monitorrespostas"> <i class="fas fa-clipboard-check"></i> Monitor de Respostas </a>
-			<a class="collapse-item" href="financeiro"> <i class="fas fa-clipboard-check"></i> Despesas (Viagens) </a>
 		<?php } ?>
+		<a class="collapse-item" href="financeiro"> <i class="fas fa-clipboard-check"></i> Despesas (Viagens) </a>
+		
 	  </div>
 	</div>
   </li>

@@ -80,7 +80,7 @@ function xuser()
 </head> 
 <body id="page-top"> 
 <?PHP if (!empty($_SESSION["XNIVEL"])){
-	if (($_SESSION["XNIVEL"])!="4"){
+	if (($_SESSION["XNIVEL"])>="4" ||){
 		echo "<script>alert('Você não tem acesso a essa página!');history.go(-1);</script>";
 	}
 }?>
