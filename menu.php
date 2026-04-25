@@ -97,6 +97,7 @@
 		<a class="collapse-item" href="FILTRO_TAREFAS"> <i class="fas fa-chart-bar"></i> Rel de Tarefas (PDF)</a>
 		<a class="collapse-item" href="FILTRO_SOBREAVISOPDF"> <i class="fas fa-chart-bar"></i> Sobreaviso Rel (PDF)</a>
 		<a class="collapse-item" href="filtrovalidade"> <i class="fas fa-chart-bar"></i> Controle Licença</a>
+		<a class="collapse-item" href="dashboard_financeiro"> <i class="fas fa-clipboard-check"></i> Despesas Dashboard </a>
 	  </div>
 	</div>
   </li>
