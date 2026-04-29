@@ -4,7 +4,7 @@ $numero = "";
 if (!empty($_GET["numero"])) {
     $numero = $_GET["numero"];
 }
-$url = 'http://gasuporte.sytes.net:7000/leituramensagens?numero=' . $numero;
+$url = 'http://apizap.webmedsoft.com.br/leituramensagens?numero=' . $numero;
 
 // Obter o conteúdo do JSON do endpoint
 $jsonContent = file_get_contents($url);
@@ -248,7 +248,7 @@ if (isset($data['data']) && is_array($data['data'])) {
             echo "<div class='content'>";
             echo "<p><strong>{$message['chatName']}</strong></p>";
             if ($message['mediaLink']) {
-                echo "<div class='media'><a href='http://gasuporte.sytes.net:7000/visualizar-midia?file={$from}{$message['messageId']}' target='_blank'>Visualizar Mídia</a></div>";
+                echo "<div class='media'><a href='http://apizap.webmedsoft.com.br/visualizar-midia?file={$from}{$message['messageId']}' target='_blank'>Visualizar Mídia</a></div>";
             }else{
 					
 			}

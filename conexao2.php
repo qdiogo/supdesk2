@@ -258,7 +258,7 @@ function rtf2text($filename) {
 	}
 	
 ?>
-	<iframe style="position: absolute;width:0;height:0;border:0;" height="80%" src='http://gasuporte.sytes.net:7000/enviarmensagem/<?php echo $numerox?>/<?php echo $mensagem?>                                                                                                    *Por favor responder via chamado*'></iframe>
+	<iframe style="position: absolute;width:0;height:0;border:0;" height="80%" src='http://apizap.webmedsoft.com.br/enviarmensagem/<?php echo $numerox?>/<?php echo $mensagem?>                                                                                                    *Por favor responder via chamado*'></iframe>
 <?php 
   echo "<script>location.href='/cliente_chamados_tela.php?CODIGO=".$_GET["CODIGO"]."'</script>";
   exit;

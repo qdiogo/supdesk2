@@ -317,7 +317,7 @@ function rtf2text($filename) {
 			}
 		}
 		
-		$instance = 'suporte_supdesk'; 
+		$instance = 'supdesk'; 
 		
 		$numero   = mb_convert_encoding($numerox,   'UTF-8', 'auto');
 		$mensagem = mb_convert_encoding($mensagem, 'UTF-8', 'auto');
@@ -338,7 +338,7 @@ function rtf2text($filename) {
 
 
 			// endpoint do Node (ajuste a porta se necessário)
-			$url = "http://gasuporte.sytes.net:7000/api/instances/" . urlencode($instance) . "/send";
+			$url = "http://apizap.webmedsoft.com.br/api/instances/" . urlencode($instance) . "/send";
 
 			// inicializa cURL
 			$ch = curl_init($url);

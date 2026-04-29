@@ -27,7 +27,7 @@ INCLUDE "conexao.php";
 $numero = preg_replace(['/^55/', '/@c\.us$/'], ['', ''], $numero);;
 $mensagem = $_GET['text'];  // Substitua com a mensagem desejada
 
-$url = "http://gasuporte.sytes.net:7000/enviarmensagem/".$numero."/start";
+$url = "http://apizap.webmedsoft.com.br/enviarmensagem/".$numero."/start";
 // Fazer a requisição GET para o endpoint
 $response = file_get_contents($url);
 // Verificar se a requisição foi bem-sucedida
@@ -51,7 +51,7 @@ if (!empty($_SESSION["USUARIO"]))
 	}
 }
 
-$instance = 'suporte_supdesk'; 
+$instance = 'supdesk'; 
 
 
 // monta payload JSON
@@ -61,7 +61,7 @@ $payload = json_encode([
 ]);
 
 // endpoint do Node (ajuste a porta se necessário)
-$url = "http://gasuporte.sytes.net:7000/api/instances/" . urlencode($instance) . "/send";
+$url = "http://apizap.webmedsoft.com.br/api/instances/" . urlencode($instance) . "/send";
 
 // inicializa cURL
 $ch = curl_init($url);

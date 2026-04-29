@@ -15,7 +15,7 @@ $numero = "";
 if (!empty($_GET["numero"])) {
     $numero = $_GET["numero"];
 }
-$url = 'http://gasuporte.sytes.net:7000/leituramensagens?numero=' . $numero;
+$url = 'http://apizap.webmedsoft.com.br/leituramensagens?numero=' . $numero;
 
 // Obter o conteúdo do JSON do endpoint
 $jsonContent = file_get_contents($url);

@@ -8,7 +8,7 @@ if (preg_match('/^(\+\d{2})(9)(\d{8})$/', $numero, $matches)) {
     $numero = $matches[1] . $matches[3]; // Mantém o DDI e o número sem o "9"
 }
 
-$url = 'http://gasuporte.sytes.net:7000/leituramensagens?numero=' . $numero;
+$url = 'http://apizap.webmedsoft.com.br/leituramensagens?numero=' . $numero;
 
 // Inicializar cURL para obter o conteúdo JSON
 $ch = curl_init();

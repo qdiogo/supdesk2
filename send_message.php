@@ -5,7 +5,7 @@ $numero = preg_replace(['/^55/', '/@c\.us$/'], ['', ''], $_POST['numero']);;
 $mensagem = $_POST['mensagem'];  // Substitua com a mensagem desejada
 echo $numero;
 // URL do endpoint para enviar a mensagem
-$url = 'http://gasuporte.sytes.net:7000/enviarmensagem/' . urlencode($numero) . '/' . str_replace('+', '%20', urlencode($mensagem));
+$url = 'http://apizap.webmedsoft.com.br/enviarmensagem/' . urlencode($numero) . '/' . str_replace('+', '%20', urlencode($mensagem));
 
 // Fazer a requisição GET para o endpoint
 $response = file_get_contents($url);

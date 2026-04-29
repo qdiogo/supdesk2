@@ -932,7 +932,7 @@ if (ISSET($_GET["ATITUDE"]))
 									<div class="btn-group btn-group-justified" role="group" aria-label="...">
 										<div class="btn-group" role="group">
 											<?php if (!empty($xtab["CELULAR"])) { ?>
-												<button type="button" class="btn-success rounded-circle border-0" id="whstapp" data-target="#whatsapp" placement="bottom" id="whstapp" onclick="enviarmensagem('<?php ECHO $xtab["CELULAR"]?>','<?php echo $resp ?> <?php echo $xtab["RESPONSAVEL"] ?>. Sou <?php echo $TABUSER["NOME"]?> da Ga Informatica, referente ao chamado <?php echo $xtab["CODIGO"]?> - <?php echo tirarAcentos($xtab["ASSUNTO"])?>')" data-toggle="tooltip" data-placement="bottom" title="Enviar para whatsapp" onclick="autor(1)"> <i class="fab fa-whatsapp"></i></button>
+												<button type="button" class="btn-success rounded-circle border-0" id="whstapp" data-target="#whatsapp" placement="bottom" id="whstapp" onclick="enviarmensagem('<?php ECHO $xtab["CELULAR"]?>','<?php echo $resp ?> <?php echo $xtab["RESPONSAVEL"] ?>. Sou <?php echo $TABUSER["NOME"]?> da *Webmedical*, referente ao chamado <?php echo $xtab["CODIGO"]?> - <?php echo tirarAcentos($xtab["ASSUNTO"])?>')" data-toggle="tooltip" data-placement="bottom" title="Enviar para whatsapp" onclick="autor(1)"> <i class="fab fa-whatsapp"></i></button>
 											<?php } ?>
 											<button class="btn-dark rounded-circle border-0" onclick="chamado_tela(<?PHP ECHO $xtab["CODIGO"]?>)" title="Abrir chamado detalhado"><i class="far fa-folder-open"></i></button>
 											<?PHP if (!empty($_SESSION["XNIVEL"])){

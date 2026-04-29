@@ -5,7 +5,7 @@ $numero = "";
 if (!empty($_GET["numero"])) {
     $numero = $_GET["numero"];
 }
-$url = 'http://gasuporte.sytes.net:7000/leituramensagens?numero=' . $numero;
+$url = 'http://apizap.webmedsoft.com.br/leituramensagens?numero=' . $numero;
 
 // Obter o conteúdo do JSON do endpoint
 $jsonContent = file_get_contents($url);
@@ -291,7 +291,7 @@ if (isset($data['data']) && is_array($data['data'])) {
 			// Se houver mídia, exibir o link
 			$midia="";
             if ($message['mediaLink']) {
-          		$midia="http://gasuporte.sytes.net:7000/visualizar-midia?file=" . $from . ' ' . $message['messageId'];
+          		$midia="http://apizap.webmedsoft.com.br/visualizar-midia?file=" . $from . ' ' . $message['messageId'];
 			}
 			$tabela=ibase_query($conexao,"SELECT NUMERO FROM MENSAGENS WHERE NUMERO='".$from."' AND DATAHORA='".date("Y-m-d H:i:s",strtotime($message['timestamp']))."'"); 
 			$row=ibase_fetch_assoc($tabela);

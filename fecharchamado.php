@@ -138,7 +138,7 @@
 		$SQLU="SELECT NOME, EMAIL FROM TECNICOS WHERE CODIGO=".$_SESSION["USUARIO"]." ";
 		$USER=ibase_query($conexao,$SQLU);
 		$TABUSER=ibase_fetch_assoc($USER);	
-		//echo numerocelular($RTA["CELULAR"], "Chamado: ".$_GET["codigo"]." %0A%0A Solicitação: ". $RTA["ASSUNTO"] . " %0A%0A  *Serviço Executado: " . trim($RTA["FEITO"]) . "            Técnico: " . $TABUSER["NOME"]."*   ");
+		echo numerocelular($RTA["CELULAR"], "Chamado: ".$_GET["codigo"]." %0A%0A Solicitação: ". $RTA["ASSUNTO"] . " %0A%0A  *Serviço Executado: " . trim($RTA["FEITO"]) . "            Técnico: " . $TABUSER["NOME"]."*   ");
 		
 		if ($RTA["EMPERSA"]=="263")
 		{
@@ -146,10 +146,10 @@
 		}
 		
 		$mensagem="";
-		$mensagem = "Chamado ".$_GET["codigo"]." Solicitação: ". $RTA["ASSUNTO"] .
+		$mensagem = "Chamado ".$_GET["codigo"]." Solicitacao: ". $RTA["ASSUNTO"] .
 					" Serviço Executado: " . trim($RTA["FEITO"]) . 
-					" Técnico: " . $TABUSER["NOME"] . 
-					" Avalie o meu atendimento: https://encurtador.com.br/FzkXd?index=S&TOKEN=".$_GET["codigo"]."87JSHDFFSFDF5464D65SD57854DS545DSAD45ASD555C&CHAMADO=".$_GET["codigo"]."";
+					" Tecnico: " . $TABUSER["NOME"] . 
+					" Avalie o meu atendimento: https://supdesk1.webmedsoft.com.br/satistafacao?index=S&TOKEN=".$_GET["codigo"]."87JSHDFFSFDF5464D65SD57854DS545DSAD45ASD555C&CHAMADO=".$_GET["codigo"]."";
 		echo numerocelular($RTA["CELULAR"], $mensagem);
 		
 	
