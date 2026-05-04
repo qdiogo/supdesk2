@@ -76,14 +76,10 @@ session_write_close();
                     ?>
 					<div class="form-group">
 					 <label style="text-align:center">Selecione a Empresa</label>
-					 <SELECT NAME="EMPRESA" ID="EMPRESA" class="form-control form-control-auto" placeholder="Selecione a Empresa" REQUIRED style="border-radius:30px">
-						<option selected value="">Selecione a Empresa</option>
-						<option value="GA">GA</option>
-						<option value="GA">LS</option>
-						<option value="NAVEGANTES">HOSPITAL NAVEGANTES</option>
-						<option value="HTO">HTO</option>
-						<option value="CAMACARI">ISIBA</option>
-					  </SELECT>
+						<SELECT NAME="EMPRESA" ID="EMPRESA" class="form-control form-control-auto" placeholder="Selecione a Empresa" REQUIRED style="border-radius:30px">
+							<option selected value="">Selecione a Empresa</option>
+							<option value="GA">GA</option>
+						</SELECT>
                     </div>
                     <div class="form-group">
                       <input type="email" class="form-control form-control-user" AUTOFOCUS id="EMAIL" value="<?php echo $EMAIL?>" name="EMAIL" aria-describedby="emailHelp" placeholder="Email..." REQUIRED>
