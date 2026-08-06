@@ -51,7 +51,7 @@ if (!empty($_SESSION["USUARIO"]))
 	}
 }
 
-$instance = 'supdesk'; 
+$instance = 'supdesk2'; 
 
 
 // monta payload JSON

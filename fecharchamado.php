@@ -138,7 +138,7 @@
 		$SQLU="SELECT NOME, EMAIL FROM TECNICOS WHERE CODIGO=".$_SESSION["USUARIO"]." ";
 		$USER=ibase_query($conexao,$SQLU);
 		$TABUSER=ibase_fetch_assoc($USER);	
-		echo numerocelular($RTA["CELULAR"], "Chamado: ".$_GET["codigo"]."  Solicitacao: ". $RTA["ASSUNTO"] . "  *Servico Executado: " . trim($RTA["FEITO"]) . "            Tecnico: " . $TABUSER["NOME"]."*   ");
+		//echo numerocelular($RTA["CELULAR"], "Chamado: ".$_GET["codigo"]."  Solicitacao: ". $RTA["ASSUNTO"] . "  *Servico Executado: " . trim($RTA["FEITO"]) . "            Tecnico: " . $TABUSER["NOME"]."*   ");
 		
 		if ($RTA["EMPERSA"]=="263")
 		{
@@ -150,7 +150,7 @@
 					" Serviço Executado: " . trim($RTA["FEITO"]) . 
 					" Tecnico: " . $TABUSER["NOME"] . 
 					" Avalie o meu atendimento: https://supdesk1.webmedsoft.com.br/satistafacao?index=S&TOKEN=".$_GET["codigo"]."87JSHDFFSFDF5464D65SD57854DS545DSAD45ASD555C&CHAMADO=".$_GET["codigo"]."";
-		echo numerocelular($RTA["CELULAR"], $mensagem);
+		//echo numerocelular($RTA["CELULAR"], $mensagem);
 		
 	
 	}

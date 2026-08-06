@@ -5,7 +5,7 @@ header('Content-type: application/json');
 date_default_timezone_set('America/Bahia');
 	
 $CNPJ="";
-$servidor = "192.168.15.2:F:\SGBD\SUPDESK\GA\PESSOAL.FDB";
+$servidor = "26.28.24.216:F:\SGBD\SUPDESK\GA\PESSOAL.FDB";
 $numero="";
 if (!($conexao=ibase_connect(str_replace("'", "", $servidor), 'SYSDBA', 's@bia#:)ar@ra2021Ga','ISO8859_1', '9000', '1')))
 die('Erro ao conectar: ' .  ibase_errmsg());

@@ -37,7 +37,7 @@ $SQL=$SQL . " WHERE CODIGO=0". $_GET["ATITUDE"];
 			</div>
 			<div class="card-body">  
 			  <div class="table-responsive"> 
-				<iframe src="http://192.168.15.2/gerarlicenca.asp" height="100%" width="100%"></iframe>
+				<iframe src="http://26.28.24.216/gerarlicenca.asp" height="100%" width="100%"></iframe>
 			  </div> 
 			</div>   
 		  </div> 

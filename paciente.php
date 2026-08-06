@@ -15,7 +15,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 // =============================================
 // CONFIGURAÇÃO DO BANCO
 // =============================================
-define('FB_HOST', '192.168.15.2');
+define('FB_HOST', '26.28.24.216');
 define('FB_PATH', 'F:\\SGBD\\SUPDESK\\GA\\PESSOAL.FDB');
 define('FB_USER', 'SYSDBA');
 define('FB_PASS', 's@bia#:)ar@ra2021Ga');

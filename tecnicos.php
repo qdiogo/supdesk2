@@ -79,11 +79,7 @@ function xuser()
 </script> 
 </head> 
 <body id="page-top"> 
-<?PHP if (!empty($_SESSION["XNIVEL"])){
-	if (($_SESSION["XNIVEL"]="4") || ($_SESSION["XNIVEL"]="5")){
-		echo "<script>alert('Você não tem acesso a essa página!');history.go(-1);</script>";
-	}
-}?>
+
 <?php
 $ACESSO=""; 
 $ACESSO="CADASTRO DE TECNICOS"; 

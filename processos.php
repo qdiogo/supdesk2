@@ -76,6 +76,10 @@
 							{
 								$opcaoxano4="selected";
 							}
+							if ($_GET["ANO"]=="2026")
+							{
+								$opcaoxano5="selected";
+							}
 						}else{
 							if (date('Y')=="2022")
 							{
@@ -93,12 +97,17 @@
 							{
 								$opcaoxano4="selected";
 							}
+							if (date('Y')=="2026")
+							{
+								$opcaoxano5="selected";
+							}
 						}
 					?>
 					<option value="2022" <?php echo $opcaoxano1?>>2022</option>
 					<option value="2023" <?php echo $opcaoxano2?>>2023</option>
 					<option value="2024" <?php echo $opcaoxano3?>>2024</option>
 					<option value="2025" <?php echo $opcaoxano4?>>2025</option>
+					<option value="2026" <?php echo $opcaoxano5?>>2026</option>
 				</select>
 			</h1>
           </div>

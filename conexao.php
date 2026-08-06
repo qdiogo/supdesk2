@@ -11,12 +11,12 @@ if (empty($_GET["LOCAL"])){
 	
 	
 
-	$servidor = "192.168.15.2:F:\SGBD\SUPDESK\'$CNPJ\pessoal.fdb";
+	$servidor = "26.28.24.216:F:\SGBD\SUPDESK\'$CNPJ\pessoal.fdb";
 
 	if (!($conexao=ibase_connect(str_replace("'", "", $servidor), 'SYSDBA', 's@bia#:)ar@ra2021Ga','ISO8859_1', '9000', '1')))
 	die('Erro ao conectar: ' .  ibase_errmsg());
 
-	$servidor = "192.168.15.2:F:\SGBD\SUPDESK\CONTROLE.FDB";
+	$servidor = "26.28.24.216:F:\SGBD\SUPDESK\CONTROLE.FDB";
 	if (!($controle=ibase_connect(str_replace("'", "", $servidor), 'SYSDBA', 's@bia#:)ar@ra2021Ga','ISO8859_1', '9000', '1')))
 	die('Erro ao conectar: ' .  ibase_errmsg());
 		
@@ -317,7 +317,7 @@ function rtf2text($filename) {
 			}
 		}
 		
-		$instance = 'supdesk'; 
+		$instance = 'supdesk2'; 
 		
 		$numero   = mb_convert_encoding($numerox,   'UTF-8', 'auto');
 		$mensagem = mb_convert_encoding($mensagem, 'UTF-8', 'auto');
