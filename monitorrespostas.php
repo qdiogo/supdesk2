@@ -82,15 +82,17 @@ function abrirlista(indice, email)
 				<table class="table table-bordered" id="dataTable" width="100%" cellspacing="0" style="font-size: 12px;"> 
 					  <thead>  
 						<tr> 
-						 <th>Código</th> 
-						  <th>Razão social</th> 
-						  <th>Técnicos</th>	
-						  <th>Assunto</th>		
-						  <th>Resposta</th>	</tr>    
+						<th>Código</th> 
+						<th>Fechado Em</th> 
+						<th>Razão social</th> 
+						<th>Técnicos</th>	
+						<th>Assunto</th>		
+						<th>Resposta</th>	</tr>    
 					  </thead>
 				  <tfoot> 
 					<tr> 
 					  <th>Código</th> 
+					  <th>Fechado Em</th> 
 					  <th>Razão social</th> 
 					  <th>Técnicos</th>	
 					  <th>Assunto</th>		
@@ -99,10 +101,18 @@ function abrirlista(indice, email)
 				  </tfoot>  
 				  <tbody>
 					<?php while ($row=$open=ibase_fetch_assoc($tabela)){  
-					$sequencia=$row["CODIGO"];?>  
+					$sequencia=$row["CODIGO"];
+					$SQL1x="select CODIGO, CHAMADO, (SELECT FIRST 1 NOME FROM TECNICOS WHERE CODIGO=TECNICO) AS TECNICO, DATA, HORA, ACAO, QUEM, ".
+							"(SELECT FIRST 1 NOME FROM CLIENTES WHERE CODIGO=CLIENTE) AS CLIENTE ".
+							"from HISTORICO_AT_CHAMADOS WHERE  CHAMADO=".$row["CODIGO"]." and quem='TECNICO' and ACAO='FECHADO' ";
+					$tabelaXx=ibase_query($conexao,$SQL1x); 
+					$openx=ibase_fetch_assoc($tabelaXx);?>  
 					<tr>  
 					  <td><?php ECHO $row["CODIGO"]?></td>
 					  <td><?php ECHO $row["RAZAOSOCIAL"]?></td>
+					<td><?php if (!empty($openx["DATA"])) {
+							ECHO date("Y-m-d",strtotime($openx["DATA"]));
+						} ?></td>
 					  <td><?php ECHO $row["NOME"]?></td>
 					  <td><?php ECHO $row["ASSUNTO"]?></td>
 					  <td><?php ECHO $row["FEITO"]?></td>

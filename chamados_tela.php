@@ -182,91 +182,75 @@
   </script>
   <script>
 	 function falarTexto() {
-      // Pega o valor do texto digitado no input
       var texto = document.getElementById("textoconteudo").value;
 
-      // Verifica se há texto
       if (texto !== "") {
-        var sintese = new SpeechSynthesisUtterance(texto); // Cria a instância da fala
-        
-        // Obtém todas as vozes disponíveis
+        var sintese = new SpeechSynthesisUtterance(texto);
         var vozes = window.speechSynthesis.getVoices();
 
-        // Se as vozes não estiverem carregadas, tenta novamente
         if (vozes.length === 0) {
-          setTimeout(falarTexto, 100); // Tenta novamente após 100ms
+          setTimeout(falarTexto, 100);
           return;
         }
 
-        // Seleciona uma voz feminina em português
         for (var i = 0; i < vozes.length; i++) {
           if (vozes[i].lang === "pt-BR" && vozes[i].name.toLowerCase().includes("feminine")) {
-            sintese.voice = vozes[i]; // Atribui a voz feminina em português
+            sintese.voice = vozes[i];
             break;
           }
         }
 
-        // Caso não encontre uma voz feminina, seleciona a primeira voz em português
         if (!sintese.voice) {
           for (var i = 0; i < vozes.length; i++) {
             if (vozes[i].lang === "pt-BR") {
-              sintese.voice = vozes[i]; // Atribui a primeira voz em português disponível
+              sintese.voice = vozes[i];
               break;
             }
           }
         }
 
-        // Ajusta a velocidade, tom e volume para algo mais natural e humano
-        sintese.rate = 1.4;   // Velocidade normal
-        sintese.pitch = -1;  // Tom de voz normal
-        sintese.volume = 100; // Volume máximo
+        sintese.rate = 1.4;
+        sintese.pitch = -1;
+        sintese.volume = 100;
 
-        // Faz a síntese de fala
         window.speechSynthesis.speak(sintese);
       } else {
         alert("Por favor, digite algo!");
       }
     }
 
-    // Carregar vozes quando o evento 'voiceschanged' for disparado
     window.speechSynthesis.onvoiceschanged = function() {
-      // Tenta falar o texto após as vozes estarem carregadas
       falarTexto();
     };
   </script>
   
   <script>
-     // Verifica se o navegador suporta a API de Speech Recognition
     var recognition = null;
     if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
-      recognition = 'SpeechRecognition' in window ? new SpeechRecognition() : new webkitSpeechRecognition(); // Inicia o reconhecimento de fala
-      recognition.lang = "pt-BR"; // Define o idioma para português do Brasil
-      recognition.continuous = true; // Continua ouvindo até o usuário parar de falar
-      recognition.interimResults = true; // Exibe resultados intermediários enquanto o usuário fala
-      recognition.maxAlternatives = 1; // Limita o número de alternativas de resultados
+      recognition = 'SpeechRecognition' in window ? new SpeechRecognition() : new webkitSpeechRecognition();
+      recognition.lang = "pt-BR";
+      recognition.continuous = true;
+      recognition.interimResults = true;
+      recognition.maxAlternatives = 1;
 
-      // Quando a fala for reconhecida, adiciona o texto à textarea
       recognition.onresult = function(event) {
         var textoReconhecido = event.results[event.resultIndex][0].transcript;
-        document.getElementById("textotecnico").value = textoReconhecido; // Exibe na textarea
+        document.getElementById("textotecnico").value = textoReconhecido;
       };
 
-      // Quando a gravação da fala é finalizada (usuário parou de falar)
       recognition.onend = function() {
         console.log("Reconhecimento de fala finalizado.");
       };
 
-      // Em caso de erro no reconhecimento de fala
       recognition.onerror = function(event) {
         console.error("Erro no reconhecimento de fala: " + event.error);
       };
     } else {
     }
 
-    // Função para iniciar o reconhecimento de fala
     function iniciarReconhecimento() {
       if (recognition) {
-        recognition.start(); // Inicia a captura de fala
+        recognition.start();
       } else {
       }
     }
@@ -275,43 +259,348 @@
 	.xresp{
 		word-wrap: break-word;
 		overflow-wrap: break-word;
-		word-wrap: break-word;
-
 		-ms-word-break: break-all;
 		word-break: break-all;
 		word-break: break-word;
-
 		-ms-hyphens: auto;
 		-moz-hyphens: auto;
 		-webkit-hyphens: auto;
 		hyphens: auto;
-		}
-		.REQ{
+	}
+	.REQ{
 		word-wrap: break-word;
 		overflow-wrap: break-word;
-		word-wrap: break-word;
-
 		-ms-word-break: break-all;
 		word-break: break-all;
 		word-break: break-word;
-
 		-ms-hyphens: auto;
 		-moz-hyphens: auto;
 		-webkit-hyphens: auto;
 		hyphens: auto;
-		}
-		
-		
+	}
+	.doc-card{
+		border: 1px solid #e0e0e0;
+		border-radius: 10px;
+		padding: 10px;
+		margin: 8px 0;
+		background: #fff;
+		transition: all 0.25s ease;
+		cursor: pointer;
+		text-align: center;
+		box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+	}
+	.doc-card:hover{
+		box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+		transform: translateY(-3px);
+		border-color: #999;
+	}
+	.doc-thumb-wrap{
+		width: 100%;
+		height: 120px;
+		border-radius: 8px;
+		margin-bottom: 8px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		overflow: hidden;
+		background: #f7f7f9;
+	}
+	.doc-thumb-wrap img.thumb{
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		display: block;
+	}
+	.doc-icone{
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		width: 100%;
+		height: 100%;
+		color: #fff;
+		font-weight: bold;
+		font-family: Arial, sans-serif;
+	}
+	.doc-icone .icone-emoji{
+		font-size: 42px;
+		line-height: 1;
+		margin-bottom: 6px;
+	}
+	.doc-icone .icone-ext{
+		font-size: 13px;
+		letter-spacing: 1px;
+		background: rgba(0,0,0,0.25);
+		padding: 2px 10px;
+		border-radius: 10px;
+	}
+	.icone-pdf   { background: linear-gradient(135deg, #e53935, #b71c1c); }
+	.icone-excel { background: linear-gradient(135deg, #43a047, #1b5e20); }
+	.icone-word  { background: linear-gradient(135deg, #1e88e5, #0d47a1); }
+	.icone-zip   { background: linear-gradient(135deg, #fb8c00, #e65100); }
+	.icone-txt   { background: linear-gradient(135deg, #757575, #424242); }
+	.icone-generico { background: linear-gradient(135deg, #546e7a, #263238); }
+	.doc-label{
+		display: inline-block;
+		background: #323137;
+		color: #fff;
+		font-size: 11px;
+		font-weight: bold;
+		padding: 3px 10px;
+		border-radius: 10px;
+		margin-bottom: 6px;
+	}
+	.doc-nome{
+		font-size: 11px;
+		color: #666;
+		word-break: break-all;
+		line-height: 1.2;
+	}
+	.lightbox-overlay{
+		display: none;
+		position: fixed;
+		z-index: 99999;
+		top: 0; left: 0; right: 0; bottom: 0;
+		background: rgba(0,0,0,0.92);
+		justify-content: center;
+		align-items: center;
+	}
+	.lightbox-overlay.active{
+		display: flex;
+	}
+	.lightbox-overlay img#lightbox-img{
+		max-width: 90%;
+		max-height: 85%;
+		border-radius: 8px;
+		box-shadow: 0 0 40px rgba(0,0,0,0.7);
+		background: #222;
+	}
+	.lightbox-close{
+		position: absolute;
+		top: 20px; right: 30px;
+		color: #fff;
+		font-size: 42px;
+		cursor: pointer;
+		background: rgba(255,255,255,0.15);
+		border: none;
+		line-height: 1;
+		width: 50px;
+		height: 50px;
+		border-radius: 50%;
+		transition: background 0.2s;
+	}
+	.lightbox-close:hover{ background: rgba(255,255,255,0.35); }
+	.lightbox-nav{
+		position: absolute;
+		top: 50%;
+		transform: translateY(-50%);
+		background: rgba(255,255,255,0.15);
+		border: none;
+		color: #fff;
+		font-size: 38px;
+		width: 60px;
+		height: 60px;
+		border-radius: 50%;
+		cursor: pointer;
+		transition: background 0.2s;
+	}
+	.lightbox-nav:hover{ background: rgba(255,255,255,0.4); }
+	.lightbox-prev{ left: 30px; }
+	.lightbox-next{ right: 30px; }
+	.lightbox-counter{
+		position: absolute;
+		bottom: 24px;
+		left: 50%;
+		transform: translateX(-50%);
+		color: #fff;
+		font-size: 15px;
+		background: rgba(0,0,0,0.6);
+		padding: 6px 18px;
+		border-radius: 20px;
+	}
+	.lightbox-title{
+		position: absolute;
+		top: 24px;
+		left: 50%;
+		transform: translateX(-50%);
+		color: #fff;
+		font-size: 15px;
+		background: rgba(0,0,0,0.6);
+		padding: 6px 18px;
+		border-radius: 20px;
+		max-width: 60%;
+		text-align: center;
+		word-break: break-all;
+	}
+	.qr-box{
+		background: #fafafa;
+		border: 1px solid #eee;
+		border-radius: 8px;
+		padding: 10px;
+		margin-bottom: 10px;
+	}
+	/* ===== MENU DE OPÇÕES PARA ARQUIVOS NÃO-IMAGEM ===== */
+	.menu-arquivo-opcoes{
+		position: absolute;
+		z-index: 99998;
+		background: #fff;
+		border: 1px solid #d0d0d0;
+		border-radius: 8px;
+		box-shadow: 0 8px 24px rgba(0,0,0,0.18);
+		padding: 6px;
+		min-width: 210px;
+		animation: fadeInMenu 0.15s ease;
+	}
+	@keyframes fadeInMenu{
+		from{ opacity:0; transform: translateY(-6px); }
+		to  { opacity:1; transform: translateY(0); }
+	}
+	.menu-arquivo-opcoes button{
+		display: block;
+		width: 100%;
+		text-align: left;
+		background: transparent;
+		border: none;
+		padding: 10px 14px;
+		font-size: 14px;
+		color: #333;
+		cursor: pointer;
+		border-radius: 6px;
+		transition: background 0.15s;
+	}
+	.menu-arquivo-opcoes button:hover{
+		background: #f0f0f5;
+		color: #000;
+	}
+	.menu-arquivo-opcoes button + button{
+		border-top: 1px solid #f0f0f0;
+	}
   </style>
 </head>
-<?php if($_GET["STATUS"]=="AG"){?>
+<?php 
+	$codigo = !empty($_GET["CODIGO"]) ? $_GET["CODIGO"] : "0";
+
+	$imagens_galeria = array();
+	if ($codigo != "0") {
+		$SQL3_gal = "SELECT IMAGEM FROM DOCUMENTOS WHERE TABELA='CHAMADOS' AND ID=" . $codigo . " AND IMAGEM IS NOT NULL";
+		$tab_gal = ibase_query($conexao, $SQL3_gal);
+		$seq_gal = 0;
+		if ($tab_gal) {
+			while ($g = ibase_fetch_assoc($tab_gal)) {
+				$seq_gal++;
+				$imagens_galeria[] = array('num' => $seq_gal, 'imagem' => $g["IMAGEM"]);
+			}
+		}
+	}
+?>
+<?php if(!empty($_GET["STATUS"]) && $_GET["STATUS"]=="AG"){?>
 	<body onload="automatico()">
 <?PHP }else if (!empty($_GET["FECHARCHAMADO"])){?>
 	<body onload="fecharautomatico()">
 <?PHP }else{?>
 	<body class="">
-<?php } 
-?>
+<?php } ?>
+
+	<script>
+		var galeriaImagens = <?php echo json_encode(array_map(function($i){ return 'arquivos/' . $i['imagem']; }, $imagens_galeria)); ?>;
+		var galeriaNomes   = <?php echo json_encode(array_map(function($i){ return $i['imagem']; }, $imagens_galeria)); ?>;
+		var lightboxIndex  = 0;
+
+		function abrirLightbox(index) {
+			if (typeof galeriaImagens === 'undefined' || galeriaImagens.length === 0) return;
+			if (typeof index !== 'number' || index < 0) index = 0;
+			if (index >= galeriaImagens.length) index = 0;
+			lightboxIndex = index;
+			document.getElementById('lightbox').classList.add('active');
+			atualizarLightbox();
+		}
+		function atualizarLightbox() {
+			var img = document.getElementById('lightbox-img');
+			var titulo = document.getElementById('lightbox-title');
+			var contador = document.getElementById('lightbox-counter');
+			img.src = galeriaImagens[lightboxIndex];
+			titulo.textContent = 'DOC-' + (lightboxIndex + 1) + ' • ' + galeriaNomes[lightboxIndex];
+			contador.textContent = (lightboxIndex + 1) + ' / ' + galeriaImagens.length;
+			document.querySelector('.lightbox-prev').style.display = galeriaImagens.length > 1 ? 'block' : 'none';
+			document.querySelector('.lightbox-next').style.display = galeriaImagens.length > 1 ? 'block' : 'none';
+		}
+		function fecharLightbox() {
+			document.getElementById('lightbox').classList.remove('active');
+		}
+		function navegarLightbox(delta) {
+			if (galeriaImagens.length === 0) return;
+			lightboxIndex = (lightboxIndex + delta + galeriaImagens.length) % galeriaImagens.length;
+			atualizarLightbox();
+		}
+		document.addEventListener('keydown', function(e){
+			var lb = document.getElementById('lightbox');
+			if (!lb || !lb.classList.contains('active')) return;
+			if (e.key === 'Escape') fecharLightbox();
+			if (e.key === 'ArrowLeft') navegarLightbox(-1);
+			if (e.key === 'ArrowRight') navegarLightbox(1);
+		});
+		document.addEventListener('DOMContentLoaded', function(){
+			var lb = document.getElementById('lightbox');
+			if (lb) lb.addEventListener('click', function(e){ if (e.target === this) fecharLightbox(); });
+		});
+
+		/* ============================================================
+		   OPÇÕES PARA ARQUIVOS NÃO-IMAGEM (Abrir / Baixar)
+		   ============================================================ */
+		function abrirArquivo(url) {
+			window.open(url, '_blank');
+			fecharMenuArquivo();
+		}
+		function baixarArquivo(url, nome) {
+			var link = document.createElement('a');
+			link.href = url;
+			link.download = nome || '';
+			document.body.appendChild(link);
+			link.click();
+			document.body.removeChild(link);
+			fecharMenuArquivo();
+		}
+		function fecharMenuArquivo() {
+			var menu = document.querySelector('.menu-arquivo-opcoes');
+			if (menu) menu.remove();
+		}
+		function mostrarOpcoesArquivo(event, url, nome) {
+			event.stopPropagation();
+			fecharMenuArquivo();
+
+			var menu = document.createElement('div');
+			menu.className = 'menu-arquivo-opcoes';
+			menu.innerHTML =
+				'<button type="button" onclick="abrirArquivo(\'' + url + '\')">' +
+					'&#128065;&nbsp; Abrir no navegador' +
+				'</button>' +
+				'<button type="button" onclick="baixarArquivo(\'' + url + '\', \'' + nome.replace(/'/g, "\\'") + '\')">' +
+					'&#11015;&nbsp; Baixar arquivo' +
+				'</button>';
+
+			document.body.appendChild(menu);
+
+			var top  = event.pageY + 8;
+			var left = event.pageX + 8;
+			menu.style.top  = top + 'px';
+			menu.style.left = left + 'px';
+
+			var rect = menu.getBoundingClientRect();
+			if (rect.right > window.innerWidth) {
+				menu.style.left = (window.innerWidth - rect.width - 12) + 'px';
+			}
+			if (rect.bottom > window.innerHeight) {
+				menu.style.top = (event.pageY - rect.height - 8) + 'px';
+			}
+		}
+		document.addEventListener('click', function(e){
+			var menu = document.querySelector('.menu-arquivo-opcoes');
+			if (menu && !e.target.closest('.doc-card')) {
+				menu.remove();
+			}
+		});
+	</script>
+
 	<input type="hidden" id="abrirmodal" data-toggle="modal" data-target="#ExemploModalCentralizado">
 	<div class="modal fade" id="ExemploModalCentralizado" tabindex="-1" role="dialog" aria-labelledby="TituloModalCentralizado" aria-hidden="true">
 	  <div class="modal-dialog modal-dialog-centered" role="document">
@@ -477,7 +766,7 @@
 						<label><STRONG>Comentário</STRONG></label>
 						<label> <br> <div id="textoantigo2"></div> <br>  <center><div id="texto2"></div></center>  </label>
 						<textarea class="form-control" ROWS=15 cols=15 name="COMENTARIO" id="COMENTARIO" required maxlength="20000"><?php echo saudacao()?></textarea>
-						<?php if ($_SESSION['PODEMONITORAR']=="S") {?>
+						<?php if (isset($_SESSION['PODEMONITORAR']) && $_SESSION['PODEMONITORAR']=="S") {?>
 						<BR> 
 						<div class="col-md-6">
 							<label>Liberar chamado</label>
@@ -514,11 +803,13 @@
 					<span aria-hidden="true">&times;</span>
 				</button>
 			</div>
-			<?PHP $codigo = $_GET["CODIGO"]; 
-			if ($codigo!="0"){?>
+			<?PHP $codigo_modal = $_GET["CODIGO"]; 
+			if ($codigo_modal!="0"){?>
 			<form method="post" name="cadastro" enctype="multipart/form-data" >
-				<input type="file" name="foto" class="form-control-file"/><br /><br />
-				<input type="hidden" name="nome" value="foto" /><br /><br />
+				<div class="modal-body">
+					<input type="file" name="foto" class="form-control-file"/><br /><br />
+					<input type="hidden" name="nome" value="foto" /><br /><br />
+				</div>
 				<div class="modal-footer"> 
 					<button type="button" class="btn btn-danger" data-dismiss="modal" onclick='location.href="chamados_tela.php?CODIGO=<?php echo $_GET["CODIGO"]?>"'>Fechar</button> 
 					<button type="submit" class="btn btn-success">Salvar mudancas</button>  
@@ -531,73 +822,48 @@
 				}else{
 					$imagem="arquivos/" . $row["IMAGEM"];
 				}?>
-				<div class="brand"><br><img src="<?php echo $imagem?>" class="img-thumbnail" height="80" width="150"></div>
+				<div class="brand text-center"><br><img src="<?php echo $imagem?>" class="img-thumbnail" height="80" width="150"></div>
 				
 			<?php
 				if (isset($_POST['nome'])) {
 					
-					// Recupera os dados dos campos
 					$foto = $_FILES["foto"];
 					
-					// Se a foto estiver sido selecionada
 					if (!empty($foto["name"])) {
 						
-						// Largura máxima em pixels
 						$largura = 900;
-						// Altura máxima em pixels
 						$altura = 900;
-						// Tamanho máximo do arquivo em bytes
 						$tamanho = 20000;
 				 
 						$error = array();
 				 
-						// Verifica se o arquivo é uma imagem
 						if(!preg_match("/^image\/(pjpeg|jpeg|png|gif|bmp||pdf||xls)$/", $foto["type"])){
-						   //$error[1] = "Isso não é uma imagem.";
 						} 
 					
-						// Pega as dimensões da imagem
 						$dimensoes = getimagesize($foto["tmp_name"]);
 					
-						// Verifica se a largura da imagem é maior que a largura permitida
 						if($dimensoes[0] > $largura) {
-							//$error[2] = "A largura da imagem não deve ultrapassar ".$largura." pixels";
 						}
 				 
-						// Verifica se a altura da imagem é maior que a altura permitida
 						if($dimensoes[1] > $altura) {
-							//$error[3] = "Altura da imagem não deve ultrapassar ".$altura." pixels";
 						}
-						
-						// Verifica se o tamanho da imagem é maior que o tamanho permitido
-						//if($foto["size"] > $tamanho) {
-							//$error[4] = "A imagem deve ter no máximo ".$tamanho." bytes";
-						//}
 				 
-						// Se não houver nenhum erro
 						if (count($error) == 0) {
 						
-							// Pega extensão da imagem
 							preg_match("/\.(gif|bmp|png|jpg|jpeg){1}$/i", $foto["name"], $ext);
-							// Gera um nome único para a imagem
 							$nome_imagem = md5(uniqid(time())) . "." . $ext[1];
 				 
-							// Caminho de onde ficará a imagem
 							$caminho_imagem = "arquivos/" . $nome_imagem;
 				 
-							// Faz o upload da imagem para seu respectivo caminho
 							move_uploaded_file($foto["tmp_name"], $caminho_imagem);
-							// Insere os dados no banco
-							$Wsql = ibase_query($conexao, "INSERT INTO DOCUMENTOS (IMAGEM, ID, TABELA) VALUES ('".$nome_imagem."', ".$codigo.", 'CHAMADOS')");
+							$Wsql = ibase_query($conexao, "INSERT INTO DOCUMENTOS (IMAGEM, ID, TABELA) VALUES ('".$nome_imagem."', ".$codigo_modal.", 'CHAMADOS')");
 							
-							// Se os dados forem inseridos com sucesso
 							if ($Wsql){
 								echo "<div class='alert alert-success'>Imagem alterada com sucesso.</div>";
-								header("Location: cliente_chamados_tela.php?" . $codigo);
+								header("Location: cliente_chamados_tela.php?" . $codigo_modal);
 							}
 						}
 					
-						// Se houver mensagens de erro, exibe-as
 						if (count($error) != 0) {
 							foreach ($error as $erro) {
 								echo $erro . "<br />";
@@ -621,7 +887,7 @@
 				<div class="card-header alert alert-info">
 			<?php } ?>
               <h3 class="card-title"><?PHP ECHO $xtab["ASSUNTO"]?></h3>
-              <p class="card-category">Protocolo:<?PHP ECHO $xtab["CODIGO"]?> Responsável: <?PHP ECHO $xtab["RESPONSAVEL"]?></p> </p>
+              <p class="card-category">Protocolo:<?PHP ECHO $xtab["CODIGO"]?> Responsável: <?PHP ECHO $xtab["RESPONSAVEL"]?></p>
             </div>
 			<input type="hidden" id="textoconteudo" value="<?PHP ECHO str_replace("/", "-",($xtab["CONTEUDO"]))?>">
             <div class="card-body">
@@ -670,42 +936,30 @@
 					</div>					
                 </div>
                 <div class="col-md-5" style="font-size: 20px;">
-                 <h4 class="card-title">Categorias do chamado <button onclick="falarTexto()" type="button">Reproduzir</button></h4>
+                 <h4 class="card-title">Categorias do chamado <button onclick="falarTexto()" type="button" class="btn btn-sm btn-outline-info">Reproduzir</button></h4>
 				<center class="col-md-12">
 					<?php $tabela= ibase_query ($conexao, $SQL);
 					 while ($xtab = ibase_fetch_assoc($tabela)){
 					$sequencia=$xtab["CODIGO"];?>
 					<div class="row">
 						<div class="co-md-12">Protocolo:<?PHP ECHO $xtab["CODIGO"]?></div>
-					</div> 
+					</div>
  
 					<?php if (isset($_GET["CODIGO"])){?>  
 						<input type="hidden" name="CODIGO" value="<?php ECHO $xtab["CODIGO"]?>" id="CODIGO" maxlength="4" class="form-control">  
 					<?php }else{ ?>
 						<input type="hidden" name="CODIGO" id="CODIGO" maxlength="4" class="form-control"> 
 					<?php } ?> 
-					<tr>
-						<td class="npe" colspan=12>
-							<div class="col-md-6">
-								<td class="npe"><center>Telefone</center><BR>
-									<img src="/geraqrcode.php?s=qrl&d=tel:<?PHP ECHO $xtab["TELEFONE"]?>&chs=120x120" alt="<?PHP ECHO $xtab["TELEFONE"]?>"/>
-								</td>
-							
-								<!--<td class="npe"><center>Whatsapp</center><BR>
-									<img src="/geraqrcode.php?s=qrl&d=https://api.whatsapp.com/send?phone=+55<?PHP ECHO $xtab["CELULAR"]?>&text=Ola chamado aberto com no numero de protocolo <?PHP ECHO $xtab["CODIGO"]?> podemos verificar ? Segue o assunto, <?PHP ECHO $xtab["ASSUNTO"]?>&chs=120x120" alt="<?PHP ECHO $xtab["CELULAR"]?>"/>
-									
-									<a href="https://api.whatsapp.com/send?phone=55<?php echo $xtab["CELULAR"]; ?>&text=Ola chamado aberto com no numero de protocolo <?php echo $xtab["CODIGO"]; ?> podemos verificar ? Segue o assunto, <?php echo $xtab["ASSUNTO"]; ?>" 
-									   target="_blank" 
-									   style="display: inline-block; background-color: #25D366; color: white; padding: 10px 20px; text-decoration: none; border-radius: 8px; font-weight: bold; font-family: Arial, sans-serif; border: 2px solid #25D366;">
-									   WhatsApp
-									</a>
-								</td>-->
-							</DIV>
-						</td>
-					</tr>					
-					<tr>
-						
-					</tr>
+
+					<div class="row">
+						<div class="col-md-12">
+							<div class="qr-box">
+								<center>Telefone</center>
+								<img src="/geraqrcode.php?s=qrl&d=tel:<?PHP ECHO $xtab["TELEFONE"]?>&chs=120x120" alt="<?PHP ECHO $xtab["TELEFONE"]?>"/>
+							</div>
+						</div>
+					</div>
+
 					<div class="row">
 						<div class="col-md-12">
 							<label class="basic-url">Assunto</label><br>
@@ -863,7 +1117,7 @@
 					<div class="row">
 						<div class="co-md-12">Agendado:<?PHP ECHO formatardata($xtab["AGENDAMENTO"],1)?></div>
 					</div>					
-					<td>
+					<div>
 						<table align="center">
 						<tr>
 							<td>
@@ -890,30 +1144,64 @@
 							</td>
 						</tr>
 						</table>
-						<table align="center">
-							<?php
-							$SQL3="SELECT IMAGEM, ID, TABELA FROM DOCUMENTOS "; 
-							$SQL3=$SQL3 . " WHERE TABELA='CHAMADOS' AND ID=" . $codigo . " AND IMAGEM IS NOT NULL ";
-							$tabela3X= ibase_query ($conexao, $SQL3);
-							$sq1=0;
-							while ($xtab3 = ibase_fetch_assoc($tabela3X)){
-							$sequencia=$sequencia + 1;
-							$sq1=$sq1 +1;?>
-								<tr>
-									<td onclick="alterar(<?php ECHO $xtab22["CODIGO"]?>,<?php ECHO $sequencia?>)"><button onclick="alterar(<?php ECHO $xtab22["CODIGO"]?>,<?php ECHO $sequencia?>)" class="btn btn-dark col-md-12">DOC- <?php ECHO $sequencia?> </button> <br><br> <strong> <?PHP ECHO $I?>  <?php ECHO $xtab22["CONTEUDO"]?></strong>
-										<center><img src="img/pasta.png" onclick="location.href='arquivos/<?php ECHO $xtab3["IMAGEM"]?>'" width="40%" height="40%"></center><br>
-									</td>
-								</tr>
-								
-							<?php  
-								if ($sq1==4)
-								{	
-									$sq1=0;
-									echo "</TR>";
+						<div class="row" id="galeria-documentos">
+							<?php foreach ($imagens_galeria as $idx => $img) {
+								$ext = strtolower(pathinfo($img['imagem'], PATHINFO_EXTENSION));
+								$ehImagem = in_array($ext, array('jpg','jpeg','png','gif','bmp','webp'));
+								$icone_class = 'icone-generico';
+								$icone_emoji = '&#128196;';
+								$icone_ext   = strtoupper($ext);
+								if (in_array($ext, array('jpg','jpeg','png','gif','bmp','webp'))) {
+									$icone_class = 'icone-generico';
+									$icone_emoji = '&#128247;';
+									$icone_ext   = 'IMG';
+								} elseif ($ext == 'pdf') {
+									$icone_class = 'icone-pdf';
+									$icone_emoji = '&#128213;';
+								} elseif (in_array($ext, array('xls','xlsx','csv'))) {
+									$icone_class = 'icone-excel';
+									$icone_emoji = '&#128202;';
+									$icone_ext   = 'XLS';
+								} elseif (in_array($ext, array('doc','docx'))) {
+									$icone_class = 'icone-word';
+									$icone_emoji = '&#128196;';
+									$icone_ext   = 'DOC';
+								} elseif (in_array($ext, array('zip','rar','7z'))) {
+									$icone_class = 'icone-zip';
+									$icone_emoji = '&#128230;';
+									$icone_ext   = 'ZIP';
+								} elseif (in_array($ext, array('txt','log'))) {
+									$icone_class = 'icone-txt';
+									$icone_emoji = '&#128221;';
+									$icone_ext   = 'TXT';
 								}
-						} ?>
-						</table>
-					</td>
+							?>
+								<div class="col-md-3 col-sm-4 col-6">
+									<?php if ($ehImagem) { ?>
+										<!-- IMAGEM: abre lightbox -->
+										<div class="doc-card" onclick="abrirLightbox(<?php echo $idx; ?>)">
+									<?php } else { ?>
+										<!-- OUTROS ARQUIVOS: mostra menu Abrir/Baixar -->
+										<div class="doc-card"
+										     onclick="mostrarOpcoesArquivo(event, 'arquivos/<?php echo $img['imagem']; ?>', '<?php echo addslashes($img['imagem']); ?>')">
+									<?php } ?>
+										<span class="doc-label">DOC- <?php echo $img['num']; ?></span>
+										<div class="doc-thumb-wrap">
+											<?php if ($ehImagem) { ?>
+												<img class="thumb" src="arquivos/<?php echo $img['imagem']; ?>" alt="<?php echo $img['imagem']; ?>">
+											<?php } else { ?>
+												<div class="doc-icone <?php echo $icone_class; ?>">
+													<div class="icone-emoji"><?php echo $icone_emoji; ?></div>
+													<div class="icone-ext"><?php echo $icone_ext; ?></div>
+												</div>
+											<?php } ?>
+										</div>
+										<div class="doc-nome"><?php echo $img['imagem']; ?></div>
+									</div>
+								</div>
+							<?php } ?>
+						</div>
+					</div>
 					<?php }?>
 				   </center>
 				   
@@ -945,19 +1233,13 @@
 								<div class="col-md-10">
 									<p>
 										<a class="float-left" href="#"><strong>Técnico: <?PHP ECHO $xtabC["NOME"]?>-<span class="float-right"><?PHP ECHO $xtabC["DESCRICAO"]?></span></strong></a>
-											<!--<span class="float-right"><i class="text-warning fa fa-star"></i></span>
-											<span class="float-right"><i class="text-warning fa fa-star"></i></span>
-											<span class="float-right"><i class="text-warning fa fa-star"></i></span>
-											<span class="float-right"><i class="text-warning fa fa-star"></i></span>-->				
 									   <?PHP
-									   
 										$SQL="SELECT COUNT(CHAMADOS.CODIGO) AS QUANTIDADE, UPPER(NOME) AS NOME FROM CHAMADOS ".
 											 "INNER JOIN TECNICOS T ON (T.CODIGO=CHAMADOS.TECNICO) WHERE (1=1) AND ".$UNIDADE." STATUS='F' AND T.CODIGO='".$xtabC["TECNICO"]."' ".
 											 "GROUP BY  NOME ".
 											"ORDER BY COUNT(CHAMADOS.CODIGO) DESC";
 										$tabela=ibase_query($conexao,$SQL);
 										$row=ibase_fetch_assoc($tabela);
-										
 										?>
 										<span class="float-right">
 											<strong> <?PHP ECHO $row["QUANTIDADE"]?></strong>
@@ -1010,7 +1292,6 @@
 															} ?>
 														</p>
 														<p>
-															
 													   <?PHP
 													   if (!empty($TENICO)){
 														$SQL="SELECT COUNT(CHAMADOS.CODIGO) AS QUANTIDADE, UPPER(NOME) AS NOME FROM CHAMADOS ".
@@ -1019,7 +1300,6 @@
 															"ORDER BY COUNT(CHAMADOS.CODIGO) DESC";
 														$tabela=ibase_query($conexao,$SQL);
 														$rowx=ibase_fetch_assoc($tabela);
-														
 														?>
 														<span class="float-right">
 															<strong> <?PHP ECHO $rowx["QUANTIDADE"]?></strong>
@@ -1035,7 +1315,6 @@
 										if (!empty($_SESSION["TECNICO"])){
 											$SQL="SELECT CODIGO, (SELECT DESCRICAO FROM SETOR WHERE CODIGO=T.SETOR)  AS NOMESETOR (SELECT NOME FROM TECNICOS WHERE CODIGO=TECNICO) AS USUARIO, (SELECT NOME FROM TECNICOS WHERE CODIGO=PARA) AS USUARIOPARA,  PARA, CAST(COMENTARIO AS VARCHAR(2000)) AS COMENTARIO, DATAALTERACAO, HORAALTERACAO, MANUTENCAO, GRUPO, CLIENTE FROM COMENTARIOS_INTERNOS WHERE GRUPO=" . $_GET["CODIGO"]; 
 											$tabela=ibase_query($conexao,$SQL);  
-											  
 											?>
 											<?php while ($row=$open=ibase_fetch_assoc($tabela)){  
 											$sequencia=$row["CODIGO"];?>  
@@ -1052,7 +1331,6 @@
 														<h5 class="mb-1"><?PHP ECHO $row["COMENTARIO"]?><br>Enviado para: <?php echo $row["USUARIOPARA"]?></h5><br>
 													</p>
 													<p>
-														
 												   </p>
 												</div>
 											</div>
@@ -1063,10 +1341,6 @@
 								</div>
 						</div>
 					</div>
-				
-				
-				
-				
               </div>
             </div>
           </div>
@@ -1118,12 +1392,6 @@
         <li class="button-container">
           <a href="#" target="_blank" class="btn btn-primary btn-block">Baixar</a>
         </li>
-        <!-- <li class="header-title">Want more components?</li>
-            <li class="button-container">
-                <a href="https://www.creative-tim.com/product/material-dashboard-pro" target="_blank" class="btn btn-warning btn-block">
-                  Get the pro version
-                </a>
-            </li> -->
         <li class="button-container">
           <a href="#" target="_blank" class="btn btn-default btn-block">
             Suporte
@@ -1132,48 +1400,38 @@
       </ul>
     </div>
   </div>
-  <!--   Core JS Files   -->
+
+  <div class="lightbox-overlay" id="lightbox">
+      <button class="lightbox-close" onclick="fecharLightbox()">&times;</button>
+      <button class="lightbox-nav lightbox-prev" onclick="navegarLightbox(-1)">&#10094;</button>
+      <img id="lightbox-img" src="" alt="Documento">
+      <button class="lightbox-nav lightbox-next" onclick="navegarLightbox(1)">&#10095;</button>
+      <div class="lightbox-title" id="lightbox-title"></div>
+      <div class="lightbox-counter" id="lightbox-counter"></div>
+  </div>
+
   <script src="../assets/js/core/jquery.min.js"></script>
   <script src="../assets/js/core/popper.min.js"></script>
   <script src="../assets/js/core/bootstrap-material-design.min.js"></script>
   <script src="../assets/js/plugins/perfect-scrollbar.jquery.min.js"></script>
-  <!-- Plugin for the momentJs  -->
   <script src="../assets/js/plugins/moment.min.js"></script>
-  <!--  Plugin for Sweet Alert -->
   <script src="../assets/js/plugins/sweetalert2.js"></script>
-  <!-- Forms Validations Plugin -->
   <script src="../assets/js/plugins/jquery.validate.min.js"></script>
-  <!-- Plugin for the Wizard, full documentation here: https://github.com/VinceG/twitter-bootstrap-wizard -->
   <script src="../assets/js/plugins/jquery.bootstrap-wizard.js"></script>
-  <!--	Plugin for Select, full documentation here: http://silviomoreto.github.io/bootstrap-select -->
   <script src="../assets/js/plugins/bootstrap-selectpicker.js"></script>
-  <!--  Plugin for the DateTimePicker, full documentation here: https://eonasdan.github.io/bootstrap-datetimepicker/ -->
   <script src="../assets/js/plugins/bootstrap-datetimepicker.min.js"></script>
-  <!--  DataTables.net Plugin, full documentation here: https://datatables.net/  -->
   <script src="../assets/js/plugins/jquery.dataTables.min.js"></script>
-  <!--	Plugin for Tags, full documentation here: https://github.com/bootstrap-tagsinput/bootstrap-tagsinputs  -->
   <script src="../assets/js/plugins/bootstrap-tagsinput.js"></script>
-  <!-- Plugin for Fileupload, full documentation here: http://www.jasny.net/bootstrap/javascript/#fileinput -->
   <script src="../assets/js/plugins/jasny-bootstrap.min.js"></script>
-  <!--  Full Calendar Plugin, full documentation here: https://github.com/fullcalendar/fullcalendar    -->
   <script src="../assets/js/plugins/fullcalendar.min.js"></script>
-  <!-- Vector Map plugin, full documentation here: http://jvectormap.com/documentation/ -->
   <script src="../assets/js/plugins/jquery-jvectormap.js"></script>
-  <!--  Plugin for the Sliders, full documentation here: http://refreshless.com/nouislider/ -->
   <script src="../assets/js/plugins/nouislider.min.js"></script>
-  <!-- Include a polyfill for ES6 Promises (optional) for IE11, UC Browser and Android browser support SweetAlert -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/core-js/2.4.1/core.js"></script>
-  <!-- Library for adding dinamically elements -->
   <script src="../assets/js/plugins/arrive.min.js"></script>
-  <!--  Google Maps Plugin    -->
   <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_KEY_HERE"></script>
-  <!-- Chartist JS -->
   <script src="../assets/js/plugins/chartist.min.js"></script>
-  <!--  Notifications Plugin    -->
   <script src="../assets/js/plugins/bootstrap-notify.js"></script>
-  <!-- Control Center for Material Dashboard: parallax effects, scripts for the example pages etc -->
   <script src="../assets/js/material-dashboard.js?v=2.1.1" type="text/javascript"></script>
-  <!-- Material Dashboard DEMO methods, don't include it in your project! -->
   <script src="../assets/demo/demo.js"></script>
   <script>
     $(document).ready(function() {
@@ -1198,7 +1456,6 @@
         }
 
         $('.fixed-plugin a').click(function(event) {
-          // Alex if we click on switch, stop propagation of the event, so the dropdown will not be hide, otherwise we set the  section active
           if ($(this).hasClass('switch-trigger')) {
             if (event.stopPropagation) {
               event.stopPropagation();
@@ -1245,7 +1502,6 @@
 
           $(this).parent('li').siblings().removeClass('active');
           $(this).parent('li').addClass('active');
-
 
           var new_image = $(this).find("img").attr('src');
 
@@ -1332,12 +1588,10 @@
             }, 300);
           }
 
-          // we simulate the window Resize so the charts will get updated in realtime.
           var simulateWindowResize = setInterval(function() {
             window.dispatchEvent(new Event('resize'));
           }, 180);
 
-          // we stop the simulation of Window Resize after the animations are completed
           setTimeout(function() {
             clearInterval(simulateWindowResize);
           }, 1000);
@@ -1351,14 +1605,10 @@
   </script>
   <script>
     $(document).ready(function() {
-      //init DateTimePickers
       md.initFormExtendedDatetimepickers();
     });
   </script>
   <?php include "rodape.php" ?>	
-</body>
-
-</html>	
 </body>
 
 </html>
