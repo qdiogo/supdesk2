@@ -69,8 +69,6 @@
 		http.send(null);
 	}
 
-	
-
 	function verificar()
 	{
 		if(http.readyState == 4)
@@ -82,10 +80,8 @@
 				var http2 = createRequestObject();
 				http2.open('get','monitor2.php?codigo=' + response);
 				http2.send(null);
-				// Verifica se o navegador suporta a API Web Speech
 				if ('speechSynthesis' in window) {
 					var msg = new SpeechSynthesisUtterance("Um novo chamado foi aberto!");
-					// Fala o texto
 					window.speechSynthesis.speak(msg);
 				} else {
 					alert("Seu navegador não suporta a API Web Speech.");
@@ -95,7 +91,6 @@
 		}
 	}
 
-	
 	setInterval(function(){ buscarprox() }, 1000);
 	
 	$(document).ready(function() {
@@ -172,18 +167,173 @@
 	{
 		window.open('documentos_chamados.php?TECNICO=S&CODIGO=' + indice,'page','toolbar=no,location=no,status=no,menubar=no,scrollbars=no,resizable=no,width=900,height=900');
 	} 
-	
-	
   </script>	
   <style>
 	.stylo2{ 
 		text-align:center; 
 		font-size:12px;
 	}
+
+	/* ===== BOTÃO DE TEMA ===== */
+	#theme-toggle {
+		position: fixed;
+		top: 10px;
+		right: 10px;
+		z-index: 99999;
+		cursor: pointer;
+		border: none;
+		border-radius: 20px;
+		padding: 6px 14px;
+		font-size: 12px;
+		font-weight: bold;
+		background: #191970;
+		color: #fff;
+	}
+
+	/* ===== TEMA DARK ===== */
+	body.dark-mode {
+		background: #121212 !important;
+		color: #e0e0e0 !important;
+	}
+
+	body.dark-mode #wrapper,
+	body.dark-mode #content-wrapper,
+	body.dark-mode #content {
+		background: #121212 !important;
+		color: #e0e0e0 !important;
+	}
+
+	body.dark-mode .card,
+	body.dark-mode .modal-content,
+	body.dark-mode .tab-content,
+	body.dark-mode .tab-pane {
+		background: #1e1e1e !important;
+		color: #e0e0e0 !important;
+	}
+
+	body.dark-mode table,
+	body.dark-mode thead,
+	body.dark-mode tbody,
+	body.dark-mode tr,
+	body.dark-mode td,
+	body.dark-mode th {
+		background: #1e1e1e !important;
+		color: #e0e0e0 !important;
+		border-color: #333 !important;
+	}
+
+	body.dark-mode .form-control,
+	body.dark-mode input,
+	body.dark-mode select,
+	body.dark-mode textarea {
+		background: #2a2a2a !important;
+		color: #e0e0e0 !important;
+		border: 1px solid #444 !important;
+	}
+
+	body.dark-mode .modal-header {
+		background: #0d0d3b !important;
+	}
+
+	body.dark-mode .nav-tabs .nav-link {
+		color: #ccc !important;
+	}
+
+	body.dark-mode .nav-tabs .nav-link.active {
+		background: #1e1e1e !important;
+		color: #fff !important;
+	}
+
+	body.dark-mode a {
+		color: #8ab4f8 !important;
+	}
+
+	body.dark-mode .btn-info,
+	body.dark-mode .btn-primary {
+		color: #fff !important;
+	}
+
+	/* ===== LINHA DIVISÓRIA DAS EMPRESAS ===== */
+	tr.linha-empresa {
+		background-image: linear-gradient(to right top, #504a55, #48444d, #403d46, #39373e, #323137);
+		text-align: center;
+		font-weight: bold;
+		color: white;
+	}
+
+	/* No DARK, sobrescreve com azul sólido bem visível */
+	body.dark-mode tr.linha-empresa {
+		background-image: none !important;
+		background-color: #3a4a6a !important;
+		border-top: 2px solid #6a8fc5 !important;
+		border-bottom: 2px solid #6a8fc5 !important;
+		color: #ffffff !important;
+	}
+
+	body.dark-mode tr.linha-empresa td {
+		background-color: #3a4a6a !important;
+		color: #ffffff !important;
+	}
+
+	/* ===== TOOLTIP CUSTOMIZADO (controlável no dark) ===== */
+	tr[data-tooltip] {
+		position: relative;
+	}
+
+	tr[data-tooltip]:hover::after {
+		content: attr(data-tooltip);
+		position: absolute;
+		left: 10px;
+		top: 100%;
+		background: #f9f9f9;
+		color: #000;
+		border: 1px solid #999;
+		padding: 6px 10px;
+		border-radius: 4px;
+		font-size: 11px;
+		max-width: 500px;
+		white-space: pre-wrap;
+		z-index: 9999;
+		box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+	}
+
+	/* Tooltip no modo dark: fundo preto, texto branco */
+	body.dark-mode tr[data-tooltip]:hover::after {
+		background: #000 !important;
+		color: #fff !important;
+		border: 1px solid #666 !important;
+	}
   </style>
   
 </head> 
 <body id="page-top" onload="buscarprox()"> 
+
+<button id="theme-toggle" onclick="toggleTheme()">?? Dark</button>
+
+<script>
+	function applyTheme(theme) {
+		if (theme === 'dark') {
+			document.body.classList.add('dark-mode');
+			document.getElementById('theme-toggle').innerHTML = 'White';
+		} else {
+			document.body.classList.remove('dark-mode');
+			document.getElementById('theme-toggle').innerHTML = 'Dark';
+		}
+	}
+
+	function toggleTheme() {
+		var current = localStorage.getItem('theme') || 'light';
+		var next = current === 'dark' ? 'light' : 'dark';
+		localStorage.setItem('theme', next);
+		applyTheme(next);
+	}
+
+	(function() {
+		var saved = localStorage.getItem('theme') || 'light';
+		applyTheme(saved);
+	})();
+</script>
+
 <?php
 
 if (!empty($_GET["TIPO"]))
@@ -205,7 +355,6 @@ $limit="";
 $avaliacao="";
 if (!empty($_SESSION["TIPO"])){
 	$limit=" FIRST 200";
-	
 }else{
 	$avaliacao="S";
 }
@@ -246,7 +395,6 @@ if (ISSET($_GET["ATITUDE"]))
 				$SQL=$SQL . " (M.STATUS IS NULL OR M.STATUS='' OR  M.STATUS='PA' OR M.STATUS='A' OR  M.STATUS='PL' OR M.STATUS='AG')  ";
 			}
 		}
-		
 	}else{
 		$SQL=$SQL . " AND (M.STATUS <> 'F' OR M.STATUS IS NULL) AND ASSINADO_USER IS NULL ";	
 	}
@@ -254,14 +402,11 @@ if (ISSET($_GET["ATITUDE"]))
 	{
 		if (!empty($_SESSION["TODASUNIDADES"]))
 		{
-			//$SQL=$SQL . " AND M.UNIDADE=" . $_SESSION["UNIDADENEGOCIO"];
 		}
 	}
 	if (!empty($_SESSION["CATEGORIA"]))
 	{
-		 
 		$SQL=$SQL . " AND CA.CODIGO=" . $_SESSION["CATEGORIA"];
-		
 	}
 			
 	if ($_SESSION["WTIPO"]=="U"){
@@ -305,13 +450,10 @@ if (ISSET($_GET["ATITUDE"]))
 	
 	if (!empty($_SESSION["UNIDADENEGOCIO"]))
 	{
-		//$SQL=$SQL . " AND M.UNIDADE=" . $_SESSION["UNIDADENEGOCIO"];
 	}
 
 	$SQL=$SQL . " ORDER BY E.CODIGO ASC, M.DATAHORA DESC";
 	$tabela=ibase_query($conexao,$SQL);  
-	//ECHO $SQL;
-	
 }  
 
 ?>   
@@ -388,7 +530,6 @@ if (ISSET($_GET["ATITUDE"]))
 										<select name="cliente" id="cliente" class="form-control" required>
 											<option></option>
 											<?php
-											
 											$SQL1="SELECT CODIGO, FANTASIA FROM EMPRESAS ORDER BY FANTASIA ASC";
 											$tabelaX=ibase_query($conexao,$SQL1); 
 											while ($rowX=$open=ibase_fetch_assoc($tabelaX)){ ?>
@@ -579,7 +720,7 @@ if (ISSET($_GET["ATITUDE"]))
 												}?>
 												</div>
 												<div class="btn-group" role="group">
-													<button  class=" btn-warning rounded-circle border-0" onclick="status(<?PHP ECHO $row["CODIGO"]?>,'PA')" title="Colocar em Pause"><i class="fas fa-pause"></i></button>
+													<button  class="btn-warning rounded-circle border-0" onclick="status(<?PHP ECHO $row["CODIGO"]?>,'PA')" title="Colocar em Pause"><i class="fas fa-pause"></i></button>
 												</div>
 												<div class="btn-group" role="group">
 												
@@ -621,7 +762,6 @@ if (ISSET($_GET["ATITUDE"]))
 			<div class="card shadow mb-1">  
 			<div class="card-header py-3 sistema2"> 
 			  <h6 class="m-0 font-weight-bold"><?php echo $ACESSO?></h6>
-			 
 			</div>
 			<div class="card-body">  
 			  <div class="table-responsive"> 
@@ -646,12 +786,10 @@ if (ISSET($_GET["ATITUDE"]))
 						<input type="hidden" name="TIPO" value="<?PHP ECHO $_GET["TIPO"]?>">
 						<td width=100>
 							<label>Protocolo</label>
-							
 							<input type="number" name="protocolo" id="protocolo" value="<?php echo $protocolo?>" class="form-control"> 
 						</td>
 						<td>
 							<label>Assunto</label>
-							
 							<input type="text" name="assunto" id="assunto" value="<?php echo $assunto?>" class="form-control"> 
 						</td>
 						<td width=200>
@@ -724,7 +862,6 @@ if (ISSET($_GET["ATITUDE"]))
 						<th>N°</th>
 						<th>Assunto</th>
 						<th>Cliente</th>
-
 						<th>Data/Hora</th>
 						<th>Prioridade</th>
 						<th>Técnico</th>
@@ -775,7 +912,6 @@ if (ISSET($_GET["ATITUDE"]))
 					if(!empty($openx))
 					{
 						$datetime2 = new DateTime(''.date("Y-m-d H:i:s",strtotime($data2)).'');
-					
 					}else{
 						$datetime2 = new DateTime(''.date('Y-m-d H:i:s').'');
 					}
@@ -787,13 +923,13 @@ if (ISSET($_GET["ATITUDE"]))
 						$empresa=$xtab["RAZAOSOCIAL"];
 						$MUDACOR=0;
 					?> 
-					<tr style="background-image: linear-gradient(to right top, #504a55, #48444d, #403d46, #39373e, #323137);  text-align:center; font-weight:bold; color:white;">
+					<!-- LINHA DIVISÓRIA DA EMPRESA - agora com classe -->
+					<tr class="linha-empresa">
 						<td></td>
 						<td></td>
 						<td></td>
 						<td></td>
 						<td></td>
-						
 						<td style="color: white;"><?php echo strtoupper($xtab["RAZAOSOCIAL"])?></td>
 						<td></td>
 						<td></td>
@@ -801,18 +937,18 @@ if (ISSET($_GET["ATITUDE"]))
 						<td></td>
 						<td></td>
 						<td></td>
-						
-						
 					</tr>
 					<?php }
 					
 					$MUDACOR=$MUDACOR + 1;
 					
-					if ((!EMPTY($xtab["MONITORADO"]))) {?>
-						<tr title="<?PHP ECHO  str_replace('"', "", $xtab["CONTEUDO"]);?>" bgcolor="FFFF00" style="font-weight:bold; COLOR:WHITE; border-radius: 25px;" ondblclick='location.href="chamados.php?ATITUDE=<?PHP ECHO $xtab["CODIGO"]?>&TIPO=<?php echo $_SESSION["TIPO"]?>"'>
-					<?php }else{?>
-						<tr title="<?PHP ECHO  str_replace('"', "", $xtab["CONTEUDO"]);?>" ondblclick='location.href="chamados.php?ATITUDE=<?PHP ECHO $xtab["CODIGO"]?>&TIPO=<?php echo $_SESSION["TIPO"]?>"'>
-					<?php }?>
+					// Tooltip customizado com data-tooltip (controlável no dark)
+					$conteudo_tooltip = str_replace('"', "", $xtab["CONTEUDO"]);
+					?>
+					<tr data-tooltip="<?PHP ECHO $conteudo_tooltip;?>" ondblclick='location.href="chamados.php?ATITUDE=<?PHP ECHO $xtab["CODIGO"]?>&TIPO=<?php echo $_SESSION["TIPO"]?>"'
+						<?php if ((!EMPTY($xtab["MONITORADO"]))) { ?>
+							style="font-weight:bold; COLOR:WHITE; border-radius: 25px; background-color: #FFFF00 !important;"
+						<?php } ?>>
 					
 						<td><?PHP ECHO $MUDACOR?></td>
 						<td><?PHP ECHO $xtab["CODIGO"]?></td>
@@ -823,7 +959,6 @@ if (ISSET($_GET["ATITUDE"]))
 							?>
 						</td>
 						<td width=150 class="stylo2" style="text-align:center">
-							
 							<?PHP IF (!empty($xtab["NOME"])) { 
 									ECHO  "<br>" . $xtab["NOME"];
 								}
@@ -832,7 +967,6 @@ if (ISSET($_GET["ATITUDE"]))
 									ECHO  "," . $xtab["NOMEUNIDADE"];
 								}
 							?>
-							
 							<?PHP IF (!empty($xtab["NOMESETOR"])) { 
 									ECHO  "," . $xtab["NOMESETOR"];
 								}
@@ -852,7 +986,6 @@ if (ISSET($_GET["ATITUDE"]))
 							echo "<td width=150 class='stylo2' width=1 >";
 						}?>
 						
-						
 							<center>
 								<?PHP if (($xtab["PRIORIDADE"]=="3")) {?>
 									<button class="btn-success rounded-circle border-0"> <i class="fas fa-exclamation-triangle"></i> </button><br>
@@ -863,10 +996,8 @@ if (ISSET($_GET["ATITUDE"]))
 								<?php }else{ ?>
 									<button class="btn-success rounded-circle border-0"> <i class="fas fa-exclamation-triangle"></i> </button><br>
 								<?php } 
-								
 								echo $interval->format('%a dias');
 								?>
-
 							</center>
 						</td>
 						<td class="stylo2">
@@ -876,7 +1007,6 @@ if (ISSET($_GET["ATITUDE"]))
 								$SQL2="SELECT FIRST 1 NOME FROM TECNICOS WHERE CODIGO=".$xtab["ULTIMA_ALTERACAO"]." ";
 								$tabelaw=ibase_query($conexao,$SQL2); 
 								$open=ibase_fetch_assoc($tabelaw); 
-								
 								if (!empty($open))
 								{
 								 ECHO $open["NOME"] ;
@@ -903,7 +1033,6 @@ if (ISSET($_GET["ATITUDE"]))
 						<td class="stylo2" style="text-align:left"><?PHP ECHO $xtab["NOMECATEGORIA"]?></td>
 						<td class="stylo2" style="text-align:left"><?PHP ECHO $xtab["SUBCATEGORIANOME"]?></td>
 						
-						
 						<td WIDTH=8 colspan=2 >
 							<?php if (!empty($xtab["AVALIACAO"])) {?>	
 								<?php if ($xtab["AVALIACAO"]==5){	?>
@@ -920,7 +1049,6 @@ if (ISSET($_GET["ATITUDE"]))
 									<?PHP ECHO $xtab["AVALIACAOTEXTO"]?>
 								<?php }	?>
 							<?php } ?>
-
 							<br>
 							<?php if (!empty($xtab["ASSINADO_USER"])) {?>	
 								Assinado por: <?php echo $xtab["ASSINADO_USER"]?>
@@ -945,16 +1073,13 @@ if (ISSET($_GET["ATITUDE"]))
 												<button  class=" btn-warning rounded-circle border-0" onclick="status(<?PHP ECHO $xtab["CODIGO"]?>,'PA')" title="Colocar em Pause"><i class="fas fa-pause"></i></button>
 											</div><br>
 											<div class="btn-group rounded-circle border-0" role="group">
-											
 											<button class=" btn-success rounded-circle border-0" onclick="status(<?PHP ECHO $xtab["CODIGO"]?>, 'PL')" title="Iniciar Chamado"><i class="fas fa-play"></i></button>
 											</div>
 											<div class="btn-group rounded-circle border-0" role="group">
-											
 											<button class=" btn-primary rounded-circle border-0" onclick="status(<?PHP ECHO $xtab["CODIGO"]?>, 'AG')" title="Agendar chamado"><i class="fas fa-calendar-alt"></i></button>
 											</div>
 										</div><br>
 										Fechado: <?php 
-								
 										if (date('d/m/Y', strtotime ($openx["DATA"]))!='31/12/1969'){
 											echo date("d/m/Y",strtotime($openx["DATA"]));
 											echo date("H:i:s",strtotime($openx["HORA"]));
