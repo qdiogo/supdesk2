@@ -683,12 +683,68 @@ if (ISSET($_GET["ATITUDE"])){
 	$tabela=ibase_query($conexao,$SQL);  
 }  
 
+/* Painel com o escopo de empresa/setor/cliente/unidade do usuário atual. */
+$SQLPAINEL = "SELECT " .
+    "SUM(CASE WHEN (M.STATUS IS NULL OR M.STATUS='' OR M.STATUS IN ('A','PA','PL','AG')) THEN 1 ELSE 0 END) AS ABERTOS, " .
+    "SUM(CASE WHEN M.STATUS='F' THEN 1 ELSE 0 END) AS FECHADOS, " .
+    "SUM(CASE WHEN M.STATUS='A' THEN 1 ELSE 0 END) AS REABERTOS, " .
+    "SUM(CASE WHEN M.STATUS='F' AND M.ASSINADO_USER IS NULL THEN 1 ELSE 0 END) AS FALTAM_ASSINAR " .
+    "FROM CHAMADOS M INNER JOIN EMPRESAS E ON E.CODIGO=M.EMPRESA " .
+    "LEFT JOIN CLIENTES C ON C.CODIGO=COALESCE(M.CLIENTE,M.TECNICO) WHERE (1=1) ";
+if (!empty($_SESSION["NIVEL"])) {
+    if ($_SESSION["NIVEL"]=="3") $SQLPAINEL .= " AND E.CODIGO=" . $_SESSION["EMPRESA"];
+    elseif ($_SESSION["NIVEL"]=="2") $SQLPAINEL .= " AND E.CODIGO=" . $_SESSION["EMPRESA"] . " AND C.SETOR=" . $_SESSION["SETOR"];
+    elseif ($_SESSION["NIVEL"]=="1") $SQLPAINEL .= " AND E.CODIGO=" . $_SESSION["EMPRESA"] . " AND C.CODIGO=" . $_SESSION["USUARIOX"];
+    else $SQLPAINEL .= " AND E.CODIGO=" . $_SESSION["EMPRESA"];
+} else {
+    $SQLPAINEL .= " AND E.CODIGO=" . $_SESSION["EMPRESA"] . " AND C.SETOR=" . $_SESSION["SETOR"];
+}
+if (!empty($_SESSION["UNIDADE"])) {
+    $SQLPAINEL .= " AND (M.UNIDADENEGOCIO=" . $_SESSION["UNIDADE"] . " OR M.UNIDADENEGOCIO IS NULL";
+    $SQLunidadesPainel = "SELECT UNIDADE FROM UNIDADENEGOCIO_MULTIPLA WHERE EMPRESA=" . $_SESSION["EMPRESA"] . " AND USUARIO=" . $_SESSION["USUARIOX"];
+    $tabelaUnidadesPainel = ibase_query($conexao, $SQLunidadesPainel);
+    if ($tabelaUnidadesPainel) while ($unidadePainel=ibase_fetch_assoc($tabelaUnidadesPainel)) $SQLPAINEL .= " OR M.UNIDADENEGOCIO=" . $unidadePainel["UNIDADE"];
+    $SQLPAINEL .= ")";
+}
+$resultadoPainel = ibase_query($conexao, $SQLPAINEL);
+$contagensPainel = $resultadoPainel ? ibase_fetch_assoc($resultadoPainel) : array();
+$qtdAbertos = isset($contagensPainel["ABERTOS"]) ? (int)$contagensPainel["ABERTOS"] : 0;
+$qtdFechados = isset($contagensPainel["FECHADOS"]) ? (int)$contagensPainel["FECHADOS"] : 0;
+$qtdReabertos = isset($contagensPainel["REABERTOS"]) ? (int)$contagensPainel["REABERTOS"] : 0;
+$qtdFaltamAssinar = isset($contagensPainel["FALTAM_ASSINAR"]) ? (int)$contagensPainel["FALTAM_ASSINAR"] : 0;
+
 ?>   
+            <style>
+            .painel-resumo{margin:24px 0 28px;padding:22px;background:linear-gradient(135deg,#f7f9fc 0%,#eef3fb 100%);border:1px solid #e5eaf2;border-radius:16px}
+            .painel-resumo-cabecalho{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:18px}
+            .painel-resumo-titulo{margin:0;color:#263449;font-size:20px;font-weight:700}.painel-resumo-subtitulo{margin:4px 0 0;color:#778399;font-size:13px}
+            .painel-chamados{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+            .card-contagem-chamados{position:relative;overflow:hidden;min-height:120px;padding:19px 20px;background:#fff;border:1px solid #e9edf3;border-radius:13px;box-shadow:0 5px 16px rgba(34,52,80,.06)}
+            .card-contagem-chamados:before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:#3978e5}
+            .card-contagem-chamados.fechados:before{background:#21a179}.card-contagem-chamados.reabertos:before{background:#e9a23b}.card-contagem-chamados.assinar:before{background:#d95757}
+            .card-contagem-topo{display:flex;justify-content:space-between;align-items:center;gap:8px}.card-contagem-chamados .rotulo{font-size:13px;font-weight:600;color:#758197}
+            .icone-contagem{width:34px;height:34px;display:flex;align-items:center;justify-content:center;border-radius:10px;background:#edf3ff;color:#3978e5}
+            .fechados .icone-contagem{background:#e8f7f1;color:#21a179}.reabertos .icone-contagem{background:#fff5e5;color:#d89227}.assinar .icone-contagem{background:#fff0f0;color:#d95757}
+            .card-contagem-chamados .numero{margin-top:12px;font-size:31px;font-weight:750;line-height:1;color:#263449}
+            @media(max-width:900px){.painel-chamados{grid-template-columns:repeat(2,minmax(0,1fr))}}
+            @media(max-width:520px){.painel-resumo{padding:15px}.painel-chamados{grid-template-columns:1fr}.card-contagem-chamados{min-height:100px}}
+            </style>
 <div id="wrapper">    
 	<?php include "menucliente.php"?>   
 	<div id="content-wrapper" class="d-flex flex-column">     
 	  <div id="content"> 
-		<?php include "menuh.php" ?>     
+			<?php include "menuh.php" ?>
+            <div class="container-fluid">
+              <section class="painel-resumo" aria-label="Resumo de chamados">
+                <div class="painel-resumo-cabecalho"><div><h2 class="painel-resumo-titulo">Visão geral dos chamados</h2><p class="painel-resumo-subtitulo">Acompanhe a situação dos chamados da sua área</p></div></div>
+                <div class="painel-chamados">
+                  <article class="card-contagem-chamados"><div class="card-contagem-topo"><span class="rotulo">Abertos</span><span class="icone-contagem"><i class="fas fa-folder-open"></i></span></div><div class="numero"><?php echo number_format($qtdAbertos, 0, ',', '.'); ?></div></article>
+                  <article class="card-contagem-chamados fechados"><div class="card-contagem-topo"><span class="rotulo">Fechados pelo técnico</span><span class="icone-contagem"><i class="fas fa-check-circle"></i></span></div><div class="numero"><?php echo number_format($qtdFechados, 0, ',', '.'); ?></div></article>
+                  <article class="card-contagem-chamados reabertos"><div class="card-contagem-topo"><span class="rotulo">Reabertos</span><span class="icone-contagem"><i class="fas fa-redo-alt"></i></span></div><div class="numero"><?php echo number_format($qtdReabertos, 0, ',', '.'); ?></div></article>
+                  <article class="card-contagem-chamados assinar"><div class="card-contagem-topo"><span class="rotulo">Faltam assinar</span><span class="icone-contagem"><i class="fas fa-file-signature"></i></span></div><div class="numero"><?php echo number_format($qtdFaltamAssinar, 0, ',', '.'); ?></div></article>
+                </div>
+              </section>
+            </div>
 		<div class="modal fade bd-example-modal-lg" id="ExemploModalCentralizado" tabindex="-1" role="dialog" aria-labelledby="TituloModalCentralizado" aria-hidden="true">  
 		  <div class="modal-dialog modal-lg" role="document"> 
 			<div class="modal-content">   
@@ -992,7 +1048,11 @@ if (ISSET($_GET["ATITUDE"])){
 										<button class="btn btn-dark" title='Anexar arquivos no Chamado' onclick="abrirarquivos(<?PHP ECHO $xtab["CODIGO"]?>)"><i class="far fa-folder-open"></i></button>
 									</div>
 									<div class="btn-group" role="group">
-										<button class="btn btn-success" title='Validar Chamado' onclick="assinarchamado(<?PHP ECHO $xtab["CODIGO"]?>)"><i class="fa fa-assistive-listening-systems"></i></button>
+							<?php if (trim($xtab["STATUS"]) == "F") { ?>
+								<button class="btn btn-success" title="Assinar chamado fechado pelo técnico" onclick="assinarchamado(<?php echo (int)$xtab["CODIGO"]; ?>)"><i class="fa fa-assistive-listening-systems"></i></button>
+							<?php } else { ?>
+								<button class="btn btn-secondary" title="A assinatura só fica disponível após o fechamento pelo técnico" disabled><i class="fa fa-assistive-listening-systems"></i></button>
+							<?php } ?>
 									</div>
 								</td>
 							</table>

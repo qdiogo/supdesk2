@@ -1,18 +1,97 @@
+<?php
+include "conexao2.php";
+if (empty($_SESSION["USUARIOX"])) { http_response_code(403); exit("Acesso exclusivo à área do cliente."); }
+function clientePodeAcessarChamado($conexao, $codigo, $cliente) {
+    $st = @ibase_prepare($conexao, "SELECT FIRST 1 CODIGO FROM CHAMADOS WHERE CODIGO=? AND CLIENTE=?");
+    if (!$st) return false;
+    $rs = @ibase_execute($st, (int)$codigo, (int)$cliente);
+    return $rs && (bool)@ibase_fetch_assoc($rs);
+}
+foreach (array(isset($_GET["CODIGO"])?(int)$_GET["CODIGO"]:0, isset($_POST["codigo"])?(int)$_POST["codigo"]:0) as $codigoVerificar) {
+    if ($codigoVerificar > 0 && !clientePodeAcessarChamado($conexao, $codigoVerificar, $_SESSION["USUARIOX"])) {
+        http_response_code(403); exit("Você não tem acesso a este chamado.");
+    }
+}
+?>
+<?php @ibase_query($conexao, "CREATE TABLE CHAMADO_IMAGENS (ID INTEGER NOT NULL, CHAMADO INTEGER NOT NULL, NOME VARCHAR(255) NOT NULL, DESCRICAO VARCHAR(1000), DATAHORA TIMESTAMP)"); ?>
+
+<?php
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['print_base64'])) {
+    /* Recebe uma imagem em data URL, converte para binário e grava como arquivo. */
+    $retorno = function($ok, $mensagem, $url='') {
+        header('Content-Type: text/plain; charset=utf-8');
+        echo ($ok ? 'PRINT_OK|' : 'PRINT_ERRO|') . $mensagem . ($url !== '' ? '|' . $url : '');
+        exit;
+    };
+
+    $codigo = filter_input(INPUT_POST, 'codigo', FILTER_VALIDATE_INT);
+    if (!$codigo || $codigo < 1) $retorno(false, 'Chamado inválido.');
+    if (!clientePodeAcessarChamado($conexao, $codigo, $_SESSION['USUARIOX'])) { http_response_code(403); $retorno(false, 'Você não tem acesso a este chamado.'); }
+
+    $data = trim($_POST['print_base64']);
+    if (!preg_match('/^data:(image\\/(png|jpeg|jpg|gif|webp|bmp));base64,(.*)$/s', $data, $m)) {
+        $retorno(false, 'Base64 de imagem inválido.');
+    }
+    $binario = base64_decode($m[3], true);
+    if ($binario === false || strlen($binario) > 8*1024*1024) $retorno(false, 'A imagem excede 8 MB ou está corrompida.');
+
+    $temp = tempnam(sys_get_temp_dir(), 'print_');
+    if ($temp === false || file_put_contents($temp, $binario) === false) $retorno(false, 'Não foi possível preparar a imagem.');
+    $info = @getimagesize($temp);
+    $mime = $info && isset($info['mime']) ? $info['mime'] : '';
+    $tipos = array('image/png'=>'png','image/jpeg'=>'jpg','image/gif'=>'gif','image/webp'=>'webp','image/bmp'=>'bmp');
+    if (!isset($tipos[$mime])) { @unlink($temp); $retorno(false, 'O conteúdo não é uma imagem válida.'); }
+
+    $dir = __DIR__ . DIRECTORY_SEPARATOR . 'arquivos';
+    if (!is_dir($dir) && !@mkdir($dir, 0755, true)) { @unlink($temp); $retorno(false, 'Não foi possível criar a pasta arquivos.'); }
+    $nome = 'print_' . date('Ymd_His') . '_' . md5(uniqid('', true)) . '.' . $tipos[$mime];
+    $destino = $dir . DIRECTORY_SEPARATOR . $nome;
+    if (!@rename($temp, $destino)) { @unlink($temp); $retorno(false, 'Não foi possível salvar a imagem.'); }
+
+    @ibase_query($conexao, "INSERT INTO CHAMADO_IMAGENS (ID, CHAMADO, NOME, DESCRICAO, DATAHORA) VALUES ((SELECT COALESCE(MAX(ID),0)+1 FROM CHAMADO_IMAGENS), ".(int)$codigo.", '".str_replace("'","''",$nome)."', '', CURRENT_TIMESTAMP)");
+    $stmt = @ibase_prepare($conexao, 'INSERT INTO DOCUMENTOS (IMAGEM, ID, TABELA) VALUES (?, ?, ?)');
+    $ok = $stmt ? @ibase_execute($stmt, $nome, $codigo, 'CHAMADOS') : false;
+    if (!$ok) { @unlink($destino); $retorno(false, 'Não foi possível gravar o print no banco.'); }
+    $retorno(true, 'Print salvo e anexado ao chamado.', 'arquivos/' . rawurlencode($nome) . '|' . $nome);
+}?>
+
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
+
   <link rel="apple-touch-icon" sizes="76x76" href="../assets/img/apple-icon.png">
   <link rel="icon" type="image/png" href="../assets/img/favicon.png">
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
   <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no' name='viewport' />
   <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Roboto+Slab:400,700|Material+Icons" />
   <title>Sistema de Suporte Ga</title>
-  <?php 
-  include "conexao2.php" ;
-  include "css.php"?>
-       
+  <?php include "css.php"?>
+  
   <script>
+	function retira_acentos(str) 
+	{
+		com_acento = "ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝRÞßàáâãäåæçèéêëìíîïðñòóôõöøùúûüýþÿr";
+		sem_acento = "AAAAAAACEEEEIIIIDNOOOOOOUUUUYRsBaaaaaaaceeeeiiiionoooooouuuuybyr";
+		novastr="";
+		for(i=0; i<str.length; i++) {
+			troca=false;
+			for (a=0; a<com_acento.length; a++) {
+				if (str.substr(i,1)==com_acento.substr(a,1)) {
+					novastr+=sem_acento.substr(a,1);
+					troca=true;
+					break;
+				}
+			}
+			if (troca==false) {
+				novastr+=str.substr(i,1);
+			}
+		}
+		return novastr;
+	}     
+	$(document).on('click', '#EmitirRelatorio', function(){
+	   document.getElementById("EmitirRelatorio").innerHTML = '<span class="glyphicon glyphicon-refresh "></span> Carregando...';
+	})
 	function createRequestObject()
 	{
 		var ro;
@@ -37,6 +116,11 @@
 		document.getElementById("abrirmodal").click();
 	}
 	
+	function fecharautomatico()
+	{
+		document.getElementById("fecharchamadow").click();
+	}
+	
 	function status(chave, STATUS)
 	{
 		if (document.getElementById("categoria").value=='')
@@ -49,7 +133,7 @@
 			}else{
 				if (STATUS=='AG')
 				{
-					location.href="cliente_chamados_tela.php?CODIGO="  + chave + "&STATUS=" + STATUS;
+					location.href="chamados_tela.php?CODIGO="  + chave + "&STATUS=" + STATUS;
 				}else{
 					location.href="status.php?TIPO=T&CODIGO="  + chave + "&STATUS=" + STATUS + "&CATEGORIA=" + document.getElementById("categoria").value +  "&SUBCATEGORIAS=" + document.getElementById("SUBCATEGORIAS").value;
 				}
@@ -96,18 +180,520 @@
 			}
 		}
 	}
-	function abrirarquivos(indice)
+	
+	
+	
+	var http1 = createRequestObject();
+	function escrever(campo)
 	{
-		window.open('documentos_chamados.php?CODIGO=' + indice,'page','toolbar=no,location=no,status=no,menubar=no,scrollbars=no,resizable=no,width=900,height=900');
-	} 
+		if (document.getElementById("textotecnico").value!='')
+		{
+			document.getElementById("textoantigo").innerHTML=document.getElementById("textotecnico").value;
+			document.getElementById("texto").innerHTML='Verificando o texto';
+			http1.open('get', 'ia?texto=' + retira_acentos(document.getElementById("textotecnico").value)  + "&tipo=" + document.getElementById("tiposelecao1").value );
+			http1.onreadystatechange = xcatx1;
+			http1.send(null);
+		}else{
+			alert("Por favor digite alguma coisa");
+		}
+	}
+
+	function xcatx1()
+	{
+		if(http1.readyState == 4)
+		{
+			
+			var response = http1.responseText;
+			 document.getElementById("textotecnico").value=http1.responseText;
+			 document.getElementById("texto").innerHTML='';
+		}
+	}
+	
+	var http1 = createRequestObject();
+	function escrever2(campo)
+	{
+		if (document.getElementById("COMENTARIO").value!='')
+		{
+			document.getElementById("textoantigo2").innerHTML=document.getElementById("COMENTARIO").value;
+			document.getElementById("texto2").innerHTML='Verificando o texto';
+			http1.open('get', 'ia?texto=' + retira_acentos(document.getElementById("COMENTARIO").value)  + "&tipo=" + document.getElementById("tiposelecao2").value );
+			http1.onreadystatechange = xcatx;
+			http1.send(null);
+		}else{
+			alert("Por favor digite alguma coisa");
+		}
+	}
+
+	function xcatx()
+	{
+		if(http1.readyState == 4)
+		{
+			
+			var response = http1.responseText;
+			 document.getElementById("COMENTARIO").value=http1.responseText;
+			 document.getElementById("texto2").innerHTML='';
+		}
+	}
+	
   </script>
+  <script>
+	 function falarTexto() {
+      var texto = document.getElementById("textoconteudo").value;
+
+      if (texto !== "") {
+        var sintese = new SpeechSynthesisUtterance(texto);
+        var vozes = window.speechSynthesis.getVoices();
+
+        if (vozes.length === 0) {
+          setTimeout(falarTexto, 100);
+          return;
+        }
+
+        for (var i = 0; i < vozes.length; i++) {
+          if (vozes[i].lang === "pt-BR" && vozes[i].name.toLowerCase().includes("feminine")) {
+            sintese.voice = vozes[i];
+            break;
+          }
+        }
+
+        if (!sintese.voice) {
+          for (var i = 0; i < vozes.length; i++) {
+            if (vozes[i].lang === "pt-BR") {
+              sintese.voice = vozes[i];
+              break;
+            }
+          }
+        }
+
+        sintese.rate = 1.4;
+        sintese.pitch = -1;
+        sintese.volume = 100;
+
+        window.speechSynthesis.speak(sintese);
+      } else {
+        alert("Por favor, digite algo!");
+      }
+    }
+
+    window.speechSynthesis.onvoiceschanged = function() {
+      falarTexto();
+    };
+  </script>
+  
+  <script>
+    var recognition = null;
+    if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
+      recognition = 'SpeechRecognition' in window ? new SpeechRecognition() : new webkitSpeechRecognition();
+      recognition.lang = "pt-BR";
+      recognition.continuous = true;
+      recognition.interimResults = true;
+      recognition.maxAlternatives = 1;
+
+      recognition.onresult = function(event) {
+        var textoReconhecido = event.results[event.resultIndex][0].transcript;
+        document.getElementById("textotecnico").value = textoReconhecido;
+      };
+
+      recognition.onend = function() {
+        console.log("Reconhecimento de fala finalizado.");
+      };
+
+      recognition.onerror = function(event) {
+        console.error("Erro no reconhecimento de fala: " + event.error);
+      };
+    } else {
+    }
+
+    function iniciarReconhecimento() {
+      if (recognition) {
+        recognition.start();
+      } else {
+      }
+    }
+  </script>
+  <style>
+	.xresp{
+		word-wrap: break-word;
+		overflow-wrap: break-word;
+		-ms-word-break: break-all;
+		word-break: break-all;
+		word-break: break-word;
+		-ms-hyphens: auto;
+		-moz-hyphens: auto;
+		-webkit-hyphens: auto;
+		hyphens: auto;
+	}
+	.REQ{
+		word-wrap: break-word;
+		overflow-wrap: break-word;
+		-ms-word-break: break-all;
+		word-break: break-all;
+		word-break: break-word;
+		-ms-hyphens: auto;
+		-moz-hyphens: auto;
+		-webkit-hyphens: auto;
+		hyphens: auto;
+	}
+	.doc-card{
+		border: 1px solid #e0e0e0;
+		border-radius: 10px;
+		padding: 10px;
+		margin: 8px 0;
+		background: #fff;
+		transition: all 0.25s ease;
+		cursor: pointer;
+		text-align: center;
+		box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+	}
+	.doc-card:hover{
+		box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+		transform: translateY(-3px);
+		border-color: #999;
+	}
+	.doc-thumb-wrap{
+		width: 100%;
+		height: 120px;
+		border-radius: 8px;
+		margin-bottom: 8px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		overflow: hidden;
+		background: #f7f7f9;
+	}
+	.doc-thumb-wrap img.thumb{
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		display: block;
+	}
+	.doc-icone{
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		width: 100%;
+		height: 100%;
+		color: #fff;
+		font-weight: bold;
+		font-family: Arial, sans-serif;
+	}
+	.doc-icone .icone-emoji{
+		font-size: 42px;
+		line-height: 1;
+		margin-bottom: 6px;
+	}
+	.doc-icone .icone-ext{
+		font-size: 13px;
+		letter-spacing: 1px;
+		background: rgba(0,0,0,0.25);
+		padding: 2px 10px;
+		border-radius: 10px;
+	}
+	.icone-pdf   { background: linear-gradient(135deg, #e53935, #b71c1c); }
+	.icone-excel { background: linear-gradient(135deg, #43a047, #1b5e20); }
+	.icone-word  { background: linear-gradient(135deg, #1e88e5, #0d47a1); }
+	.icone-zip   { background: linear-gradient(135deg, #fb8c00, #e65100); }
+	.icone-txt   { background: linear-gradient(135deg, #757575, #424242); }
+	.icone-generico { background: linear-gradient(135deg, #546e7a, #263238); }
+	.doc-label{
+		display: inline-block;
+		background: #323137;
+		color: #fff;
+		font-size: 11px;
+		font-weight: bold;
+		padding: 3px 10px;
+		border-radius: 10px;
+		margin-bottom: 6px;
+	}
+	.doc-nome{
+		font-size: 11px;
+		color: #666;
+		word-break: break-all;
+		line-height: 1.2;
+	}
+	.lightbox-overlay{
+		display: none;
+		position: fixed;
+		z-index: 99999;
+		top: 0; left: 0; right: 0; bottom: 0;
+		background: rgba(0,0,0,0.92);
+		justify-content: center;
+		align-items: center;
+	}
+	.lightbox-overlay.active{
+		display: flex;
+	}
+	.lightbox-overlay img#lightbox-img{
+		max-width: 90%;
+		max-height: 85%;
+		border-radius: 8px;
+		box-shadow: 0 0 40px rgba(0,0,0,0.7);
+		background: #222;
+	}
+	.lightbox-close{
+		position: absolute;
+		top: 20px; right: 30px;
+		color: #fff;
+		font-size: 42px;
+		cursor: pointer;
+		background: rgba(255,255,255,0.15);
+		border: none;
+		line-height: 1;
+		width: 50px;
+		height: 50px;
+		border-radius: 50%;
+		transition: background 0.2s;
+	}
+	.lightbox-close:hover{ background: rgba(255,255,255,0.35); }
+	.lightbox-nav{
+		position: absolute;
+		top: 50%;
+		transform: translateY(-50%);
+		background: rgba(255,255,255,0.15);
+		border: none;
+		color: #fff;
+		font-size: 38px;
+		width: 60px;
+		height: 60px;
+		border-radius: 50%;
+		cursor: pointer;
+		transition: background 0.2s;
+	}
+	.lightbox-nav:hover{ background: rgba(255,255,255,0.4); }
+	.lightbox-prev{ left: 30px; }
+	.lightbox-next{ right: 30px; }
+	.lightbox-counter{
+		position: absolute;
+		bottom: 24px;
+		left: 50%;
+		transform: translateX(-50%);
+		color: #fff;
+		font-size: 15px;
+		background: rgba(0,0,0,0.6);
+		padding: 6px 18px;
+		border-radius: 20px;
+	}
+	.lightbox-title{
+		position: absolute;
+		top: 24px;
+		left: 50%;
+		transform: translateX(-50%);
+		color: #fff;
+		font-size: 15px;
+		background: rgba(0,0,0,0.6);
+		padding: 6px 18px;
+		border-radius: 20px;
+		max-width: 60%;
+		text-align: center;
+		word-break: break-all;
+	}
+	.qr-box{
+		background: #fafafa;
+		border: 1px solid #eee;
+		border-radius: 8px;
+		padding: 10px;
+		margin-bottom: 10px;
+	}
+	/* ===== MENU DE OPÇÕES PARA ARQUIVOS NÃO-IMAGEM ===== */
+	.menu-arquivo-opcoes{
+		position: absolute;
+		z-index: 99998;
+		background: #fff;
+		border: 1px solid #d0d0d0;
+		border-radius: 8px;
+		box-shadow: 0 8px 24px rgba(0,0,0,0.18);
+		padding: 6px;
+		min-width: 210px;
+		animation: fadeInMenu 0.15s ease;
+	}
+	@keyframes fadeInMenu{
+		from{ opacity:0; transform: translateY(-6px); }
+		to  { opacity:1; transform: translateY(0); }
+	}
+	.menu-arquivo-opcoes button{
+		display: block;
+		width: 100%;
+		text-align: left;
+		background: transparent;
+		border: none;
+		padding: 10px 14px;
+		font-size: 14px;
+		color: #333;
+		cursor: pointer;
+		border-radius: 6px;
+		transition: background 0.15s;
+	}
+	.menu-arquivo-opcoes button:hover{
+		background: #f0f0f5;
+		color: #000;
+	}
+	.menu-arquivo-opcoes button + button{
+		border-top: 1px solid #f0f0f0;
+	}
+  
+/* Print colado sem alterar a textarea original */
+.area-print-colado{margin-top:10px;padding:10px;border:1px dashed #aaa;border-radius:6px;background:#fafafa}
+.preview-print-colado{display:none;align-items:center;gap:10px;margin-top:8px}
+.preview-print-colado img{max-width:220px;max-height:140px;border:1px solid #ddd;border-radius:4px}
+.status-print-colado{font-size:13px;margin-top:6px;color:#666}.descricao-print{min-width:220px;padding:5px;border:1px solid #ccc;border-radius:4px}.card-imagens-mural{border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.10)}.card-imagem-mural{border-radius:10px;border:1px solid #e5e5e5;margin-bottom:16px;background:#fff}.card-imagem-mural img{cursor:zoom-in}
+</style>
 </head>
-<?php if($_GET["STATUS"]=="AG"){?>
-	<body onload="automatico()">
-<?PHP }else{?>
-	<body class="">
-<?php } 
+<?php 
+	$codigo = !empty($_GET["CODIGO"]) ? (int)$_GET["CODIGO"] : 0;
+
+	$imagens_galeria = array();
+	if ($codigo != "0") {
+		$SQL3_gal = "SELECT IMAGEM FROM DOCUMENTOS WHERE TABELA='CHAMADOS' AND ID=" . $codigo . " AND IMAGEM IS NOT NULL";
+		$tab_gal = ibase_query($conexao, $SQL3_gal);
+		$seq_gal = 0;
+		if ($tab_gal) {
+			while ($g = ibase_fetch_assoc($tab_gal)) {
+				$seq_gal++;
+				$imagens_galeria[] = array('num' => $seq_gal, 'imagem' => $g["IMAGEM"]);
+			}
+		}
+	}
 ?>
+<body class="">
+
+	<script>
+		var galeriaImagens = <?php echo json_encode(array_map(function($i){ return 'arquivos/' . $i['imagem']; }, array_values(array_filter($imagens_galeria, function($i){ return in_array(strtolower(pathinfo($i['imagem'], PATHINFO_EXTENSION)), array('jpg','jpeg','png','gif','bmp','webp')); })))); ?>;
+		var galeriaNomes   = <?php echo json_encode(array_map(function($i){ return $i['imagem']; }, array_values(array_filter($imagens_galeria, function($i){ return in_array(strtolower(pathinfo($i['imagem'], PATHINFO_EXTENSION)), array('jpg','jpeg','png','gif','bmp','webp')); })))); ?>;
+		var lightboxIndex  = 0;
+
+		function abrirLightbox(index) {
+			if (typeof galeriaImagens === 'undefined' || galeriaImagens.length === 0) return;
+			if (typeof index !== 'number' || index < 0) index = 0;
+			if (index >= galeriaImagens.length) index = 0;
+			lightboxIndex = index;
+			document.getElementById('lightbox').classList.add('active');
+			atualizarLightbox();
+		}
+		function atualizarLightbox() {
+			var img = document.getElementById('lightbox-img');
+			var titulo = document.getElementById('lightbox-title');
+			var contador = document.getElementById('lightbox-counter');
+			img.src = galeriaImagens[lightboxIndex];
+			titulo.textContent = 'DOC-' + (lightboxIndex + 1) + ' • ' + galeriaNomes[lightboxIndex];
+			contador.textContent = (lightboxIndex + 1) + ' / ' + galeriaImagens.length;
+			document.querySelector('.lightbox-prev').style.display = galeriaImagens.length > 1 ? 'block' : 'none';
+			document.querySelector('.lightbox-next').style.display = galeriaImagens.length > 1 ? 'block' : 'none';
+		}
+		function fecharLightbox() {
+			document.getElementById('lightbox').classList.remove('active');
+		}
+		function navegarLightbox(delta) {
+			if (galeriaImagens.length === 0) return;
+			lightboxIndex = (lightboxIndex + delta + galeriaImagens.length) % galeriaImagens.length;
+			atualizarLightbox();
+		}
+
+function iniciarColagemPrint(){
+ document.querySelectorAll('.campo-print').forEach(function(campo){
+  campo.addEventListener('paste',function(e){
+   var itens=(e.clipboardData||window.clipboardData).items||[];
+   for(var i=0;i<itens.length;i++){
+    if(itens[i].kind==='file' && itens[i].type.indexOf('image/')===0){
+     e.preventDefault();
+     var arquivo=itens[i].getAsFile(), form=campo.form;
+     var box=form.querySelector('.area-print-colado'), status=box.querySelector('.status-print-colado'), preview=box.querySelector('.preview-print-colado'), img=preview.querySelector('img');
+     var leitor=new FileReader();
+     status.textContent='Convertendo print para Base64...';status.style.color='#666';
+     leitor.onload=function(){
+      var dados=new FormData();
+      dados.append('codigo',form.getAttribute('data-codigo-chamado'));
+      dados.append('print_base64',leitor.result);
+      fetch(window.location.href,{method:'POST',body:dados,credentials:'same-origin'})
+       .then(function(r){return r.text();})
+       .then(function(t){
+        var linha=t.trim().split('|');
+        if(linha[0]!=='PRINT_OK') throw new Error(linha[1]||'Não foi possível salvar o print.');
+        img.src=linha[2];box.setAttribute('data-nome',linha[3]||linha[2].split('/').pop());preview.style.display='flex';status.textContent=linha[1]||'Print salvo e anexado ao chamado.';status.style.color='#287a35';
+       })
+       .catch(function(err){status.textContent=err.message;status.style.color='#b00020';});
+     };
+     leitor.onerror=function(){status.textContent='Não foi possível converter o print para Base64.';status.style.color='#b00020';};
+     leitor.readAsDataURL(arquivo);
+     return;
+    }
+   }
+  });
+ });
+}
+
+
+document.addEventListener('DOMContentLoaded',iniciarColagemPrint);
+
+		document.addEventListener('keydown', function(e){
+			var lb = document.getElementById('lightbox');
+			if (!lb || !lb.classList.contains('active')) return;
+			if (e.key === 'Escape') fecharLightbox();
+			if (e.key === 'ArrowLeft') navegarLightbox(-1);
+			if (e.key === 'ArrowRight') navegarLightbox(1);
+		});
+		document.addEventListener('DOMContentLoaded', function(){
+			var lb = document.getElementById('lightbox');
+			if (lb) lb.addEventListener('click', function(e){ if (e.target === this) fecharLightbox(); });
+		});
+
+		/* ============================================================
+		   OPÇÕES PARA ARQUIVOS NÃO-IMAGEM (Abrir / Baixar)
+		   ============================================================ */
+		function abrirArquivo(url) {
+			window.open(url, '_blank');
+			fecharMenuArquivo();
+		}
+		function baixarArquivo(url, nome) {
+			var link = document.createElement('a');
+			link.href = url;
+			link.download = nome || '';
+			document.body.appendChild(link);
+			link.click();
+			document.body.removeChild(link);
+			fecharMenuArquivo();
+		}
+		function fecharMenuArquivo() {
+			var menu = document.querySelector('.menu-arquivo-opcoes');
+			if (menu) menu.remove();
+		}
+		function mostrarOpcoesArquivo(event, url, nome) {
+			event.stopPropagation();
+			fecharMenuArquivo();
+
+			var menu = document.createElement('div');
+			menu.className = 'menu-arquivo-opcoes';
+			menu.innerHTML =
+				'<button type="button" onclick="abrirArquivo(\'' + url + '\')">' +
+					'&#128065;&nbsp; Abrir no navegador' +
+				'</button>' +
+				'<button type="button" onclick="baixarArquivo(\'' + url + '\', \'' + nome.replace(/'/g, "\\'") + '\')">' +
+					'&#11015;&nbsp; Baixar arquivo' +
+				'</button>';
+
+			document.body.appendChild(menu);
+
+			var top  = event.pageY + 8;
+			var left = event.pageX + 8;
+			menu.style.top  = top + 'px';
+			menu.style.left = left + 'px';
+
+			var rect = menu.getBoundingClientRect();
+			if (rect.right > window.innerWidth) {
+				menu.style.left = (window.innerWidth - rect.width - 12) + 'px';
+			}
+			if (rect.bottom > window.innerHeight) {
+				menu.style.top = (event.pageY - rect.height - 8) + 'px';
+			}
+		}
+		document.addEventListener('click', function(e){
+			var menu = document.querySelector('.menu-arquivo-opcoes');
+			if (menu && !e.target.closest('.doc-card')) {
+				menu.remove();
+			}
+		});
+	</script>
+
 	<input type="hidden" id="abrirmodal" data-toggle="modal" data-target="#ExemploModalCentralizado">
 	<div class="modal fade" id="ExemploModalCentralizado" tabindex="-1" role="dialog" aria-labelledby="TituloModalCentralizado" aria-hidden="true">
 	  <div class="modal-dialog modal-dialog-centered" role="document">
@@ -129,8 +715,8 @@
 			</div>
 			<input type="hidden" name="codigo" value="0">
 		  <div class="modal-footer">
-			<button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
-			<button type="submit" class="btn btn-success">Salvar</button>
+			<button type="button"  class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+			<button type="submit"  class="btn btn-success">Salvar</button>
 		  </div>
 		 </form>
 		</div>
@@ -146,50 +732,65 @@
 	<?php 
 	$tela = "Sistema de Suporte";
 	
-	$SQL="SELECT FIRST 1 CAST(M.FEITO AS VARCHAR(20000)) AS FEITO, CAST(M.MOTIVO2 AS VARCHAR(20000)) AS MOTIVO2, M.CODIGO, E.RAZAOSOCIAL, M.DATAHORA, M.EMAIL, CA.DESCRICAO AS NOMECATEGORIA, M.SUBCATEGORIA, S.DESCRICAO AS SUBCATEGORIANOME, CAST(CONTEUDO AS VARCHAR(20000)) AS CONTEUDO, M.CATEGORIA, M.ASSUNTO, M.EMPRESA, C.NOME, UPPER(C.SETOR) AS SETOR, M.USUARIO, (SELECT DESCRICAO FROM MANUTENCAO WHERE CODIGO=M.manutencao) AS MANUTENCAO, (T.NOME) AS NOMETECNICO, M.TECNICO, (SELECT DESCRICAO FROM CATEGORIA WHERE CODIGO=M.CATEGORIA) AS CATEGORIA, M.ASSUNTO, M.AGENDAMENTO, M.PRIORIDADE, M.STATUS FROM CHAMADOS M ".
+	$SQL="SELECT M.CODIGO, E.RAZAOSOCIAL, E.CNPJ, M.RESPONSAVEL, CAST(M.FEITO AS VARCHAR(20000)) AS FEITO, M.MONITORADO, CAST(M.MOTIVO2 AS VARCHAR(20000)) AS MOTIVO2, M.TELEFONE, M.CELULAR,  M.DATAHORA, M.EMAIL, CA.DESCRICAO AS NOMECATEGORIA, M.SUBCATEGORIA, S.DESCRICAO AS SUBCATEGORIANOME, CAST(CONTEUDO AS VARCHAR(20000)) AS CONTEUDO, M.CATEGORIA, M.ASSUNTO, M.EMPRESA, C.NOME, UPPER(C.SETOR) AS SETOR, M.USUARIO, (SELECT DESCRICAO FROM MANUTENCAO WHERE CODIGO=M.manutencao) AS MANUTENCAO, (T.NOME) AS NOMETECNICO, M.TECNICO, (SELECT DESCRICAO FROM CATEGORIA WHERE CODIGO=M.CATEGORIA) AS CATEGORIA, M.ASSUNTO, M.AGENDAMENTO, M.PRIORIDADE, M.STATUS FROM CHAMADOS M ".
 	"LEFT JOIN EMPRESAS E ON (E.CODIGO=M.EMPRESA) ".
 	"LEFT JOIN CLIENTES C ON (C.CODIGO=M.CLIENTE) ".
 	"LEFT JOIN CATEGORIA CA ON (CA.CODIGO=M.CATEGORIA) ".
 	"LEFT JOIN SUBCATEGORIAS S ON (S.CODIGO=M.SUBCATEGORIA) ".
 	"LEFT JOIN TECNICOS T ON (T.CODIGO=M.TECNICO)  ";
-	if (!empty($_GET["CODIGO"])){
-		$CODIGO=$_GET["CODIGO"];
-		$SQL=$SQL . " WHERE M.CODIGO=" . $_GET["CODIGO"];
-	}else{
-		$CODIGO="0";
-	}
+	$CODIGO = isset($_GET["CODIGO"]) ? (int)$_GET["CODIGO"] : 0;
+if ($CODIGO < 1) { http_response_code(400); exit("Número do chamado inválido."); }
+$SQL = $SQL . " WHERE M.CODIGO=" . $CODIGO . " AND M.CLIENTE=" . (int)$_SESSION["USUARIOX"];
+$tabela = ibase_query($conexao, $SQL);
+$xtab = $tabela ? ibase_fetch_assoc($tabela) : false;
+if (!$xtab) { http_response_code(404); exit("Chamado não encontrado."); }
 	
-	$tabela= ibase_query ($conexao, $SQL);
-	$xtab = ibase_fetch_assoc($tabela);
-	?>
+	
+	function saudacao() {
+		date_default_timezone_set('America/Sao_Paulo');
+		$hora = date('H');
+		if( $hora >= 6 && $hora <= 11 )
+			return 'Bom dia, ';
+		else if ( $hora > 12 && $hora <=17  )
+			return 'Boa tarde, ';
+		else
+			return 'Boa noite, ';
+	}
+?>
 
-	<div class="modal fade" id="fecharchamado" tabindex="-1" role="dialog" aria-labelledby="TituloModalCentralizado" aria-hidden="true">
-	  <div class="modal-dialog modal-dialog-centered" role="document">
+	<?php if (empty($_SESSION["USUARIOX"])) { ?>
+<div class="modal fade" id="fecharchamado" tabindex="-1" role="dialog" aria-labelledby="TituloModalCentralizado" aria-hidden="true">
+	  <div class="modal-dialog modal-xl" role="document">
 		<div class="modal-content">
 		  <div class="modal-header" style="background-image: linear-gradient(to right top, #504a55, #48444d, #403d46, #39373e, #323137); color: white; font-weight: bold; font-size: 70px;">   
-			<h5 class="modal-title" id="TituloModalCentralizado" align="center">Fechando o chamado</h5>
+			<h5 class="modal-title" id="TituloModalCentralizado" align="center">Fechando o chamado <button onclick="escrever('textotecnico')" TYPE="button">Processar IA</button> 
+				Tipo
+				<select id="tiposelecao1">
+					<option>Formalizar Texto</option>
+					<option>Corrigir texto</option>
+					<option>Melhorar Texto</option>
+				</select>
+			</h5>
 			<button type="button" class="close" data-dismiss="modal" aria-label="Fechar">
 				<span aria-hidden="true">&times;</span>
 			</button>
+			
 		  </div>
-		  <form method="post" action="fecharchamado.php?codigo=<?php echo $_GET["CODIGO"]?>">
+		  <form method="post" action="fecharchamado.php?codigo=<?php echo $_GET["CODIGO"]?>" data-codigo-chamado="<?php echo (int)$_GET["CODIGO"]; ?>">
 			<div class="modal-body">
 				<div class="row">
 					<div class="col-md-12">
-						<label><STRONG>Serviço executado: </STRONG></label>
-						<textarea class="form-control" name="textotecnico" id="textotecnico"></textarea>
-					</div>
-				</div>
-				<div class="row">
-					<div class="col-md-12">
-						<label><STRONG>Solicitação</STRONG></label>
-						<textarea class="form-control" REQUIRED><?php echo $xtab["CONTEUDO"]?></textarea>
+						<label><STRONG>Solicitado:</STRONG></label> <?php echo $xtab["CONTEUDO"]?><br>
+						<label><STRONG>Serviço executado</STRONG></label>
+						<label> <br> <div id="textoantigo"></div> <br>  <center><div id="texto"></div></center>  </label>
+						<textarea class="form-control campo-print" rows=30 cols=1 name="textotecnico"  id="textotecnico"><?php echo saudacao()?></textarea>
+<div class="area-print-colado"><b>Print do cliente</b><small> Cole o print com Ctrl+V enquanto o cursor estiver na textarea.</small><div class="preview-print-colado"><img src="" alt="Print colado"><span>Anexado ao chamado.</span></div><div class="status-print-colado">Nenhum print anexado.</div></div>
 					</div>
 				</div>
 			</div>
 			<input type="hidden" name="codigo" value="0">
 			<div class="modal-footer">
-			  <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+			  <button type="button" class="btn btn-secondary"  data-loading-text="Carregando..."  data-dismiss="modal">Fechar</button>
 			<button type="submit" class="btn btn-success">Salvar</button>
 			</div>
 		 </form>
@@ -197,7 +798,8 @@
 	  </div>
 	</div>
 	
-	<div class="modal fade" id="abrirchamado" tabindex="-1" role="dialog" aria-labelledby="TituloModalCentralizado" aria-hidden="true">
+	<?php } ?>
+<div class="modal fade" id="abrirchamado" tabindex="-1" role="dialog" aria-labelledby="TituloModalCentralizado" aria-hidden="true">
 	  <div class="modal-dialog modal-dialog-centered" role="document">
 		<div class="modal-content">
 			<div class="modal-header" style="background-image: linear-gradient(to right top, #504a55, #48444d, #403d46, #39373e, #323137); color: white; font-weight: bold; font-size: 70px;">   
@@ -223,7 +825,7 @@
 			</div>
 			<input type="hidden" name="codigo" value="0">
 			<div class="modal-footer"> 
-				<button type="button" class="btn btn-danger" data-dismiss="modal" onclick='location.href="cliente_chamados_tela.php?CODIGO=<?php echo $_GET["CODIGO"]?>"'>Fechar</button> 
+				<button type="button" class="btn btn-danger" data-dismiss="modal" onclick='location.href="chamados_tela.php?CODIGO=<?php echo $_GET["CODIGO"]?>"'>Fechar</button> 
 				<button type="submit" class="btn btn-success">Salvar mudancas</button>  
 			</div>
 		 </form>
@@ -235,23 +837,40 @@
 	  <div class="modal-dialog modal-dialog-centered" role="document">
 		<div class="modal-content">
 			<div class="modal-header" style="background-image: linear-gradient(to right top, #504a55, #48444d, #403d46, #39373e, #323137); color: white; font-weight: bold; font-size: 70px;">   
-				<h5 class="modal-title" id="TituloModalCentralizado" align="center">Reabrindo o Chamado</h5>
+				<h5 class="modal-title" id="TituloModalCentralizado" align="center">Adicionar comentário ao chamado</h5>
 				<button type="button" class="close" data-dismiss="modal" aria-label="Fechar">
 					<span aria-hidden="true">&times;</span>
 				</button>
 			</div>
-		  <form method="post" action="comentarios.php?CODIGO=<?php echo $_GET["CODIGO"]?>">
+		  <form method="post" action="comentarios.php?CODIGO=<?php echo $_GET["CODIGO"]?>" data-codigo-chamado="<?php echo (int)$_GET["CODIGO"]; ?>">
 			<div class="modal-body">
 				<div class="row">
 					<div class="col-md-12">
 						<label><STRONG>Comentário</STRONG></label>
-						<textarea class="form-control" name="COMENTARIO" id="COMENTARIO" required maxlength="20000"></textarea>
+						<label> <br> <div id="textoantigo2"></div> <br>  <center><div id="texto2"></div></center>  </label>
+						<textarea class="form-control campo-print" ROWS=15 cols=15 name="COMENTARIO" id="COMENTARIO" required maxlength="20000"><?php echo saudacao()?></textarea>
+<div class="area-print-colado"><b>Print do cliente</b><small> Cole o print com Ctrl+V enquanto o cursor estiver na textarea.</small><div class="preview-print-colado"><img src="" alt="Print colado"><span>Anexado ao chamado.</span></div><div class="status-print-colado">Nenhum print anexado.</div></div>
+						<?php if (isset($_SESSION['PODEMONITORAR']) && $_SESSION['PODEMONITORAR']=="S") {?>
+						<BR> 
+						<div class="col-md-6">
+							<label>Liberar chamado</label>
+							<?php if (isset($_GET["CODIGO"])){?>  
+								<input type="checkbox" name="MONITORADO">  
+							<?php }else{ 
+							    If (!empty($xtab["MONITORADO"])) {?>
+									<input type="checkbox" name="MONITORADO" value="S" checked>
+								<?php }else{ ?>
+									<input type="checkbox" name="MONITORADO"  checked>
+								<?php } ?>
+							<?php } ?>
+						</div>
+						<?php } ?>
 					</div>
 				</div>
 			</div>
 			<input type="hidden" name="codigo" value="0">
 			<div class="modal-footer"> 
-				<button type="button" class="btn btn-danger" data-dismiss="modal" onclick='location.href="cliente_chamados_tela.php?CODIGO=<?php echo $_GET["CODIGO"]?>"'>Fechar</button> 
+				<button type="button" class="btn btn-danger" data-dismiss="modal" onclick='location.href="chamados_tela.php?CODIGO=<?php echo $_GET["CODIGO"]?>"'>Fechar</button> 
 				<button type="submit" class="btn btn-success">Salvar mudancas</button>  
 			</div>
 		 </form>
@@ -268,13 +887,15 @@
 					<span aria-hidden="true">&times;</span>
 				</button>
 			</div>
-			<?PHP $codigo = $_GET["CODIGO"]; 
-			if ($codigo!="0"){?>
+			<?PHP $codigo_modal = $_GET["CODIGO"]; 
+			if ($codigo_modal!="0"){?>
 			<form method="post" name="cadastro" enctype="multipart/form-data" >
-				<input type="file" name="foto" class="form-control-file"/><br /><br />
-				<input type="hidden" name="nome" value="foto" /><br /><br />
+				<div class="modal-body">
+					<input type="file" name="foto" class="form-control-file"/><br /><br />
+					<input type="hidden" name="nome" value="foto" /><br /><br />
+				</div>
 				<div class="modal-footer"> 
-					<button type="button" class="btn btn-danger" data-dismiss="modal" onclick='location.href="cliente_chamados_tela.php?CODIGO=<?php echo $_GET["CODIGO"]?>"'>Fechar</button> 
+					<button type="button" class="btn btn-danger" data-dismiss="modal" onclick='location.href="chamados_tela.php?CODIGO=<?php echo $_GET["CODIGO"]?>"'>Fechar</button> 
 					<button type="submit" class="btn btn-success">Salvar mudancas</button>  
 				</div> 
 			</form>
@@ -285,73 +906,48 @@
 				}else{
 					$imagem="arquivos/" . $row["IMAGEM"];
 				}?>
-				<div class="brand"><br><img src="<?php echo $imagem?>" class="img-thumbnail" height="80" width="150"></div>
+				<div class="brand text-center"><br><img src="<?php echo $imagem?>" class="img-thumbnail" height="80" width="150"></div>
 				
 			<?php
 				if (isset($_POST['nome'])) {
 					
-					// Recupera os dados dos campos
 					$foto = $_FILES["foto"];
 					
-					// Se a foto estiver sido selecionada
 					if (!empty($foto["name"])) {
 						
-						// Largura máxima em pixels
 						$largura = 900;
-						// Altura máxima em pixels
 						$altura = 900;
-						// Tamanho máximo do arquivo em bytes
 						$tamanho = 20000;
 				 
 						$error = array();
 				 
-						// Verifica se o arquivo é uma imagem
 						if(!preg_match("/^image\/(pjpeg|jpeg|png|gif|bmp||pdf||xls)$/", $foto["type"])){
-						   //$error[1] = "Isso não é uma imagem.";
 						} 
 					
-						// Pega as dimensões da imagem
 						$dimensoes = getimagesize($foto["tmp_name"]);
 					
-						// Verifica se a largura da imagem é maior que a largura permitida
 						if($dimensoes[0] > $largura) {
-							//$error[2] = "A largura da imagem não deve ultrapassar ".$largura." pixels";
 						}
 				 
-						// Verifica se a altura da imagem é maior que a altura permitida
 						if($dimensoes[1] > $altura) {
-							//$error[3] = "Altura da imagem não deve ultrapassar ".$altura." pixels";
 						}
-						
-						// Verifica se o tamanho da imagem é maior que o tamanho permitido
-						//if($foto["size"] > $tamanho) {
-							//$error[4] = "A imagem deve ter no máximo ".$tamanho." bytes";
-						//}
 				 
-						// Se não houver nenhum erro
 						if (count($error) == 0) {
 						
-							// Pega extensão da imagem
 							preg_match("/\.(gif|bmp|png|jpg|jpeg){1}$/i", $foto["name"], $ext);
-							// Gera um nome único para a imagem
 							$nome_imagem = md5(uniqid(time())) . "." . $ext[1];
 				 
-							// Caminho de onde ficará a imagem
 							$caminho_imagem = "arquivos/" . $nome_imagem;
 				 
-							// Faz o upload da imagem para seu respectivo caminho
 							move_uploaded_file($foto["tmp_name"], $caminho_imagem);
-							// Insere os dados no banco
-							$Wsql = ibase_query("INSERT INTO DOCUMENTOS (IMAGEM, ID, TABELA) VALUES ('".$nome_imagem."', ".$codigo.", 'CHAMADOS')");
-						
-							// Se os dados forem inseridos com sucesso
+							$Wsql = ibase_query($conexao, "INSERT INTO DOCUMENTOS (IMAGEM, ID, TABELA) VALUES ('".$nome_imagem."', ".$codigo_modal.", 'CHAMADOS')");
+							
 							if ($Wsql){
 								echo "<div class='alert alert-success'>Imagem alterada com sucesso.</div>";
-								header("Location: cliente_cliente_chamados_tela.php?" . $codigo);
+								header("Location: cliente_chamados_tela.php?" . $codigo_modal);
 							}
 						}
 					
-						// Se houver mensagens de erro, exibe-as
 						if (count($error) != 0) {
 							foreach ($error as $erro) {
 								echo $erro . "<br />";
@@ -375,253 +971,250 @@
 				<div class="card-header alert alert-info">
 			<?php } ?>
               <h3 class="card-title"><?PHP ECHO $xtab["ASSUNTO"]?></h3>
-              <p class="card-category">Protocolo:<?PHP ECHO $xtab["CODIGO"]?></p>
+              <p class="card-category">Protocolo:<?PHP ECHO $xtab["CODIGO"]?> Responsável: <?PHP ECHO $xtab["RESPONSAVEL"]?></p>
             </div>
+			<input type="hidden" id="textoconteudo" value="<?PHP ECHO str_replace("/", "-",($xtab["CONTEUDO"]))?>">
             <div class="card-body">
               <div class="row">
                 <div class="col-md-7">
 					<div class="row">
-						<div class="col-md-12">
+						<div class="col-md-12" id="texto">
 							<p style="text-align: justify; text-justify: inter-word;"><?PHP ECHO $xtab["CONTEUDO"]?></p>
-						</div>
-					</div>	
-					<?PHP if (!empty($xtab["FEITO"])){?>
-						<br><br><br>
-						<div class="row">
-							<div class="alert alert-success col-md-10"><h4 class="card-title">Serviço executado!</h4></div>
-							<div class="col-md-12">
-								<br><p style="text-align: justify; text-justify: inter-word;"><?PHP ECHO $xtab["FEITO"]?></p>
-							</div>
-						</div>	
-					<?php } ?>	
+<?php $codigo_mural=(int)$xtab['CODIGO'];$lista_mural=array();
+$tm=@ibase_query($conexao,"SELECT D.IMAGEM AS NOME, COALESCE(A.DESCRICAO,'') AS DESCRICAO, A.DATAHORA FROM DOCUMENTOS D LEFT JOIN CHAMADO_IMAGENS A ON A.CHAMADO=D.ID AND A.NOME=D.IMAGEM WHERE D.ID=".$codigo_mural." AND D.TABELA='CHAMADOS' AND D.IMAGEM IS NOT NULL ORDER BY A.DATAHORA DESC, D.IMAGEM DESC");
+if($tm)while($im=ibase_fetch_assoc($tm)){ $ext=strtolower(pathinfo($im['NOME'],PATHINFO_EXTENSION)); if(in_array($ext,array('jpg','jpeg','png','gif','bmp','webp'))) $lista_mural[]=$im; } ?>
+<div class="card card-imagens-mural" style="margin-top:20px"><div class="card-header"><h4 class="card-title">Imagens do chamado</h4><small>Álbum do chamado</small></div><div class="card-body">
+<?php if(!$lista_mural){ ?><p class="text-muted">Nenhuma imagem adicionada.</p><?php } foreach($lista_mural as $im){$nm=$im['NOME']; ?>
+<div class="card card-imagem-mural" data-codigo="<?php echo $codigo_mural ?>" data-nome="<?php echo htmlspecialchars($nm,ENT_QUOTES,'UTF-8') ?>"><div class="card-body"><img src="arquivos/<?php echo rawurlencode($nm) ?>" style="max-width:100%;max-height:520px;border-radius:8px;display:block;margin:auto" alt="Imagem do chamado"><p><strong><?php echo htmlspecialchars($im['DESCRICAO']?:'Imagem do chamado',ENT_QUOTES,'UTF-8') ?></strong><br><small><?php echo $im['DATAHORA'] ?></small></p></div></div>
+<?php } ?></div></div>
 
-					<?PHP if ($xtab["MOTIVO2"]!="") {?>
-						<br><br><br>
-						<div class="row">
-							<div class="alert alert-danger col-md-10"><h4 class="card-title">Motivo que Reabriu o chamado</h4></div>
-							<div class="col-md-12">
-								<br><STRONG><?PHP ECHO $xtab["MOTIVO2"]?></STRONG>
-							</div>
-						</div>	
-					<?php } ?>						
+						</div>
+							<?PHP if (!empty($xtab["FEITO"])){?>
+							<br><br><br>
+							<div class="row">
+								<div class="col-md-12">
+									
+								<?php 
+									$FECHAD="";
+									$SQL1x="SELECT FIRST 1 CODIGO, CHAMADO, (SELECT FIRST 1 NOME FROM TECNICOS WHERE CODIGO=TECNICO) AS TECNICO, DATA, HORA, ACAO, QUEM, ".
+											"(SELECT FIRST 1 NOME FROM CLIENTES WHERE CODIGO=CLIENTE) AS CLIENTE ".
+											"FROM HISTORICO_AT_CHAMADOS WHERE CHAMADO=".(int)$xtab["CODIGO"]." AND QUEM='TECNICO' AND ACAO='FECHADO' ORDER BY DATA DESC, HORA DESC";
+									$tabelaXx=ibase_query($conexao,$SQL1x); 
+									$openx=ibase_fetch_assoc($tabelaXx);
+									$FECHAD=isset($openx["TECNICO"])?$openx["TECNICO"]:"Não identificado";
+						$DATAFECHAMENTO=isset($openx["DATA"])?$openx["DATA"]:"";
+						$HORAFECHAMENTO=isset($openx["HORA"])?$openx["HORA"]:"";
+								?>
+									<div class="alert alert-success col-md-12"><h4 class="card-title">Serviço executado!</h4><h5>Fechado por: <?php echo htmlspecialchars($FECHAD,ENT_QUOTES,'UTF-8'); ?></h5><?php if($DATAFECHAMENTO!==""){ ?><small>Fechado em: <?php echo htmlspecialchars(formatardata($DATAFECHAMENTO,1),ENT_QUOTES,'UTF-8'); ?> às <?php echo htmlspecialchars($HORAFECHAMENTO,ENT_QUOTES,'UTF-8'); ?></small><?php } ?></div>
+									<div class="col-md-12">
+										<br><p style="text-align: justify; text-justify: inter-word;"><?PHP ECHO $xtab["FEITO"]?>
+											
+										</p>
+									</div>
+								</div>
+							</div>	
+						<?php } ?>	
+
+						<?PHP if ($xtab["MOTIVO2"]!="") {?>
+						
+							<br><br><br>
+							<div class="row">
+								<div class="col-md-12">
+									<div class="alert alert-danger col-md-12"><h4 class="card-title">Motivo que Reabriu o chamado</h4></div>
+									
+									<br><STRONG><?PHP ECHO $xtab["MOTIVO2"]?></STRONG>
+									
+								</div>
+							</div>	
+						<?php } ?>	
+					</div>					
                 </div>
                 <div class="col-md-5" style="font-size: 20px;">
-                 <h4 class="card-title">Categorias do chamado</h4>
-				<center class="col-md-12">
-					<?php $tabela= ibase_query ($conexao, $SQL);
-					 while ($xtab = ibase_fetch_assoc($tabela)){
-					$sequencia=$xtab["CODIGO"];?>
-					<div class="row">
-						<div class="co-md-12">Protocolo:<?PHP ECHO $xtab["CODIGO"]?></div>
-					</div> 
- 
-					<?php if (isset($_GET["CODIGO"])){?>  
-						<input type="hidden" name="CODIGO" value="<?php ECHO $xtab["CODIGO"]?>" id="CODIGO" maxlength="4" class="form-control">  
-					<?php }else{ ?>
-						<input type="hidden" name="CODIGO" id="CODIGO" maxlength="4" class="form-control"> 
-					<?php } ?>  
-					<div class="row">
-						<div class="col-md-12">
-							<label class="basic-url">Assunto</label><br>
-							<?php if (isset($_GET["CODIGO"])){?>  
-								<input type="text" name="assunto" value="<?php ECHO $xtab["ASSUNTO"]?>" id="assunto" maxlength="50" class="form-control" REQUIRED>  
-							<?php }else{ ?>
-								<input type="text" name="assunto" id="assunto" maxlength="50" class="form-control" REQUIRED> 
-							<?php } ?>
-						</div>
-						<div class="col-md-6">
-							<label>Cliente</label>
-							<select name="cliente" id="cliente" class="form-control" required>
-								<option></option>
-								<?php
-								$SQL1="SELECT CODIGO, FANTASIA FROM EMPRESAS ";
-								$tabelaX=ibase_query($conexao,$SQL1); 
-								while ($rowX=$open=ibase_fetch_assoc($tabelaX)){ ?>
-									<?php if (isset($_GET["CODIGO"])){
-										if (TRIM($xtab["EMPRESA"]) <> TRIM($rowX["CODIGO"])){ ?>  
-											<option value="<?php ECHO $rowX["CODIGO"]?>"><?php ECHO $rowX["FANTASIA"]?></option>  
-										<?php }else{ ?>
-											<option value="<?php ECHO $rowX["CODIGO"]?>" SELECTED><?php ECHO $rowX["FANTASIA"]?></option>  
-										<?php } ?>
-									<?php }else{ ?>
-										<option value="<?php ECHO $rowX["CODIGO"]?>"><?php ECHO $rowX["FANTASIA"]?></option>  
-									<?php } 
-								}?>  
-							</select>
-						</div>
-						<div class="col-md-6">
-							<label>Email</label>
-							<?php if (isset($_GET["CODIGO"])){?>  
-								<input type="text" name="email" value="<?php ECHO $xtab["EMAIL"]?>" id="email" maxlength="50" class="form-control" REQUIRED>  
-							<?php }else{ ?>
-								<input type="text" name="email" id="email" value="<?php echo $_SESSION['EMAIL'] ?> " maxlength="50" class="form-control" REQUIRED> 
-							<?php } ?>
-						</div>
-					</div>
-					<div class="row">
-						<div class="col-md-12">
-							<label>Prioridade</label>
-							<select name="prioridade" id="prioridade" class="form-control">
-								<option></option>
-								<?php
-								$SQL1="SELECT CODIGO, DESCRICAO FROM PRIORIDADE";
-								$tabelaX=ibase_query($conexao,$SQL1); 
-								while ($rowX=$open=ibase_fetch_assoc($tabelaX)){ ?>
-									<?php if (isset($_GET["CODIGO"])){
-										if (TRIM($xtab["PRIORIDADE"]) <> TRIM($rowX["CODIGO"])){ ?>  
-											<option value="<?php ECHO $rowX["CODIGO"]?>"><?php ECHO $rowX["DESCRICAO"]?></option>  
-										<?php }else{ ?>
-											<option value="<?php ECHO $rowX["CODIGO"]?>" SELECTED><?php ECHO $rowX["DESCRICAO"]?></option>  
-										<?php } ?>
-									<?php }else{ ?>
-										<option value="<?php ECHO $rowX["CODIGO"]?>"><?php ECHO $rowX["DESCRICAO"]?></option>  
-									<?php } 
-								}?>  
-							</select>
-						</div>
-					</div>
-					<div class="row">
-						<div class="col-md-6">
-							<label>Catégoria</label>
-							<select name="categoria" id="categoria" class="form-control" required onchange="getValor(this.value)">
-								<option></option>
-								<?php
-								$SQL1="SELECT CODIGO, DESCRICAO FROM CATEGORIA ";
-								$tabelaX=ibase_query($conexao,$SQL1); 
-								while ($rowX=$open=ibase_fetch_assoc($tabelaX)){ ?>
-									<?php if (isset($_GET["CODIGO"])){
-										if (TRIM($xtab["CATEGORIA"]) <> TRIM($rowX["CODIGO"])){ ?>  
-											<option value="<?php ECHO $rowX["CODIGO"]?>"><?php ECHO $rowX["DESCRICAO"]?></option>  
-										<?php }else{ ?>
-											<option value="<?php ECHO $rowX["CODIGO"]?>" SELECTED><?php ECHO $rowX["DESCRICAO"]?></option>  
-										<?php } ?>
-									<?php }else{ ?>
-										<option value="<?php ECHO $rowX["CODIGO"]?>"><?php ECHO $rowX["DESCRICAO"]?></option>  
-									<?php } 
-								}?>  
-							</select>
-						</div>
-						<div class="col-md-6">
-							<label>Sub-Categoria</label>
-							<select name="SUBCATEGORIAS" id="SUBCATEGORIAS" class="form-control" required>
-								<option></option>
-								<?php
-								$SQL1="SELECT CODIGO, DESCRICAO FROM SUBCATEGORIAS ";
-								$tabelaX=ibase_query($conexao,$SQL1); 
-								while ($rowX=$open=ibase_fetch_assoc($tabelaX)){ ?>
-									<?php if (isset($_GET["CODIGO"])){
-										if (TRIM($xtab["SUBCATEGORIA"]) <> TRIM($rowX["CODIGO"])){ ?>  
-											<option value="<?php ECHO $rowX["CODIGO"]?>"><?php ECHO $rowX["DESCRICAO"]?></option>  
-										<?php }else{ ?>
-											<option value="<?php ECHO $rowX["CODIGO"]?>" SELECTED><?php ECHO $rowX["DESCRICAO"]?></option>  
-										<?php } ?>
-									<?php }else{ ?>
-										<option value="<?php ECHO $rowX["CODIGO"]?>"><?php ECHO $rowX["DESCRICAO"]?></option>  
-									<?php } 
-								}?>  
-							</select>
-						</div>
-					</div>
-					<div class="row">
-						<div class="col-md-12">
-							<label>Direcionar para Técnico</label>
-							<select name="TECNICO" id="TECNICO" class="form-control">
-								<option></option>
-								<?php
-								$SQL1="SELECT CODIGO, NOME FROM TECNICOS ";
-								$tabelaX=ibase_query($conexao,$SQL1); 
-								while ($rowX=$open=ibase_fetch_assoc($tabelaX)){ ?>
-									<?php if (isset($_GET["CODIGO"])){
-										if (TRIM($xtab["TECNICO"]) <> TRIM($rowX["CODIGO"])){ ?>  
-											<option value="<?php ECHO $rowX["CODIGO"]?>"><?php ECHO $rowX["NOME"]?></option>  
-										<?php }else{ ?>
-											<option value="<?php ECHO $rowX["CODIGO"]?>" SELECTED><?php ECHO $rowX["NOME"]?></option>  
-										<?php } ?>
-									<?php }else{ ?>
-										<option value="<?php ECHO $rowX["CODIGO"]?>"><?php ECHO $rowX["NOME"]?></option>  
-									<?php } 
-								}?>  
-							</select>
-						</div>
-					</div>
-
-					<div class="row">
-						<div class="co-md-12">Agendado:<?PHP ECHO formatardata($xtab["AGENDAMENTO"],1)?></div>
-					</div>					
-					<td>
-						<table align="center">
-						<tr>
-							<td>
-								<?php if (empty($_SESSION["USUARIOX"]))
-								{?>
-								<button class="btn btn-dark" onclick="chamado_tela(<?PHP ECHO $xtab["CODIGO"]?>)" ><i class="material-icons">label</i></button>
-								<button class="btn btn-warning" onclick="status(<?PHP ECHO $xtab["CODIGO"]?>,'PA')" title="Colocar em pause"><i class="material-icons">pause_circle_outline</i></button>
-								<button class="btn btn-success" onclick="status(<?PHP ECHO $xtab["CODIGO"]?>, 'PL')" title="Iniciar chamado"><i class="material-icons">play_circle_filled</i></button>
-								<button class="btn btn-primary" onclick="status(<?PHP ECHO $xtab["CODIGO"]?>, 'AG')" title="Agendar chamado"><i class="material-icons">calendar_today</i></button>
-								<button class="btn btn-success" data-toggle="modal" data-target="#fecharchamado" title="Fechar chamado"><i class="material-icons">done</i></button>
-								<?php } ?>
-								<button class="btn btn-danger" data-toggle="modal" data-target="#abrirchamado" title="Reabrir chamados"><i class="material-icons">compare_arrows</i></button>
-								<button class="btn btn-info" data-toggle="modal" data-target="#comentarios" title="Comentários"><i class="material-icons">label</i></button>
-							
-							</td>
-							<br>
-							
-						<tr>
-						</table>
-						<table>
-						<tr>
-							<td>
-								<button type="button" class="btn btn-success" onclick="abrirarquivos(<?PHP ECHO $xtab["CODIGO"]?>)">Anexar Arquivos</button>
-								<button class="btn btn-success" onclick="window.history.back(-1)">Voltar</button>
-							</td>
-						</tr>
-						</table>
-						<table align="center">
-							<?php
-							$SQL3="SELECT IMAGEM, ID, TABELA FROM DOCUMENTOS "; 
-							$SQL3=$SQL3 . " WHERE TABELA='CHAMADOS' AND ID=" . $codigo . " AND IMAGEM IS NOT NULL ";
-							$tabela3X= ibase_query ($conexao, $SQL3);
-							while ($xtab3 = ibase_fetch_assoc($tabela3X)){
-							$sequencia=$sequencia + 1;?>
-								<tr>
-									<td onclick="alterar(<?php ECHO $xtab22["CODIGO"]?>,<?php ECHO $sequencia?>)"><button onclick="alterar(<?php ECHO $xtab22["CODIGO"]?>,<?php ECHO $sequencia?>)" class="btn btn-dark col-md-12">DOCUMENTO - <?php ECHO $sequencia?> </button> <br><br> <strong> <?PHP ECHO $I?>  <?php ECHO $xtab22["CONTEUDO"]?></strong>
-										<div class="brand"><img src="arquivos/<?php ECHO $xtab3["IMAGEM"]?>" onclick="location.href='arquivos/<?php ECHO $xtab3["IMAGEM"]?>'" width="80%" height="80%"></div><br>
-									</td>
-								</tr>
-							<?php }?>
-						</table>
-					</td>
-					<?php }?>
-				   </center>
-				   
+    <div class="card shadow-sm">
+        <div class="card-header"><h4 class="card-title">Detalhes do chamado</h4></div>
+        <div class="card-body">
+            <p><strong>Protocolo:</strong> <?php echo (int)$xtab["CODIGO"]; ?></p>
+            <p><strong>Assunto:</strong> <?php echo htmlspecialchars((string)$xtab["ASSUNTO"],ENT_QUOTES,'UTF-8'); ?></p>
+            <p><strong>Empresa:</strong> <?php echo htmlspecialchars((string)$xtab["RAZAOSOCIAL"],ENT_QUOTES,'UTF-8'); ?></p>
+            <p><strong>Categoria:</strong> <?php echo htmlspecialchars((string)$xtab["NOMECATEGORIA"],ENT_QUOTES,'UTF-8'); ?></p>
+            <p><strong>Subcategoria:</strong> <?php echo htmlspecialchars((string)$xtab["SUBCATEGORIANOME"],ENT_QUOTES,'UTF-8'); ?></p>
+            <p><strong>Técnico responsável:</strong> <?php echo htmlspecialchars((string)$xtab["NOMETECNICO"],ENT_QUOTES,'UTF-8'); ?></p>
+            <p><strong>Status:</strong> <?php echo htmlspecialchars((string)$xtab["STATUS"],ENT_QUOTES,'UTF-8'); ?></p>
+            <p><strong>Agendamento:</strong> <?php echo htmlspecialchars((string)formatardata($xtab["AGENDAMENTO"],1),ENT_QUOTES,'UTF-8'); ?></p>
+            <div class="d-flex flex-column" role="group" aria-label="Ações do cliente">
+                <button type="button" class="btn btn-danger mb-2" data-toggle="modal" data-target="#abrirchamado"><i class="material-icons">compare_arrows</i> Reabrir chamado</button>
+                <button type="button" class="btn btn-info mb-2" data-toggle="modal" data-target="#comentarios"><i class="material-icons">comment</i> Comentários</button>
+                <button type="button" class="btn btn-success mb-2" data-toggle="modal" data-target="#modalchamados"><i class="material-icons">attach_file</i> Anexar arquivos</button>
+                <button type="button" class="btn btn-secondary" onclick="window.history.back()">Voltar</button>
+            </div>
+        </div>
+    </div>
+    <div class="card shadow-sm mt-3">
+        <div class="card-header"><h4 class="card-title">Arquivos do chamado</h4></div>
+        <div class="card-body"><div class="row" id="galeria-documentos">
+            <?php $indiceImagemLightbox=0; foreach ($imagens_galeria as $img) {
+                $nomeArquivo=(string)$img['imagem'];
+                $extensaoArquivo=strtolower(pathinfo($nomeArquivo,PATHINFO_EXTENSION));
+                $ehImagemCliente=in_array($extensaoArquivo,array('jpg','jpeg','png','gif','bmp','webp'));
+                $urlArquivo='arquivos/'.rawurlencode($nomeArquivo);
+                $indiceAtualImagem=$indiceImagemLightbox;
+                if($ehImagemCliente)$indiceImagemLightbox++;
+            ?>
+            <div class="col-md-4 col-sm-6 col-12"><div class="doc-card">
+                <span class="doc-label">Arquivo <?php echo (int)$img['num']; ?></span>
+                <div class="doc-thumb-wrap">
+                    <?php if($ehImagemCliente){ ?>
+                        <a href="<?php echo htmlspecialchars($urlArquivo,ENT_QUOTES,'UTF-8'); ?>" onclick="abrirLightbox(<?php echo (int)$indiceAtualImagem; ?>);return false;"><img class="thumb" src="<?php echo htmlspecialchars($urlArquivo,ENT_QUOTES,'UTF-8'); ?>" alt="Anexo do chamado"></a>
+                    <?php } else { ?>
+                        <div class="doc-icone icone-generico"><div class="icone-emoji">&#128196;</div><div class="icone-ext"><?php echo htmlspecialchars(strtoupper($extensaoArquivo),ENT_QUOTES,'UTF-8'); ?></div></div>
+                    <?php } ?>
                 </div>
-				<ul class="list-group">
-					<?php
-					$SQLC="SELECT COALESCE(T.NOME,CL.NOME) AS NOME, CAST(C.COMENTARIO AS VARCHAR(20000)) AS COMENTARIO, DATAALTERACAO, HORAALTERACAO  FROM COMENTARIOS C ".
-					"LEFT JOIN TECNICOS T ON (T.CODIGO=C.TECNICO) ".
-					"LEFT JOIN CLIENTES CL ON (CL.CODIGO=C.CLIENTE) ".
-					"WHERE C.GRUPO=" .$_GET["CODIGO"]; 
-					$tabelaC= ibase_query ($conexao, $SQLC);
-					if (!empty($tabelaC))
-					{
-					while ($xtabC = ibase_fetch_assoc($tabelaC)){?>
-					  
-					  <a href="#" class="list-group-item list-group-item-action flex-column align-items-start active">
-						<div class="d-flex w-100 justify-content-between">
-						  <h5 class="mb-1"><?PHP ECHO $xtabC["NOME"]?></h5><br>
-						  <small><br><?PHP ECHO formatardata($xtabC["DATAALTERACAO"],1)?> às <?PHP ECHO $xtabC["HORAALTERACAO"]?></small>
+                <div class="doc-nome"><?php echo htmlspecialchars($nomeArquivo,ENT_QUOTES,'UTF-8'); ?></div>
+                <div class="mt-2"><a class="btn btn-sm btn-outline-primary" href="<?php echo htmlspecialchars($urlArquivo,ENT_QUOTES,'UTF-8'); ?>" target="_blank" rel="noopener">Abrir</a> <a class="btn btn-sm btn-outline-secondary" href="<?php echo htmlspecialchars($urlArquivo,ENT_QUOTES,'UTF-8'); ?>" download="<?php echo htmlspecialchars($nomeArquivo,ENT_QUOTES,'UTF-8'); ?>">Baixar</a></div>
+            </div></div>
+            <?php } ?>
+            <?php if(empty($imagens_galeria)){ ?><div class="col-12"><p class="text-muted">Nenhum arquivo anexado ao chamado.</p></div><?php } ?>
+        </div></div>
+    </div>
+</div>
+					<?PHP
+						$UNIDADE="";
+						if (!empty($_SESSION["UNIDADENEGOCIO"]))
+						{
+							$UNIDADE="  UNIDADE=" . $_SESSION["UNIDADENEGOCIO"] . " AND ";
+						}
+					?>
+					<div class="card">
+						<div class="card-body">
+							<?php
+							$SQLC="SELECT COALESCE(T.NOME,CL.NOME) AS NOME, S.DESCRICAO, CAST(C.COMENTARIO AS VARCHAR(20000)) AS COMENTARIO, DATAALTERACAO, HORAALTERACAO, C.TECNICO  FROM COMENTARIOS C ".
+							"LEFT JOIN TECNICOS T ON (T.CODIGO=C.TECNICO) ".
+							"LEFT JOIN CLIENTES CL ON (CL.CODIGO=C.CLIENTE) ".
+							"LEFT JOIN SETOR S ON (S.CODIGO=COALESCE(T.SETOR,CL.SETOR)) ".
+							"WHERE C.GRUPO=" .$_GET["CODIGO"] . " ORDER BY DATAALTERACAO, HORAALTERACAO DESC"; 
+							$tabelaC= ibase_query ($conexao, $SQLC);
+							if (!empty($tabelaC))
+							{
+							while ($xtabC = ibase_fetch_assoc($tabelaC)){?>
+							<div class="row">
+								<div class="col-md-2">
+									<img src="<?php echo $_SESSION["LOGO"]?>" class="img img-rounded img-fluid"/>
+									<p class="text-secondary text-center"><?PHP ECHO formatardata($xtabC["DATAALTERACAO"],1)?> às <?PHP ECHO $xtabC["HORAALTERACAO"]?></p>
+								</div>
+								<div class="col-md-10">
+									<p>
+										<a class="float-left" href="#"><strong>Comentário de: <?PHP ECHO $xtabC["NOME"]?>-<span class="float-right"><?PHP ECHO $xtabC["DESCRICAO"]?></span></strong></a>
+									</p>
+								   <div class="clearfix"></div>
+									<p><?PHP ECHO $xtabC["COMENTARIO"]?><br></p>
+								</div>
+							</div>
+							<?php }
+							}?>
+								
+<?php if (!empty($lista_mural)) { ?>
+<div class="comentarios-imagens-publicadas">
+ <?php foreach ($lista_mural as $imagemComentario) { $nomeComentario=$imagemComentario['NOME']; ?>
+ <div class="row comentario-imagem-item" style="margin:18px 0;padding:12px;border:1px solid #e5e5e5;border-radius:10px;background:#fff;box-shadow:0 1px 5px rgba(0,0,0,.08)">
+  <div class="col-md-2"><img src="<?php echo !empty($_SESSION['LOGO']) ? $_SESSION['LOGO'] : '/img/def_face.jpg'; ?>" class="img img-rounded img-fluid"><p class="text-secondary text-center">Anexo do chamado</p></div>
+  <div class="col-md-10"><strong>Imagem adicionada aos comentários</strong><br>
+   <img src="arquivos/<?php echo rawurlencode($nomeComentario); ?>" alt="Imagem anexada ao comentário" style="max-width:100%;max-height:500px;border-radius:8px;margin-top:8px;display:block">
+   <p style="margin-top:8px;margin-bottom:0"><strong><?php echo htmlspecialchars($imagemComentario['DESCRICAO'] ?: 'Imagem do chamado', ENT_QUOTES, 'UTF-8'); ?></strong></p>
+  </div>
+ </div>
+ <?php } ?>
+</div>
+<?php } ?>
+<div class="card card-inner">
+									<div class="card-body">
+										<?php if (empty($_SESSION["USUARIOX"])) { ?>
+										<?php
+											$SQLL="select CODIGO, CHAMADO, TECNICO, (SELECT NOME FROM TECNICOS WHERE CODIGO=TECNICO) AS NOMETECNICO, (SELECT DESCRICAO FROM SETOR WHERE CODIGO=(SELECT FIRST 1 SETOR FROM TECNICOS WHERE CODIGO=TECNICO)) AS NOMESETORT, (SELECT DESCRICAO FROM SETOR WHERE CODIGO=(SELECT FIRST 1 SETOR FROM CLIENTES WHERE CODIGO=CLIENTE))  AS NOMESETOR, (SELECT FIRST 1 NOME FROM TECNICOS WHERE CODIGO=TECNICO) AS TECNICO, DATA, HORA, ACAO, QUEM, ".
+												"(SELECT FIRST 1 NOME FROM CLIENTES WHERE CODIGO=CLIENTE) AS CLIENTE ".
+												"from HISTORICO_AT_CHAMADOS WHERE  CHAMADO=" .$_GET["CODIGO"] . " ORDER BY 4 DESC, HORA ASC   "; 
+											$tabelaL= ibase_query ($conexao, $SQLL);
+											if (!empty($tabelaL))
+											{
+												while ($xtabL = ibase_fetch_assoc($tabelaL)){ 
+												$TENICO="";?>
+												<div class="row">
+													<div class="col-md-2">
+														<?PHP if($xtabL["TECNICO"]!=''){ ?>
+															<img src="<?php echo $_SESSION["LOGO"]?>" class="img img-rounded img-fluid"/>
+														<?php } ?>
+														<?PHP if($xtabL["CLIENTE"]!=''){ ?>
+															<img src="/img/def_face.jpg" class="img img-rounded img-fluid"/>
+														<?php } ?>
+														<p class="text-secondary text-center"><?PHP ECHO formatardata($xtabL["DATA"],1)?> às <?PHP ECHO $xtabL["HORA"]?></p>
+														
+													</div>
+													<div class="col-md-10">
+														<p><a href="#"><strong>
+															<?PHP if($xtabL["TECNICO"]!=''){
+															$TENICO="S";?>
+																<h5 class="mb-1">Técnico:<?PHP ECHO $xtabL["NOMETECNICO"]?><span class="float-right"><?PHP ECHO $xtabL["NOMESETORT"]?></span></h5><br>
+															<?php } ?>
+															<?PHP if($xtabL["CLIENTE"]!=''){ ?>
+																<h5 class="mb-1">Cliente:<?PHP ECHO $xtabL["CLIENTE"]?><span class="float-right"><?PHP ECHO $xtabL["NOMESETOR"]?><span></h5><br>
+															<?php } ?>
+														</strong></a></p>
+														<p>
+															<?PHP if($xtabL["ACAO"]=='INSERIU') { ?>
+																	<h5 class="mb-1">Iniciou o Chamado</h5><br>
+															<?php }else{ 
+																echo str_replace("MOVIMENTADO","ALTEROU",trim($xtabL["ACAO"]));
+															} ?>
+														</p>
+														<p>
+													   <?PHP
+													   if (!empty($TENICO)){
+														$SQL="SELECT COUNT(CHAMADOS.CODIGO) AS QUANTIDADE, UPPER(NOME) AS NOME FROM CHAMADOS ".
+															 "INNER JOIN TECNICOS T ON (T.CODIGO=CHAMADOS.TECNICO) WHERE (1=1) AND ".$UNIDADE." STATUS='F' AND T.CODIGO='".$xtabL["TECNICO"]."' ".
+															 "GROUP BY  NOME ".
+															"ORDER BY COUNT(CHAMADOS.CODIGO) DESC";
+														$tabela=ibase_query($conexao,$SQL);
+														$rowx=ibase_fetch_assoc($tabela);
+														?>
+														<span class="float-right">
+															<strong> <?PHP ECHO $rowx["QUANTIDADE"]?></strong>
+														</span>
+													   <?php } ?>
+													   </p>
+													</div>
+												</div>
+											<?php }
+											}
+										}
+										
+										if (!empty($_SESSION["TECNICO"])){
+											$SQL="SELECT CODIGO, (SELECT DESCRICAO FROM SETOR WHERE CODIGO=T.SETOR)  AS NOMESETOR (SELECT NOME FROM TECNICOS WHERE CODIGO=TECNICO) AS USUARIO, (SELECT NOME FROM TECNICOS WHERE CODIGO=PARA) AS USUARIOPARA,  PARA, CAST(COMENTARIO AS VARCHAR(2000)) AS COMENTARIO, DATAALTERACAO, HORAALTERACAO, MANUTENCAO, GRUPO, CLIENTE FROM COMENTARIOS_INTERNOS WHERE GRUPO=" . $_GET["CODIGO"]; 
+											$tabela=ibase_query($conexao,$SQL);  
+											?>
+											<?php while ($row=$open=ibase_fetch_assoc($tabela)){  
+											$sequencia=$row["CODIGO"];?>  
+											<div class="row">
+												<div class="col-md-2">
+													<img src="<?php echo $_SESSION["LOGO"]?>" class="img img-rounded img-fluid"/>
+													<p class="text-secondary text-center"><?php echo formatardata($row["DATAALTERACAO"],1)?> - <?php echo substr($row["DATAALTERACAO"], 10) ?></p>
+												</div>
+												<div class="col-md-10">
+													<p><a href="#"><strong>
+														<h5 class="mb-1">Interno:<?PHP ECHO $row["USUARIO"]?><span class="float-right"><?PHP ECHO $row["NOMESETOR"]?></span></h5><br>
+													</strong></a></p>
+													<p>
+														<h5 class="mb-1"><?PHP ECHO $row["COMENTARIO"]?><br>Enviado para: <?php echo $row["USUARIOPARA"]?></h5><br>
+													</p>
+													<p>
+												   </p>
+												</div>
+											</div>
+											<?php }
+										}?>
+										
+									</div>
+								</div>
 						</div>
-						<p class="mb-1"></p>
-						<small></small>
-					  </a>
-					  
-					  <li class="list-group-item">
-						<?PHP ECHO $xtabC["COMENTARIO"]?><br>
-					  </li>
-				  <?php }
-				  }?>
-				</ul>
-				
+					</div>
               </div>
             </div>
           </div>
@@ -673,12 +1266,6 @@
         <li class="button-container">
           <a href="#" target="_blank" class="btn btn-primary btn-block">Baixar</a>
         </li>
-        <!-- <li class="header-title">Want more components?</li>
-            <li class="button-container">
-                <a href="https://www.creative-tim.com/product/material-dashboard-pro" target="_blank" class="btn btn-warning btn-block">
-                  Get the pro version
-                </a>
-            </li> -->
         <li class="button-container">
           <a href="#" target="_blank" class="btn btn-default btn-block">
             Suporte
@@ -687,48 +1274,38 @@
       </ul>
     </div>
   </div>
-  <!--   Core JS Files   -->
+
+  <div class="lightbox-overlay" id="lightbox">
+      <button class="lightbox-close" onclick="fecharLightbox()">&times;</button>
+      <button class="lightbox-nav lightbox-prev" onclick="navegarLightbox(-1)">&#10094;</button>
+      <img id="lightbox-img" src="" alt="Documento">
+      <button class="lightbox-nav lightbox-next" onclick="navegarLightbox(1)">&#10095;</button>
+      <div class="lightbox-title" id="lightbox-title"></div>
+      <div class="lightbox-counter" id="lightbox-counter"></div>
+  </div>
+
   <script src="../assets/js/core/jquery.min.js"></script>
   <script src="../assets/js/core/popper.min.js"></script>
   <script src="../assets/js/core/bootstrap-material-design.min.js"></script>
   <script src="../assets/js/plugins/perfect-scrollbar.jquery.min.js"></script>
-  <!-- Plugin for the momentJs  -->
   <script src="../assets/js/plugins/moment.min.js"></script>
-  <!--  Plugin for Sweet Alert -->
   <script src="../assets/js/plugins/sweetalert2.js"></script>
-  <!-- Forms Validations Plugin -->
   <script src="../assets/js/plugins/jquery.validate.min.js"></script>
-  <!-- Plugin for the Wizard, full documentation here: https://github.com/VinceG/twitter-bootstrap-wizard -->
   <script src="../assets/js/plugins/jquery.bootstrap-wizard.js"></script>
-  <!--	Plugin for Select, full documentation here: http://silviomoreto.github.io/bootstrap-select -->
   <script src="../assets/js/plugins/bootstrap-selectpicker.js"></script>
-  <!--  Plugin for the DateTimePicker, full documentation here: https://eonasdan.github.io/bootstrap-datetimepicker/ -->
   <script src="../assets/js/plugins/bootstrap-datetimepicker.min.js"></script>
-  <!--  DataTables.net Plugin, full documentation here: https://datatables.net/  -->
   <script src="../assets/js/plugins/jquery.dataTables.min.js"></script>
-  <!--	Plugin for Tags, full documentation here: https://github.com/bootstrap-tagsinput/bootstrap-tagsinputs  -->
   <script src="../assets/js/plugins/bootstrap-tagsinput.js"></script>
-  <!-- Plugin for Fileupload, full documentation here: http://www.jasny.net/bootstrap/javascript/#fileinput -->
   <script src="../assets/js/plugins/jasny-bootstrap.min.js"></script>
-  <!--  Full Calendar Plugin, full documentation here: https://github.com/fullcalendar/fullcalendar    -->
   <script src="../assets/js/plugins/fullcalendar.min.js"></script>
-  <!-- Vector Map plugin, full documentation here: http://jvectormap.com/documentation/ -->
   <script src="../assets/js/plugins/jquery-jvectormap.js"></script>
-  <!--  Plugin for the Sliders, full documentation here: http://refreshless.com/nouislider/ -->
   <script src="../assets/js/plugins/nouislider.min.js"></script>
-  <!-- Include a polyfill for ES6 Promises (optional) for IE11, UC Browser and Android browser support SweetAlert -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/core-js/2.4.1/core.js"></script>
-  <!-- Library for adding dinamically elements -->
   <script src="../assets/js/plugins/arrive.min.js"></script>
-  <!--  Google Maps Plugin    -->
   <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_KEY_HERE"></script>
-  <!-- Chartist JS -->
   <script src="../assets/js/plugins/chartist.min.js"></script>
-  <!--  Notifications Plugin    -->
   <script src="../assets/js/plugins/bootstrap-notify.js"></script>
-  <!-- Control Center for Material Dashboard: parallax effects, scripts for the example pages etc -->
   <script src="../assets/js/material-dashboard.js?v=2.1.1" type="text/javascript"></script>
-  <!-- Material Dashboard DEMO methods, don't include it in your project! -->
   <script src="../assets/demo/demo.js"></script>
   <script>
     $(document).ready(function() {
@@ -753,7 +1330,6 @@
         }
 
         $('.fixed-plugin a').click(function(event) {
-          // Alex if we click on switch, stop propagation of the event, so the dropdown will not be hide, otherwise we set the  section active
           if ($(this).hasClass('switch-trigger')) {
             if (event.stopPropagation) {
               event.stopPropagation();
@@ -800,7 +1376,6 @@
 
           $(this).parent('li').siblings().removeClass('active');
           $(this).parent('li').addClass('active');
-
 
           var new_image = $(this).find("img").attr('src');
 
@@ -887,12 +1462,10 @@
             }, 300);
           }
 
-          // we simulate the window Resize so the charts will get updated in realtime.
           var simulateWindowResize = setInterval(function() {
             window.dispatchEvent(new Event('resize'));
           }, 180);
 
-          // we stop the simulation of Window Resize after the animations are completed
           setTimeout(function() {
             clearInterval(simulateWindowResize);
           }, 1000);
@@ -902,15 +1475,14 @@
     });
   </script>
   <script>
+		initSample();
+  </script>
+  <script>
     $(document).ready(function() {
-      //init DateTimePickers
       md.initFormExtendedDatetimepickers();
     });
   </script>
   <?php include "rodape.php" ?>	
-</body>
-
-</html>	
 </body>
 
 </html>

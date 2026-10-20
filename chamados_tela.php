@@ -6,12 +6,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['acao'])) {
  header('Content-Type: text/plain; charset=utf-8');
  $codigoAcao=filter_input(INPUT_POST,'codigo',FILTER_VALIDATE_INT); $nomeAcao=isset($_POST['nome'])?basename($_POST['nome']):'';
  if(!$codigoAcao){echo 'ACAO_ERRO|Chamado inválido.';exit;}
- if($_POST['acao']==='excluir_comentario'){
-  $comentarioId=filter_input(INPUT_POST,'comentario',FILTER_VALIDATE_INT);
-  $st=@ibase_prepare($conexao,'DELETE FROM COMENTARIOS WHERE CODIGO=? AND GRUPO=?');
-  $ok=$st&&$comentarioId&&@ibase_execute($st,$comentarioId,$codigoAcao);
-  echo $ok?'COM_OK|Comentário excluído.':'ACAO_ERRO|Não foi possível excluir o comentário.';exit;
- }
  if($_POST['acao']==='atualizar_descricao'){
   $descricao=isset($_POST['descricao'])?substr(trim($_POST['descricao']),0,1000):'';
   @ibase_query($conexao,'DELETE FROM CHAMADO_IMAGENS WHERE CHAMADO='.(int)$codigoAcao." AND NOME='".str_replace("'","''",$nomeAcao)."'");
@@ -637,11 +631,6 @@ function iniciarColagemPrint(){
 function salvarDescricaoPrint(botao){
  var box=botao.closest('.area-print-colado'),form=botao.closest('form'),d=new FormData();d.append('acao','atualizar_descricao');d.append('codigo',form.getAttribute('data-codigo-chamado'));d.append('nome',box.getAttribute('data-nome')||'');d.append('descricao',box.querySelector('.descricao-print').value);
  fetch(window.location.href,{method:'POST',body:d,credentials:'same-origin'}).then(function(r){return r.text()}).then(function(t){box.querySelector('.status-print-colado').textContent=t.split('|')[1]||'Descrição salva.';});
-}
-function excluirComentario(comentario,codigo,botao){
- if(!confirm('Excluir este comentário?'))return;
- var d=new FormData();d.append('acao','excluir_comentario');d.append('comentario',comentario);d.append('codigo',codigo);
- fetch(window.location.href,{method:'POST',body:d,credentials:'same-origin'}).then(function(r){return r.text()}).then(function(t){if(t.indexOf('COM_OK|')===0){var row=botao.closest('.row');if(row)row.remove();}else alert(t.split('|')[1]||'Não foi possível excluir o comentário.');}).catch(function(){alert('Falha de comunicação ao excluir o comentário.');});
 }
 function excluirImagemMural(btn){var c=btn.closest('.card-imagem-mural'),d=new FormData();if(!confirm('Excluir esta imagem?'))return;d.append('acao','excluir_imagem');d.append('codigo',c.getAttribute('data-codigo'));d.append('nome',c.getAttribute('data-nome'));fetch(window.location.href,{method:'POST',body:d,credentials:'same-origin'}).then(function(r){return r.text()}).then(function(t){if(t.indexOf('DEL_OK|')===0)c.remove();else alert(t.split('|')[1]||'Falha ao excluir.');});}
 
@@ -1341,7 +1330,7 @@ if($tm)while($im=ibase_fetch_assoc($tm)){ $ext=strtolower(pathinfo($im['NOME'],P
 					<div class="card">
 						<div class="card-body">
 							<?php
-							$SQLC="SELECT C.CODIGO AS CODIGO_COMENTARIO, COALESCE(T.NOME,CL.NOME) AS NOME, S.DESCRICAO, CAST(C.COMENTARIO AS VARCHAR(20000)) AS COMENTARIO, DATAALTERACAO, HORAALTERACAO, C.TECNICO  FROM COMENTARIOS C ".
+							$SQLC="SELECT COALESCE(T.NOME,CL.NOME) AS NOME, S.DESCRICAO, CAST(C.COMENTARIO AS VARCHAR(20000)) AS COMENTARIO, DATAALTERACAO, HORAALTERACAO, C.TECNICO  FROM COMENTARIOS C ".
 							"LEFT JOIN TECNICOS T ON (T.CODIGO=C.TECNICO) ".
 							"LEFT JOIN CLIENTES CL ON (CL.CODIGO=C.CLIENTE) ".
 							"LEFT JOIN SETOR S ON (S.CODIGO=COALESCE(T.SETOR,CL.SETOR)) ".
@@ -1372,7 +1361,6 @@ if($tm)while($im=ibase_fetch_assoc($tm)){ $ext=strtolower(pathinfo($im['NOME'],P
 									</p>
 								   <div class="clearfix"></div>
 									<p><?PHP ECHO $xtabC["COMENTARIO"]?><br></p>
-<?php if (empty($_SESSION["USUARIOX"])) { ?><button type="button" class="btn btn-sm btn-outline-danger" onclick="excluirComentario(<?php echo (int)$xtabC["CODIGO_COMENTARIO"]; ?>, <?php echo (int)$_GET["CODIGO"]; ?>, this)">Excluir comentário</button><?php } ?>
 								</div>
 							</div>
 							<?php }
