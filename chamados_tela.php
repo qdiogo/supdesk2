@@ -1,4 +1,67 @@
 <?php include "conexao.php" ; ?>
+<?php @ibase_query($conexao, "CREATE TABLE CHAMADO_IMAGENS (ID INTEGER NOT NULL, CHAMADO INTEGER NOT NULL, NOME VARCHAR(255) NOT NULL, DESCRICAO VARCHAR(1000), DATAHORA TIMESTAMP)"); ?>
+
+<?php
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['acao'])) {
+ header('Content-Type: text/plain; charset=utf-8');
+ $codigoAcao=filter_input(INPUT_POST,'codigo',FILTER_VALIDATE_INT); $nomeAcao=isset($_POST['nome'])?basename($_POST['nome']):'';
+ if(!$codigoAcao){echo 'ACAO_ERRO|Chamado inválido.';exit;}
+ if($_POST['acao']==='excluir_comentario'){
+  $comentarioId=filter_input(INPUT_POST,'comentario',FILTER_VALIDATE_INT);
+  $st=@ibase_prepare($conexao,'DELETE FROM COMENTARIOS WHERE CODIGO=? AND GRUPO=?');
+  $ok=$st&&$comentarioId&&@ibase_execute($st,$comentarioId,$codigoAcao);
+  echo $ok?'COM_OK|Comentário excluído.':'ACAO_ERRO|Não foi possível excluir o comentário.';exit;
+ }
+ if($_POST['acao']==='atualizar_descricao'){
+  $descricao=isset($_POST['descricao'])?substr(trim($_POST['descricao']),0,1000):'';
+  @ibase_query($conexao,'DELETE FROM CHAMADO_IMAGENS WHERE CHAMADO='.(int)$codigoAcao." AND NOME='".str_replace("'","''",$nomeAcao)."'");
+  $sqlDesc="INSERT INTO CHAMADO_IMAGENS (ID, CHAMADO, NOME, DESCRICAO, DATAHORA) VALUES ((SELECT COALESCE(MAX(ID),0)+1 FROM CHAMADO_IMAGENS), ? , ?, ?, CURRENT_TIMESTAMP)";
+  $st=@ibase_prepare($conexao,$sqlDesc);
+  echo ($st&&@ibase_execute($st,$codigoAcao,$nomeAcao,$descricao))?'DESC_OK|Descrição salva.':'ACAO_ERRO|Não foi possível salvar a descrição.';exit;
+ }
+ if($_POST['acao']==='excluir_imagem'){
+  $st=@ibase_prepare($conexao,'DELETE FROM CHAMADO_IMAGENS WHERE CHAMADO=? AND NOME=?');$ok=$st&&@ibase_execute($st,$codigoAcao,$nomeAcao);
+  if($ok){@ibase_query($conexao,"DELETE FROM DOCUMENTOS WHERE ID=".(int)$codigoAcao." AND TABELA='CHAMADOS' AND IMAGEM='".str_replace("'","''",$nomeAcao)."'");@unlink(__DIR__.'/arquivos/'.$nomeAcao);echo 'DEL_OK|Imagem excluída.';}else echo 'ACAO_ERRO|Não foi possível excluir a imagem.';exit;
+ }
+}
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['print_base64'])) {
+    /* Recebe uma imagem em data URL, converte para binário e grava como arquivo. */
+    $retorno = function($ok, $mensagem, $url='') {
+        header('Content-Type: text/plain; charset=utf-8');
+        echo ($ok ? 'PRINT_OK|' : 'PRINT_ERRO|') . $mensagem . ($url !== '' ? '|' . $url : '');
+        exit;
+    };
+
+    $codigo = filter_input(INPUT_POST, 'codigo', FILTER_VALIDATE_INT);
+    if (!$codigo || $codigo < 1) $retorno(false, 'Chamado inválido.');
+
+    $data = trim($_POST['print_base64']);
+    if (!preg_match('/^data:(image\\/(png|jpeg|jpg|gif|webp|bmp));base64,(.*)$/s', $data, $m)) {
+        $retorno(false, 'Base64 de imagem inválido.');
+    }
+    $binario = base64_decode($m[3], true);
+    if ($binario === false || strlen($binario) > 8*1024*1024) $retorno(false, 'A imagem excede 8 MB ou está corrompida.');
+
+    $temp = tempnam(sys_get_temp_dir(), 'print_');
+    if ($temp === false || file_put_contents($temp, $binario) === false) $retorno(false, 'Não foi possível preparar a imagem.');
+    $info = @getimagesize($temp);
+    $mime = $info && isset($info['mime']) ? $info['mime'] : '';
+    $tipos = array('image/png'=>'png','image/jpeg'=>'jpg','image/gif'=>'gif','image/webp'=>'webp','image/bmp'=>'bmp');
+    if (!isset($tipos[$mime])) { @unlink($temp); $retorno(false, 'O conteúdo não é uma imagem válida.'); }
+
+    $dir = __DIR__ . DIRECTORY_SEPARATOR . 'arquivos';
+    if (!is_dir($dir) && !@mkdir($dir, 0755, true)) { @unlink($temp); $retorno(false, 'Não foi possível criar a pasta arquivos.'); }
+    $nome = 'print_' . date('Ymd_His') . '_' . md5(uniqid('', true)) . '.' . $tipos[$mime];
+    $destino = $dir . DIRECTORY_SEPARATOR . $nome;
+    if (!@rename($temp, $destino)) { @unlink($temp); $retorno(false, 'Não foi possível salvar a imagem.'); }
+
+    @ibase_query($conexao, "INSERT INTO CHAMADO_IMAGENS (ID, CHAMADO, NOME, DESCRICAO, DATAHORA) VALUES ((SELECT COALESCE(MAX(ID),0)+1 FROM CHAMADO_IMAGENS), ".(int)$codigo.", '".str_replace("'","''",$nome)."', '', CURRENT_TIMESTAMP)");
+    $stmt = @ibase_prepare($conexao, 'INSERT INTO DOCUMENTOS (IMAGEM, ID, TABELA) VALUES (?, ?, ?)');
+    $ok = $stmt ? @ibase_execute($stmt, $nome, $codigo, 'CHAMADOS') : false;
+    if (!$ok) { @unlink($destino); $retorno(false, 'Não foi possível gravar o print no banco.'); }
+    $retorno(true, 'Print salvo e anexado ao chamado.', 'arquivos/' . rawurlencode($nome) . '|' . $nome);
+}?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -475,7 +538,13 @@
 	.menu-arquivo-opcoes button + button{
 		border-top: 1px solid #f0f0f0;
 	}
-  </style>
+  
+/* Print colado sem alterar a textarea original */
+.area-print-colado{margin-top:10px;padding:10px;border:1px dashed #aaa;border-radius:6px;background:#fafafa}
+.preview-print-colado{display:none;align-items:center;gap:10px;margin-top:8px}
+.preview-print-colado img{max-width:220px;max-height:140px;border:1px solid #ddd;border-radius:4px}
+.status-print-colado{font-size:13px;margin-top:6px;color:#666}.descricao-print{min-width:220px;padding:5px;border:1px solid #ccc;border-radius:4px}.card-imagens-mural{border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.10)}.card-imagem-mural{border-radius:10px;border:1px solid #e5e5e5;margin-bottom:16px;background:#fff}.card-imagem-mural img{cursor:zoom-in}
+</style>
 </head>
 <?php 
 	$codigo = !empty($_GET["CODIGO"]) ? $_GET["CODIGO"] : "0";
@@ -532,6 +601,52 @@
 			lightboxIndex = (lightboxIndex + delta + galeriaImagens.length) % galeriaImagens.length;
 			atualizarLightbox();
 		}
+
+function iniciarColagemPrint(){
+ document.querySelectorAll('.campo-print').forEach(function(campo){
+  campo.addEventListener('paste',function(e){
+   var itens=(e.clipboardData||window.clipboardData).items||[];
+   for(var i=0;i<itens.length;i++){
+    if(itens[i].kind==='file' && itens[i].type.indexOf('image/')===0){
+     e.preventDefault();
+     var arquivo=itens[i].getAsFile(), form=campo.form;
+     var box=form.querySelector('.area-print-colado'), status=box.querySelector('.status-print-colado'), preview=box.querySelector('.preview-print-colado'), img=preview.querySelector('img');
+     var leitor=new FileReader();
+     status.textContent='Convertendo print para Base64...';status.style.color='#666';
+     leitor.onload=function(){
+      var dados=new FormData();
+      dados.append('codigo',form.getAttribute('data-codigo-chamado'));
+      dados.append('print_base64',leitor.result);
+      fetch(window.location.href,{method:'POST',body:dados,credentials:'same-origin'})
+       .then(function(r){return r.text();})
+       .then(function(t){
+        var linha=t.trim().split('|');
+        if(linha[0]!=='PRINT_OK') throw new Error(linha[1]||'Não foi possível salvar o print.');
+        img.src=linha[2];box.setAttribute('data-nome',linha[3]||linha[2].split('/').pop());preview.style.display='flex';status.textContent=linha[1]||'Print salvo e anexado ao chamado.';status.style.color='#287a35';
+       })
+       .catch(function(err){status.textContent=err.message;status.style.color='#b00020';});
+     };
+     leitor.onerror=function(){status.textContent='Não foi possível converter o print para Base64.';status.style.color='#b00020';};
+     leitor.readAsDataURL(arquivo);
+     return;
+    }
+   }
+  });
+ });
+}
+function salvarDescricaoPrint(botao){
+ var box=botao.closest('.area-print-colado'),form=botao.closest('form'),d=new FormData();d.append('acao','atualizar_descricao');d.append('codigo',form.getAttribute('data-codigo-chamado'));d.append('nome',box.getAttribute('data-nome')||'');d.append('descricao',box.querySelector('.descricao-print').value);
+ fetch(window.location.href,{method:'POST',body:d,credentials:'same-origin'}).then(function(r){return r.text()}).then(function(t){box.querySelector('.status-print-colado').textContent=t.split('|')[1]||'Descrição salva.';});
+}
+function excluirComentario(comentario,codigo,botao){
+ if(!confirm('Excluir este comentário?'))return;
+ var d=new FormData();d.append('acao','excluir_comentario');d.append('comentario',comentario);d.append('codigo',codigo);
+ fetch(window.location.href,{method:'POST',body:d,credentials:'same-origin'}).then(function(r){return r.text()}).then(function(t){if(t.indexOf('COM_OK|')===0){var row=botao.closest('.row');if(row)row.remove();}else alert(t.split('|')[1]||'Não foi possível excluir o comentário.');}).catch(function(){alert('Falha de comunicação ao excluir o comentário.');});
+}
+function excluirImagemMural(btn){var c=btn.closest('.card-imagem-mural'),d=new FormData();if(!confirm('Excluir esta imagem?'))return;d.append('acao','excluir_imagem');d.append('codigo',c.getAttribute('data-codigo'));d.append('nome',c.getAttribute('data-nome'));fetch(window.location.href,{method:'POST',body:d,credentials:'same-origin'}).then(function(r){return r.text()}).then(function(t){if(t.indexOf('DEL_OK|')===0)c.remove();else alert(t.split('|')[1]||'Falha ao excluir.');});}
+
+document.addEventListener('DOMContentLoaded',iniciarColagemPrint);
+
 		document.addEventListener('keydown', function(e){
 			var lb = document.getElementById('lightbox');
 			if (!lb || !lb.classList.contains('active')) return;
@@ -644,7 +759,7 @@
 	<?php 
 	$tela = "Sistema de Suporte";
 	
-	$SQL="SELECT M.CODIGO, E.RAZAOSOCIAL, E.CNPJ, M.RESPONSAVEL, CAST(M.FEITO AS VARCHAR(2000)) AS FEITO, M.MONITORADO, CAST(M.MOTIVO2 AS VARCHAR(2000)) AS MOTIVO2, M.TELEFONE, M.CELULAR,  M.DATAHORA, M.EMAIL, CA.DESCRICAO AS NOMECATEGORIA, M.SUBCATEGORIA, S.DESCRICAO AS SUBCATEGORIANOME, CAST(CONTEUDO AS VARCHAR(20000)) AS CONTEUDO, M.CATEGORIA, M.ASSUNTO, M.EMPRESA, C.NOME, UPPER(C.SETOR) AS SETOR, M.USUARIO, (SELECT DESCRICAO FROM MANUTENCAO WHERE CODIGO=M.manutencao) AS MANUTENCAO, (T.NOME) AS NOMETECNICO, M.TECNICO, (SELECT DESCRICAO FROM CATEGORIA WHERE CODIGO=M.CATEGORIA) AS CATEGORIA, M.ASSUNTO, M.AGENDAMENTO, M.PRIORIDADE, M.STATUS FROM CHAMADOS M ".
+	$SQL="SELECT M.CODIGO, E.RAZAOSOCIAL, E.CNPJ, M.RESPONSAVEL, CAST(M.FEITO AS VARCHAR(20000)) AS FEITO, M.MONITORADO, CAST(M.MOTIVO2 AS VARCHAR(20000)) AS MOTIVO2, M.TELEFONE, M.CELULAR,  M.DATAHORA, M.EMAIL, CA.DESCRICAO AS NOMECATEGORIA, M.SUBCATEGORIA, S.DESCRICAO AS SUBCATEGORIANOME, CAST(CONTEUDO AS VARCHAR(20000)) AS CONTEUDO, M.CATEGORIA, M.ASSUNTO, M.EMPRESA, C.NOME, UPPER(C.SETOR) AS SETOR, M.USUARIO, (SELECT DESCRICAO FROM MANUTENCAO WHERE CODIGO=M.manutencao) AS MANUTENCAO, (T.NOME) AS NOMETECNICO, M.TECNICO, (SELECT DESCRICAO FROM CATEGORIA WHERE CODIGO=M.CATEGORIA) AS CATEGORIA, M.ASSUNTO, M.AGENDAMENTO, M.PRIORIDADE, M.STATUS FROM CHAMADOS M ".
 	"LEFT JOIN EMPRESAS E ON (E.CODIGO=M.EMPRESA) ".
 	"LEFT JOIN CLIENTES C ON (C.CODIGO=M.CLIENTE) ".
 	"LEFT JOIN CATEGORIA CA ON (CA.CODIGO=M.CATEGORIA) ".
@@ -689,14 +804,15 @@
 			</button>
 			
 		  </div>
-		  <form method="post" action="fecharchamado.php?codigo=<?php echo $_GET["CODIGO"]?>">
+		  <form method="post" action="fecharchamado.php?codigo=<?php echo $_GET["CODIGO"]?>" data-codigo-chamado="<?php echo (int)$_GET["CODIGO"]; ?>">
 			<div class="modal-body">
 				<div class="row">
 					<div class="col-md-12">
 						<label><STRONG>Solicitado:</STRONG></label> <?php echo $xtab["CONTEUDO"]?><br>
 						<label><STRONG>Serviço executado</STRONG></label>
 						<label> <br> <div id="textoantigo"></div> <br>  <center><div id="texto"></div></center>  </label>
-						<textarea class="form-control" rows=30 cols=1 name="textotecnico"  id="textotecnico"><?php echo saudacao()?></textarea>
+						<textarea class="form-control campo-print" rows=30 cols=1 name="textotecnico"  id="textotecnico"><?php echo saudacao()?></textarea>
+<div class="area-print-colado"><b>Print do cliente</b><small> Cole o print com Ctrl+V enquanto o cursor estiver na textarea.</small><div class="preview-print-colado"><img src="" alt="Print colado"><span>Anexado ao chamado.</span><input type="text" class="descricao-print" maxlength="1000" placeholder="O que é esta imagem?"><button type="button" class="btn btn-sm btn-primary" onclick="salvarDescricaoPrint(this)">Salvar descrição</button></div><div class="status-print-colado">Nenhum print anexado.</div></div>
 					</div>
 				</div>
 			</div>
@@ -759,13 +875,14 @@
 					<span aria-hidden="true">&times;</span>
 				</button>
 			</div>
-		  <form method="post" action="comentarios.php?CODIGO=<?php echo $_GET["CODIGO"]?>">
+		  <form method="post" action="comentarios.php?CODIGO=<?php echo $_GET["CODIGO"]?>" data-codigo-chamado="<?php echo (int)$_GET["CODIGO"]; ?>">
 			<div class="modal-body">
 				<div class="row">
 					<div class="col-md-12">
 						<label><STRONG>Comentário</STRONG></label>
 						<label> <br> <div id="textoantigo2"></div> <br>  <center><div id="texto2"></div></center>  </label>
-						<textarea class="form-control" ROWS=15 cols=15 name="COMENTARIO" id="COMENTARIO" required maxlength="20000"><?php echo saudacao()?></textarea>
+						<textarea class="form-control campo-print" ROWS=15 cols=15 name="COMENTARIO" id="COMENTARIO" required maxlength="20000"><?php echo saudacao()?></textarea>
+<div class="area-print-colado"><b>Print do cliente</b><small> Cole o print com Ctrl+V enquanto o cursor estiver na textarea.</small><div class="preview-print-colado"><img src="" alt="Print colado"><span>Anexado ao chamado.</span><input type="text" class="descricao-print" maxlength="1000" placeholder="O que é esta imagem?"><button type="button" class="btn btn-sm btn-primary" onclick="salvarDescricaoPrint(this)">Salvar descrição</button></div><div class="status-print-colado">Nenhum print anexado.</div></div>
 						<?php if (isset($_SESSION['PODEMONITORAR']) && $_SESSION['PODEMONITORAR']=="S") {?>
 						<BR> 
 						<div class="col-md-6">
@@ -896,6 +1013,14 @@
 					<div class="row">
 						<div class="col-md-12" id="texto">
 							<p style="text-align: justify; text-justify: inter-word;"><?PHP ECHO $xtab["CONTEUDO"]?></p>
+<?php $codigo_mural=(int)$xtab['CODIGO'];$lista_mural=array();
+$tm=@ibase_query($conexao,"SELECT D.IMAGEM AS NOME, COALESCE(A.DESCRICAO,'') AS DESCRICAO, A.DATAHORA FROM DOCUMENTOS D LEFT JOIN CHAMADO_IMAGENS A ON A.CHAMADO=D.ID AND A.NOME=D.IMAGEM WHERE D.ID=".$codigo_mural." AND D.TABELA='CHAMADOS' AND D.IMAGEM IS NOT NULL ORDER BY A.DATAHORA DESC, D.IMAGEM DESC");
+if($tm)while($im=ibase_fetch_assoc($tm)){ $ext=strtolower(pathinfo($im['NOME'],PATHINFO_EXTENSION)); if(in_array($ext,array('jpg','jpeg','png','gif','bmp','webp'))) $lista_mural[]=$im; } ?>
+<div class="card card-imagens-mural" style="margin-top:20px"><div class="card-header"><h4 class="card-title">Imagens do chamado</h4><small>Álbum do chamado</small></div><div class="card-body">
+<?php if(!$lista_mural){ ?><p class="text-muted">Nenhuma imagem adicionada.</p><?php } foreach($lista_mural as $im){$nm=$im['NOME']; ?>
+<div class="card card-imagem-mural" data-codigo="<?php echo $codigo_mural ?>" data-nome="<?php echo htmlspecialchars($nm,ENT_QUOTES,'UTF-8') ?>"><div class="card-body"><img src="arquivos/<?php echo rawurlencode($nm) ?>" style="max-width:100%;max-height:520px;border-radius:8px;display:block;margin:auto" alt="Imagem do chamado"><p><strong><?php echo htmlspecialchars($im['DESCRICAO']?:'Imagem do chamado',ENT_QUOTES,'UTF-8') ?></strong><br><small><?php echo $im['DATAHORA'] ?></small></p><?php if(empty($_SESSION['USUARIOX'])){ ?><button type="button" class="btn btn-sm btn-outline-danger" onclick="excluirImagemMural(this)">Excluir imagem</button><?php } ?></div></div>
+<?php } ?></div></div>
+
 						</div>
 							<?PHP if (!empty($xtab["FEITO"])){?>
 							<br><br><br>
@@ -1216,7 +1341,7 @@
 					<div class="card">
 						<div class="card-body">
 							<?php
-							$SQLC="SELECT COALESCE(T.NOME,CL.NOME) AS NOME, S.DESCRICAO, CAST(C.COMENTARIO AS VARCHAR(20000)) AS COMENTARIO, DATAALTERACAO, HORAALTERACAO, C.TECNICO  FROM COMENTARIOS C ".
+							$SQLC="SELECT C.CODIGO AS CODIGO_COMENTARIO, COALESCE(T.NOME,CL.NOME) AS NOME, S.DESCRICAO, CAST(C.COMENTARIO AS VARCHAR(20000)) AS COMENTARIO, DATAALTERACAO, HORAALTERACAO, C.TECNICO  FROM COMENTARIOS C ".
 							"LEFT JOIN TECNICOS T ON (T.CODIGO=C.TECNICO) ".
 							"LEFT JOIN CLIENTES CL ON (CL.CODIGO=C.CLIENTE) ".
 							"LEFT JOIN SETOR S ON (S.CODIGO=COALESCE(T.SETOR,CL.SETOR)) ".
@@ -1247,11 +1372,26 @@
 									</p>
 								   <div class="clearfix"></div>
 									<p><?PHP ECHO $xtabC["COMENTARIO"]?><br></p>
+<?php if (empty($_SESSION["USUARIOX"])) { ?><button type="button" class="btn btn-sm btn-outline-danger" onclick="excluirComentario(<?php echo (int)$xtabC["CODIGO_COMENTARIO"]; ?>, <?php echo (int)$_GET["CODIGO"]; ?>, this)">Excluir comentário</button><?php } ?>
 								</div>
 							</div>
 							<?php }
 							}?>
-								<div class="card card-inner">
+								
+<?php if (!empty($lista_mural)) { ?>
+<div class="comentarios-imagens-publicadas">
+ <?php foreach ($lista_mural as $imagemComentario) { $nomeComentario=$imagemComentario['NOME']; ?>
+ <div class="row comentario-imagem-item" style="margin:18px 0;padding:12px;border:1px solid #e5e5e5;border-radius:10px;background:#fff;box-shadow:0 1px 5px rgba(0,0,0,.08)">
+  <div class="col-md-2"><img src="<?php echo !empty($_SESSION['LOGO']) ? $_SESSION['LOGO'] : '/img/def_face.jpg'; ?>" class="img img-rounded img-fluid"><p class="text-secondary text-center">Anexo do chamado</p></div>
+  <div class="col-md-10"><strong>Imagem adicionada aos comentários</strong><br>
+   <img src="arquivos/<?php echo rawurlencode($nomeComentario); ?>" alt="Imagem anexada ao comentário" style="max-width:100%;max-height:500px;border-radius:8px;margin-top:8px;display:block">
+   <p style="margin-top:8px;margin-bottom:0"><strong><?php echo htmlspecialchars($imagemComentario['DESCRICAO'] ?: 'Imagem do chamado', ENT_QUOTES, 'UTF-8'); ?></strong></p>
+  </div>
+ </div>
+ <?php } ?>
+</div>
+<?php } ?>
+<div class="card card-inner">
 									<div class="card-body">
 										<?php if (empty($_SESSION["USUARIOX"])) { ?>
 										<?php

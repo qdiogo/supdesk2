@@ -1,10 +1,166 @@
+<?php
+include "conexao2.php";
+
+/* Salva o print enviado pelo formulário na mesma tabela DOCUMENTOS usada pelos anexos. */
+function salvar_print_novo_chamado($conexao, $codigo, $base64, $descricao) {
+    if (empty($codigo) || empty($base64)) return array(true, '');
+    if (!preg_match('/^data:([^;]+);base64,(.*)$/s', trim($base64), $m)) return array(false, 'Arquivo Base64 inválido.');
+    $mimeRecebido=strtolower(trim($m[1])); $binario=base64_decode($m[2],true);
+    if($binario===false || strlen($binario)>8*1024*1024)return array(false,'O arquivo excede 8 MB ou está corrompido.');
+    $mapa=array('image/png'=>'png','image/jpeg'=>'jpg','image/jpg'=>'jpg','image/gif'=>'gif','image/webp'=>'webp','image/bmp'=>'bmp','application/pdf'=>'pdf','text/plain'=>'txt','text/csv'=>'csv','application/zip'=>'zip','application/x-zip-compressed'=>'zip','application/msword'=>'doc','application/vnd.openxmlformats-officedocument.wordprocessingml.document'=>'docx','application/vnd.ms-excel'=>'xls','application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'=>'xlsx');
+    $ext=isset($mapa[$mimeRecebido])?$mapa[$mimeRecebido]:'bin'; $ehImagem=(strpos($mimeRecebido,'image/')===0);
+    $temp=tempnam(sys_get_temp_dir(),'chamado_anexo_'); if($temp===false||@file_put_contents($temp,$binario)===false)return array(false,'Não foi possível preparar o arquivo.');
+    if($ehImagem && !is_array(@getimagesize($temp))){@unlink($temp);return array(false,'A imagem não é válida.');}
+    $dir=__DIR__.DIRECTORY_SEPARATOR.'arquivos'; if(!is_dir($dir)&&!@mkdir($dir,0755,true)){@unlink($temp);return array(false,'A pasta arquivos não permite gravação.');}
+    $nome=($ehImagem?'print_':'anexo_').date('Ymd_His').'_'.md5(uniqid('',true)).'.'.$ext; $destino=$dir.DIRECTORY_SEPARATOR.$nome;
+    if(!@rename($temp,$destino)){@unlink($temp);return array(false,'Não foi possível salvar o arquivo.');}
+    $descricao=substr(trim($descricao),0,1000); $texto='';
+    @ibase_query($conexao,"CREATE TABLE CHAMADO_IMAGENS (ID INTEGER NOT NULL, CHAMADO INTEGER NOT NULL, NOME VARCHAR(255) NOT NULL, DESCRICAO VARCHAR(1000), CONTEUDO VARCHAR(8000), DATAHORA TIMESTAMP)"); @ibase_query($conexao,"ALTER TABLE CHAMADO_IMAGENS ADD CONTEUDO VARCHAR(8000)");
+    $tesseract=($ehImagem&&function_exists('shell_exec'))?@shell_exec('command -v tesseract 2>/dev/null'):''; if(trim($tesseract)!=='')$texto=trim((string)@shell_exec('tesseract '.escapeshellarg($destino).' stdout 2>/dev/null')); if(strlen($texto)>8000)$texto=substr($texto,0,8000);
+    $aux=@ibase_prepare($conexao,"INSERT INTO CHAMADO_IMAGENS (ID,CHAMADO,NOME,DESCRICAO,CONTEUDO,DATAHORA) VALUES ((SELECT COALESCE(MAX(ID),0)+1 FROM CHAMADO_IMAGENS),?,?,?,?,CURRENT_TIMESTAMP)"); if($aux)@ibase_execute($aux,$codigo,$nome,$descricao,$texto);
+    $st=@ibase_prepare($conexao,'INSERT INTO DOCUMENTOS (IMAGEM,ID,TABELA) VALUES (?,?,?)'); $ok=$st?@ibase_execute($st,$nome,$codigo,'CHAMADOS'):false;
+    if(!$ok){@unlink($destino);return array(false,'Não foi possível registrar o arquivo na tabela DOCUMENTOS.');} return array(true,$nome);
+}
+
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+	if ($_POST["assunto"]!=""){
+		$assunto="'".$_POST["assunto"]."'";
+	}ELSE{
+		$assunto="NULL";
+	}
+	
+	if ($_POST["email"]!=""){
+		$email="'".$_POST["email"]."'";
+	}ELSE{
+		$email="NULL";
+	}
+	
+	if ($_POST["conteudo"]!=""){
+		$conteudo="'".str_replace("'","",$_POST["conteudo"])."'";
+	}ELSE{
+		$conteudo="NULL";
+	}
+	
+	if ($_POST["TELEFONE"]!=""){
+		$TELEFONE="'".$_POST["TELEFONE"]."'";
+	}ELSE{
+		$TELEFONE="NULL";
+	}
+	
+	if ($_POST["CELULAR"]!=""){
+		$CELULAR="'".$_POST["CELULAR"]."'";
+	}ELSE{
+		$CELULAR="NULL";
+	}
+	
+	if ($_POST["RESPONSAVEL"]!=""){
+		$RESPONSAVEL="'".tirarAcentos($_POST["RESPONSAVEL"])."'";
+	}ELSE{
+		$RESPONSAVEL="NULL";
+	}
+	
+	if (!empty($_SESSION["UNIDADENEGOCIO"]))
+	{
+		$UNIDADE=$_SESSION["UNIDADENEGOCIO"];
+	}else{
+		$UNIDADE="NULL";
+	}
+	
+	
+	if ($_POST["SUBCATEGORIAS"]!=""){
+		$SUBCATEGORIAS="'".$_POST["SUBCATEGORIAS"]."'";
+	}else{
+		$SUBCATEGORIAS="NULL";
+	}
+	
+	if ($_POST["categoria"]!=""){
+		$categoria="'".$_POST["categoria"]."'";
+	}else{
+		$categoria="NULL";
+	}
+	$SQLE="SELECT MONITORADO FROM EMPRESAS WHERE CODIGO= " . $_SESSION["EMPRESA"]  . " AND MONITORADO='S'";
+	$TABELAW=ibase_query($conexao,$SQLE);
+	$RTA=ibase_fetch_assoc($TABELAW);
+	
+	if (!EMPTY($RTA["MONITORADO"])){
+		$MONITORADO="'".$RTA["MONITORADO"]."'";
+	}else{
+		$MONITORADO="NULL";
+	}
+	
+	if (!empty($_POST["UNIDADE"])){
+		$UNIDADE="'".$_POST["UNIDADE"]."'";
+	}else{
+		if (!empty($_SESSION["UNIDADE"])){
+			$UNIDADE="'".$_SESSION["UNIDADE"]."'";
+		}else{
+			$UNIDADE="NULL";
+		}
+	}
+	
+	if (empty($_POST["CODIGO"])){
+		$SQLXX= "SELECT CODIGO FROM CHAMADOS WHERE CLIENTE=".$_SESSION["USUARIOX"]." AND STATUS='F' AND ASSINADO_USER IS NULL ORDER BY CODIGO DESC ";
+		$tabelaw2=ibase_query($conexao,$SQLXX); 
+		$open2=ibase_fetch_assoc($tabelaw2);
+		if (!empty($open2))
+		{
+			echo "<script>alert('Existem chamados que ainda precisam ser validados N° ".$open2["CODIGO"].".'); history.go(-1)</script>";
+			exit;
+		}
+		$SQLX= "SELECT CODIGO FROM CHAMADOS WHERE ASSUNTO=".$assunto." AND DATAHORA='". date('Y-m-d H:i:s') ."' AND CLIENTE=".$_SESSION["USUARIOX"]." ";
+		$tabelaw=ibase_query($conexao,$SQLX); 
+		$open=ibase_fetch_assoc($tabelaw);
+		if (empty($open))
+		{
+			$sql="INSERT INTO CHAMADOS (ASSUNTO, CLIENTE, DATAHORA, EMPRESA, EMAIL, CONTEUDO, TELEFONE, CELULAR, RESPONSAVEL, UNIDADE, SUBCATEGORIA, CATEGORIA, UNIDADENEGOCIO, MONITORADO) VALUES (".$assunto.", ".$_SESSION["USUARIOX"].", '".date("Y-m-d H:i")."', ".$_SESSION["EMPRESA"].", ".$email.", ".$conteudo.", ".$TELEFONE.", ".$CELULAR.", ".$RESPONSAVEL.", ".$UNIDADE.", ".$SUBCATEGORIAS.", ".$categoria.", ".$UNIDADE.", ".$MONITORADO.")";
+			$tabela= ibase_query ($conexao, $sql);
+			
+			$SQLX2= "SELECT CODIGO FROM CHAMADOS WHERE  CLIENTE=".$_SESSION["USUARIOX"]." ORDER BY CODIGO DESC ";
+			$tabelaw2=ibase_query($conexao,$SQLX2); 
+			$open2=ibase_fetch_assoc($tabelaw2); 
+			
+		}
+	}else{
+		$sql="UPDATE CHAMADOS SET UNIDADENEGOCIO=".$UNIDADE.", categoria=".$categoria.", SUBCATEGORIA=".$SUBCATEGORIAS.", assunto=".$assunto.",  email=".$email.", RESPONSAVEL=".$RESPONSAVEL.", TELEFONE=".$TELEFONE.", CELULAR=".$CELULAR.", conteudo=".$conteudo." WHERE CODIGO=" .$_POST["CODIGO"];
+		$tabela= ibase_query ($conexao, $sql);
+		
+		$sql2="INSERT INTO HISTORICO_AT_CHAMADOS (TECNICO, ACAO, QUEM, CLIENTE, CHAMADO, UNIDADE) VALUES (0, 'ALTEROU', 'CLIENTE', ".$_SESSION["USUARIOX"].", ".$_POST["CODIGO"].", ".$UNIDADE.")";
+			$tabela= ibase_query ($conexao, $sql2);
+		}
+
+		/* Salva o print somente depois de obter o código do chamado. */
+		$codigoImagem = 0;
+		if (empty($_POST["CODIGO"])) {
+			if (!empty($open2["CODIGO"])) $codigoImagem = (int)$open2["CODIGO"];
+		} else {
+			$codigoImagem = (int)$_POST["CODIGO"];
+		}
+		if ($codigoImagem > 0) {
+$anexos=array();
+if(!empty($_POST["anexos_base64"]) && is_array($_POST["anexos_base64"]))$anexos=$_POST["anexos_base64"];
+elseif(!empty($_POST["imagem_base64"]))$anexos[]=$_POST["imagem_base64"];
+$descricoes=(isset($_POST["descricao_imagem"])&&is_array($_POST["descricao_imagem"]))?$_POST["descricao_imagem"]:array();
+foreach($anexos as $indice=>$base64Anexo){$descricaoAnexo=isset($descricoes[$indice])?$descricoes[$indice]:'';$resultadoPrint=salvar_print_novo_chamado($conexao,$codigoImagem,$base64Anexo,$descricaoAnexo);if(!$resultadoPrint[0]){echo "<script>alert('".addslashes($resultadoPrint[1])."'); history.go(-1)</script>";exit;}}
+}
+		if ($tabela==1)
+	{
+		try{ 
+			header("Location: CLIENTE_CHAMADOS");
+		} catch (Exception $e) {
+			echo "N??o foi possivel incluir esses dados!";
+		}
+	}
+	
+	
+
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head> 
-	<?php 
-	include "conexao2.php";
-	include "css.php";
-	?>
+	<?php include "css.php"; ?>
 	<script> 
 	function alterar(indice)  
 	{ 
@@ -200,6 +356,247 @@
 	}
   </style>
   <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no' name='viewport' />
+
+<style>
+.area-imagem-abertura{margin-top:10px;padding:12px;border:1px dashed #aaa;border-radius:6px;background:#fafafa}
+.area-imagem-abertura small{display:block;margin-top:4px;color:#666}
+.preview-imagem-abertura{display:none;align-items:stretch;gap:10px;margin-top:12px;flex-wrap:wrap}
+.preview-anexo{display:flex;align-items:flex-start;gap:10px;flex:0 1 360px;max-width:100%;padding:10px;border:1px solid #ddd;border-radius:6px;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.preview-anexo img{display:block;width:auto;max-width:180px;max-height:140px;object-fit:contain;border-radius:4px;border:1px solid #ddd;background:#f5f5f5}
+.preview-anexo-detalhes{flex:1;min-width:120px;overflow-wrap:anywhere}
+.nome-arquivo{display:block;font-weight:600;overflow-wrap:anywhere}
+.status-item-anexo{display:block;margin:4px 0;color:#666;font-size:12px}
+.preview-anexo input[type=text]{display:block;width:100%;min-width:0;margin-top:6px;padding:6px;border:1px solid #ccc;border-radius:4px}
+.remover-anexo{margin-top:6px;padding:3px 8px;border:0;border-radius:4px;background:#dc3545;color:#fff;cursor:pointer;font-size:12px}
+.remover-anexo:hover{background:#bd2130}
+.anexo-pendente{border-color:#f0ad4e}
+.anexo-erro{border-color:#dc3545}
+.status-imagem-abertura{font-size:13px;color:#666;margin-top:8px}
+.status-imagem-abertura.erro{color:#b00020;font-weight:600}
+</style>
+<script>
+function atualizarStatusAnexos(form){
+    var box=form.querySelector('.area-imagem-abertura');
+    if(!box)return;
+    var lista=box.querySelector('.preview-imagem-abertura');
+    var status=box.querySelector('.status-imagem-abertura');
+    var itens=lista.querySelectorAll('.preview-anexo');
+    var total=itens.length;
+    var pendentes=lista.querySelectorAll('.preview-anexo.anexo-pendente').length;
+    var erros=lista.querySelectorAll('.preview-anexo.anexo-erro').length;
+
+    lista.style.display=total?'flex':'none';
+    status.className='status-imagem-abertura';
+    if(total===0){
+        status.textContent='Nenhum arquivo adicionado.';
+        return;
+    }
+
+    status.textContent=total+(total===1?' arquivo selecionado':' arquivos selecionados');
+    if(pendentes>0){
+        status.textContent+=' — preparando '+pendentes+(pendentes===1?' arquivo':' arquivos')+' para anexar…';
+    }else if(erros===0){
+        status.textContent+=' — prévia pronta; será anexado ao salvar.';
+    }
+    if(erros>0){
+        status.textContent+=' — '+erros+(erros===1?' arquivo com erro. Remova-o e tente novamente.':' arquivos com erro. Remova-os e tente novamente.');
+        status.className+=' erro';
+    }
+}
+
+function adicionarAnexoBase64(form,arquivo){
+    if(!arquivo)return;
+    var box=form.querySelector('.area-imagem-abertura');
+    if(!box)return;
+    var lista=box.querySelector('.preview-imagem-abertura');
+    var status=box.querySelector('.status-imagem-abertura');
+    var limiteBytes=8*1024*1024;
+
+    if(arquivo.size>limiteBytes){
+        status.textContent='O arquivo "'+arquivo.name+'" excede o limite de 8 MB e não foi adicionado.';
+        status.className='status-imagem-abertura erro';
+        return;
+    }
+    if(typeof FileReader==='undefined'){
+        status.textContent='Este navegador não permite ler o arquivo para anexá-lo.';
+        status.className='status-imagem-abertura erro';
+        return;
+    }
+
+    var contador=parseInt(form.getAttribute('data-proximo-anexo')||'0',10);
+    var indice=contador;
+    form.setAttribute('data-proximo-anexo',String(contador+1));
+
+    var item=document.createElement('div');
+    item.className='preview-anexo anexo-pendente';
+
+    var ehImagem=arquivo.type&&arquivo.type.indexOf('image/')===0;
+    if(ehImagem){
+        var imagem=document.createElement('img');
+        imagem.alt='Prévia de '+arquivo.name;
+        item.appendChild(imagem);
+        if(window.URL&&typeof window.URL.createObjectURL==='function'){
+            try{
+                item.urlPreview=window.URL.createObjectURL(arquivo);
+                imagem.src=item.urlPreview;
+            }catch(e){}
+        }
+    }
+
+    var detalhes=document.createElement('div');
+    detalhes.className='preview-anexo-detalhes';
+    var nome=document.createElement('span');
+    nome.className='nome-arquivo';
+    nome.textContent=arquivo.name||'Arquivo sem nome';
+    detalhes.appendChild(nome);
+
+    var estado=document.createElement('small');
+    estado.className='status-item-anexo';
+    estado.textContent=ehImagem?'Imagem selecionada — preparando anexo…':'Arquivo selecionado — preparando anexo…';
+    detalhes.appendChild(estado);
+
+    var descricao=document.createElement('input');
+    descricao.type='text';
+    descricao.name='descricao_imagem['+indice+']';
+    descricao.maxLength=1000;
+    descricao.placeholder='Descrição do anexo (opcional)';
+    detalhes.appendChild(descricao);
+
+    var hidden=document.createElement('input');
+    hidden.type='hidden';
+    hidden.name='anexos_base64['+indice+']';
+    hidden.className='anexo-base64';
+    hidden.value='';
+    detalhes.appendChild(hidden);
+
+    var remover=document.createElement('button');
+    remover.type='button';
+    remover.className='remover-anexo';
+    remover.textContent='Remover';
+    remover.setAttribute('aria-label','Remover '+(arquivo.name||'anexo'));
+    remover.addEventListener('click',function(){
+        if(item.urlPreview&&window.URL&&typeof window.URL.revokeObjectURL==='function'){
+            window.URL.revokeObjectURL(item.urlPreview);
+        }
+        if(item.parentNode)item.parentNode.removeChild(item);
+        atualizarStatusAnexos(form);
+    });
+    detalhes.appendChild(remover);
+    item.appendChild(detalhes);
+    lista.appendChild(item);
+    atualizarStatusAnexos(form);
+
+    var leitor=new FileReader();
+    leitor.onload=function(){
+        if(typeof leitor.result!=='string'){
+            item.className='preview-anexo anexo-erro';
+            estado.textContent='Não foi possível preparar este arquivo. Remova-o e tente novamente.';
+            atualizarStatusAnexos(form);
+            return;
+        }
+        hidden.value=leitor.result;
+        if(ehImagem&&!item.urlPreview){
+            var img=item.querySelector('img');
+            if(img)img.src=leitor.result;
+        }
+        item.className='preview-anexo';
+        estado.textContent=ehImagem?'Imagem pronta para anexar ao chamado.':'Arquivo pronto para anexar ao chamado.';
+        atualizarStatusAnexos(form);
+    };
+    leitor.onerror=function(){
+        item.className='preview-anexo anexo-erro';
+        estado.textContent='Falha ao ler o arquivo. Remova-o e tente novamente.';
+        atualizarStatusAnexos(form);
+    };
+    leitor.readAsDataURL(arquivo);
+}
+
+function importarImagemDaAreaTransferencia(form){
+    var box=form.querySelector('.area-imagem-abertura');
+    var status=box.querySelector('.status-imagem-abertura');
+    if(!navigator.clipboard||typeof navigator.clipboard.read!=='function'){
+        status.textContent='Não foi possível ler a área de transferência neste navegador. Use Ctrl+V na descrição ou selecione a imagem.';
+        status.className='status-imagem-abertura erro';
+        return;
+    }
+    status.textContent='Verificando a área de transferência…';
+    status.className='status-imagem-abertura';
+    navigator.clipboard.read().then(function(itensClipboard){
+        var leituras=[];
+        for(var i=0;i<itensClipboard.length;i++){
+            var tipos=itensClipboard[i].types||[];
+            var tipoImagem='';
+            for(var j=0;j<tipos.length;j++){
+                if(tipos[j].indexOf('image/')===0){tipoImagem=tipos[j];break;}
+            }
+            if(tipoImagem){
+                (function(itemClipboard,tipo,numero){
+                    leituras.push(itemClipboard.getType(tipo).then(function(blob){
+                        var extensao=tipo.split('/')[1]||'png';
+                        var nome='captura_print_screen_'+new Date().getTime()+'_'+numero+'.'+extensao;
+                        return new File([blob],nome,{type:tipo});
+                    }));
+                })(itensClipboard[i],tipoImagem,i+1);
+            }
+        }
+        if(leituras.length===0){
+            status.textContent='Nenhuma imagem encontrada na área de transferência. Pressione Print Screen e clique novamente, ou use Ctrl+V na descrição.';
+            status.className='status-imagem-abertura erro';
+            return;
+        }
+        return Promise.all(leituras).then(function(arquivos){
+            for(var k=0;k<arquivos.length;k++)adicionarAnexoBase64(form,arquivos[k]);
+        });
+    }).catch(function(){
+        status.textContent='O navegador bloqueou o acesso à área de transferência. Permita o acesso quando solicitado ou use Ctrl+V na descrição.';
+        status.className='status-imagem-abertura erro';
+    });
+}
+
+function iniciarImagemAbertura(){
+    document.querySelectorAll('.campo-conteudo-abertura').forEach(function(campo){
+        var form=campo.form;
+        if(!form)return;
+        var input=form.querySelector('.seletor-arquivos');
+        if(input){
+            input.addEventListener('change',function(){
+                for(var i=0;i<input.files.length;i++)adicionarAnexoBase64(form,input.files[i]);
+                input.value='';
+            });
+        }
+        form.querySelectorAll('.botao-colar-captura').forEach(function(botao){
+            botao.addEventListener('click',function(){importarImagemDaAreaTransferencia(form);});
+        });
+        campo.addEventListener('paste',function(e){
+            var areaTransferencia=e.clipboardData||window.clipboardData;
+            var itens=areaTransferencia&&areaTransferencia.items?areaTransferencia.items:[];
+            for(var i=0;i<itens.length;i++){
+                if(itens[i].kind==='file'&&itens[i].type.indexOf('image/')===0){
+                    e.preventDefault();
+                    adicionarAnexoBase64(form,itens[i].getAsFile());
+                }
+            }
+        });
+        form.addEventListener('submit',function(e){
+            var pendente=form.querySelector('.preview-anexo.anexo-pendente');
+            var erro=form.querySelector('.preview-anexo.anexo-erro');
+            var bases=form.querySelectorAll('.anexo-base64');
+            var baseVazia=false;
+            for(var i=0;i<bases.length;i++){
+                if(!bases[i].value){baseVazia=true;break;}
+            }
+            if(pendente||erro||baseVazia){
+                e.preventDefault();
+                alert('Aguarde a preparação dos anexos terminar. Se algum arquivo apresentar erro, remova-o e adicione-o novamente antes de salvar.');
+            }
+        });
+    });
+}
+
+document.addEventListener('DOMContentLoaded',iniciarImagemAbertura);
+</script>
+
+
 </head> 
 <body id="page-top"> 
 <?php
@@ -301,7 +698,7 @@ if (ISSET($_GET["ATITUDE"])){
 				  <span aria-hidden="true">&times;</span>
 				</button>
 			  </div>  
-			  	<form method="post" action="cliente_dadoschamados">    
+			  	<form method="post" action="cliente_chamados.php" id="formulario-chamado">    
 				  <div class="modal-body">  
 					<?php if (!empty($_GET["ATITUDE"])){?>  
 						<input type="hidden" name="CODIGO" value="<?php ECHO $row["CODIGO"]?>" id="CODIGO" maxlength="4" class="form-control">  
@@ -454,9 +851,11 @@ if (ISSET($_GET["ATITUDE"])){
 							<div class="col-md-12">
 								<label>Descrição</label>
 								<?php if (!empty($_GET["ATITUDE"])){?>  
-									<textarea type="text" name="conteudo" id="conteudo" rows=10 class="form-control" required><?PHP ECHO $row["CONTEUDO"]?></textarea>
+									<textarea type="text" name="conteudo" id="conteudo" rows=10 class="form-control campo-conteudo-abertura" required><?PHP ECHO $row["CONTEUDO"]?></textarea>
+<div class="area-imagem-abertura"><strong>Adicionar imagens e arquivos</strong><small> Para anexar uma captura: pressione Print Screen e clique em “Adicionar captura da área de transferência”, ou use Ctrl+V nesta descrição. Também é possível selecionar arquivos. A prévia aparece antes de salvar.</small><input type="file" class="seletor-arquivos" multiple accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.txt,.csv,.zip"> <button type="button" class="btn btn-outline-primary btn-sm botao-colar-captura">Adicionar captura da área de transferência</button><div class="preview-imagem-abertura"></div><div class="status-imagem-abertura" role="status" aria-live="polite">Nenhum arquivo adicionado.</div></div>
 								<?php }else{ ?>
-									<textarea type="text" name="conteudo" id="conteudo" rows=10 class="form-control" required></textarea>
+									<textarea type="text" name="conteudo" id="conteudo" rows=10 class="form-control campo-conteudo-abertura" required></textarea>
+<div class="area-imagem-abertura"><strong>Adicionar imagens e arquivos</strong><small> Para anexar uma captura: pressione Print Screen e clique em “Adicionar captura da área de transferência”, ou use Ctrl+V nesta descrição. Também é possível selecionar arquivos. A prévia aparece antes de salvar.</small><input type="file" class="seletor-arquivos" multiple accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.txt,.csv,.zip"> <button type="button" class="btn btn-outline-primary btn-sm botao-colar-captura">Adicionar captura da área de transferência</button><div class="preview-imagem-abertura"></div><div class="status-imagem-abertura" role="status" aria-live="polite">Nenhum arquivo adicionado.</div></div>
 								<?php } ?>
 							</div>
 						</div>
