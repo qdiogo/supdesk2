@@ -303,6 +303,37 @@
 		color: #fff !important;
 		border: 1px solid #666 !important;
 	}
+
+    /* Layout aprimorado da listagem de chamados */
+    body{background:#f4f7fb!important}
+    #content{padding-bottom:32px}
+    .chamados-page-heading{margin:18px 18px 20px;padding:23px 26px;border-radius:16px;background:linear-gradient(115deg,#172b4d,#2455a4);color:#fff;box-shadow:0 8px 24px rgba(23,43,77,.16)}
+    .chamados-page-heading h1{margin:0;font-size:25px;font-weight:700;letter-spacing:.1px;color:#fff}
+    .chamados-page-heading p{margin:6px 0 0;color:rgba(255,255,255,.78);font-size:14px}
+    #content .row{margin-left:0;margin-right:0}
+    #content .row .btn{border-radius:8px;box-shadow:0 2px 5px rgba(25,40,70,.10);font-weight:600}
+    #content table#dataTable{width:100%!important;font-size:13px!important;background:#fff;border:0!important;border-collapse:separate!important;border-spacing:0;box-shadow:0 5px 20px rgba(31,48,76,.08);border-radius:12px;overflow:hidden}
+    #dataTable thead th{background:#edf2f9!important;color:#34445d!important;font-weight:700;padding:12px 10px!important;border-color:#e2e8f0!important;white-space:nowrap}
+    #dataTable tbody td{padding:10px 9px!important;vertical-align:middle;border-color:#edf0f5!important;color:#354258}
+    #dataTable tbody tr:not(.linha-empresa):hover td{background:#f5f8fd!important;transition:background .15s ease}
+    #dataTable tfoot th{background:#f8f9fc!important;color:#59677d!important;padding:9px!important;border-color:#e4e9f0!important}
+    #dataTable_wrapper{margin:0 18px 24px;padding:16px;background:#fff;border-radius:14px;box-shadow:0 5px 22px rgba(31,48,76,.07);overflow-x:auto}
+    #dataTable_wrapper .dataTables_length,#dataTable_wrapper .dataTables_filter,#dataTable_wrapper .dataTables_info,#dataTable_wrapper .dataTables_paginate{padding:7px 2px;color:#64728a}
+    #dataTable_wrapper .dataTables_filter input,#dataTable_wrapper .dataTables_length select{border:1px solid #d7dfeb;border-radius:7px;padding:6px 9px;background:#fff;color:#34445d}
+    #dataTable_wrapper .dataTables_paginate .paginate_button{border-radius:6px!important}
+    #content input.form-control,#content select.form-control{min-height:38px;border:1px solid #d8e0eb;border-radius:8px;box-shadow:none;padding:8px 10px}
+    #content input.form-control:focus,#content select.form-control:focus{border-color:#5285d8;box-shadow:0 0 0 3px rgba(82,133,216,.12)}
+    #content label{font-size:12px;font-weight:700;color:#59677d;margin-bottom:5px}
+    .linha-empresa td{padding:9px!important;letter-spacing:.4px}
+    #theme-toggle{top:14px;right:16px;padding:8px 15px;border-radius:22px;box-shadow:0 3px 10px rgba(0,0,0,.18)}
+    body.dark-mode{background:#111827!important}
+    body.dark-mode .chamados-page-heading{background:linear-gradient(115deg,#182338,#233b62)}
+    body.dark-mode #dataTable_wrapper{background:#1e1e1e;border:1px solid #303744}
+    body.dark-mode #dataTable thead th,body.dark-mode #dataTable tfoot th{background:#252b36!important;color:#e1e8f2!important}
+    body.dark-mode #dataTable tbody tr:not(.linha-empresa):hover td{background:#292f3a!important}
+    body.dark-mode #dataTable_wrapper .dataTables_filter input,body.dark-mode #dataTable_wrapper .dataTables_length select{background:#252b36;color:#eee;border-color:#454d5a}
+    @media(max-width:767px){.chamados-page-heading{margin:14px 10px;padding:18px}.chamados-page-heading h1{font-size:21px}#dataTable_wrapper{margin:0 8px 18px;padding:10px}#dataTable thead th,#dataTable tbody td{padding:8px 7px!important}}
+
   </style>
   
 </head> 
@@ -462,7 +493,13 @@ if (ISSET($_GET["ATITUDE"]))
 	<?php include "menu.php"?>   
 	<div id="content-wrapper" class="d-flex flex-column">     
 	  <div id="content"> 
-		<?php include "menuh.php" ?>     
+		<?php include "menuh.php" ?>
+
+            <section class="chamados-page-heading">
+              <h1><i class="fas fa-clipboard-list"></i> Central de chamados</h1>
+              <p>Consulte, filtre e acompanhe os chamados da sua equipe.</p>
+            </section>
+     
 		<meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no' name='viewport' />
   
 		<div class="row">
