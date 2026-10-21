@@ -13,6 +13,7 @@ if ($grupo <= 0) {
 $ACESSO = "Timeline de Comentários";
 $mensagemErro = "";
 $mensagemOk = "";
+$tecnicoOrigem = isset($_SESSION["USUARIO"]) ? (int)$_SESSION["USUARIO"] : 0;
 
 function h($valor) {
     return htmlspecialchars((string)$valor, ENT_QUOTES, "UTF-8");
@@ -52,6 +53,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $mensagemErro = "O comentário não pode ultrapassar 2.000 caracteres.";
     } elseif ($para <= 0) {
         $mensagemErro = "Selecione o técnico destinatário.";
+    } elseif ($tecnicoOrigem <= 0) {
+        $mensagemErro = "Não foi possível identificar o técnico que está realizando a transferência. Entre novamente no sistema.";
     }
 
     if ($mensagemErro === "" && $imagemDataUrl !== "") {
@@ -71,24 +74,37 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $dataSql = date("Y-m-d");
         $horaSql = date("H:i:s");
 
-        /* Parâmetros preparados: o conteúdo Base64 vai para o BLOB, não para arquivo. */
-        $sqlInsert = "INSERT INTO COMENTARIOS_INTERNOS
-            (GRUPO, COMENTARIO, PARA, DATAALTERACAO, HORAALTERACAO, IMAGEM)
-            VALUES (?, ?, ?, ?, ?, CAST(? AS BLOB SUB_TYPE TEXT))";
-        $stmt = @ibase_prepare($conexao, $sqlInsert);
-		
-		$SQLx="UPDATE CHAMADOS SET TECNICO='".$para."' WHERE CODIGO=" . $grupo;
-		$tabelax=ibase_query($conexao,$SQLx);
-		
-        if (!$stmt) {
-            $mensagemErro = "Falha ao preparar INSERT. Verifique se IMAGEM existe e é BLOB SUB_TYPE TEXT.";
+        /* Busca o cliente associado ao chamado, como fazia o INSERT antigo. */
+        $sqlCliente = "SELECT CLIENTE FROM CHAMADOS WHERE CODIGO=" . (int)$grupo;
+        $resCliente = @ibase_query($conexao, $sqlCliente);
+        $rowCliente = $resCliente ? ibase_fetch_assoc($resCliente) : false;
+        $clienteChamado = ($rowCliente && isset($rowCliente["CLIENTE"])) ? (int)$rowCliente["CLIENTE"] : 0;
+
+        if (!$rowCliente) {
+            $mensagemErro = "Não foi possível localizar o cliente associado a este chamado.";
         } else {
-            $ok = @ibase_execute($stmt, $grupo, $comentario, $para, $dataSql, $horaSql, $imagemDataUrl);
+            /* Mantém os campos históricos antigos e grava também a imagem como BLOB. */
+            $sqlInsert = "INSERT INTO COMENTARIOS_INTERNOS
+                (GRUPO, DATAALTERACAO, HORAALTERACAO, TECNICO, CLIENTE, COMENTARIO, PARA, IMAGEM)
+                VALUES (?, ?, ?, ?, ?, ?, ?, CAST(? AS BLOB SUB_TYPE TEXT))";
+            $stmt = @ibase_prepare($conexao, $sqlInsert);
+        }
+
+        if ($mensagemErro === "" && !$stmt) {
+            $mensagemErro = "Falha ao preparar INSERT. Verifique se CLIENTE, TECNICO e IMAGEM existem e se IMAGEM é BLOB SUB_TYPE TEXT.";
+        } elseif ($mensagemErro === "") {
+            $ok = @ibase_execute($stmt, $grupo, $dataSql, $horaSql, $tecnicoOrigem, $clienteChamado, $comentario, $para, $imagemDataUrl);
             if (!$ok) {
-                $mensagemErro = "Não foi possível salvar. Confira a estrutura das colunas e o tamanho máximo do POST no PHP.";
+                $mensagemErro = "Não foi possível salvar. Confira se as colunas TECNICO e IMAGEM existem e o tamanho máximo do POST no PHP.";
             } else {
-                header("Location: comentarios_internos.php?GRUPO=" . urlencode((string)$grupo) . "&salvo=1");
-                exit;
+                /* Atualiza o responsável do chamado somente depois de gravar o histórico da transferência. */
+                $SQLx = "UPDATE CHAMADOS SET TECNICO=" . (int)$para . " WHERE CODIGO=" . (int)$grupo;
+                if (!@ibase_query($conexao, $SQLx)) {
+                    $mensagemErro = "O histórico da transferência foi gravado, mas não foi possível atualizar o técnico responsável pelo chamado.";
+                } else {
+                    header("Location: comentarios_internos.php?GRUPO=" . urlencode((string)$grupo) . "&salvo=1");
+                    exit;
+                }
             }
         }
     }
@@ -127,6 +143,9 @@ $tecnicos = ibase_query($conexao, "SELECT CODIGO, NOME FROM TECNICOS ORDER BY NO
         .timeline-item { border-left: 3px solid #007bff; padding: 0 0 24px 18px; margin-left: 8px; }
         .timeline-card { background: #f7f7f7; padding: 14px; border-radius: 6px; }
         .timeline-meta { font-size: 12px; color: #666; margin: 5px 0 10px; }
+        .transferencia-pessoas { display:flex; flex-wrap:wrap; gap:8px; align-items:center; color:#34495e; }
+        .transferencia-pessoas strong { color:#1b6da8; }
+        .transferencia-seta { color:#7c8996; font-size:18px; }
         .timeline-image { max-width: 100%; max-height: 500px; border: 1px solid #ddd; padding: 4px; }
     </style>
 </head>
@@ -151,7 +170,7 @@ $tecnicos = ibase_query($conexao, "SELECT CODIGO, NOME FROM TECNICOS ORDER BY NO
                 <br><button type="button" id="removerImagem" class="btn btn-sm btn-outline-danger" style="display:none;margin-top:8px;">Remover imagem</button>
             </div>
             <div class="form-group">
-                <label for="PARA">Para técnico</label>
+                <label for="PARA">Transferir para técnico</label>
                 <select class="form-control" id="PARA" name="PARA" required>
                     <option value="">Selecione</option>
                     <?php if ($tecnicos) { while ($tecnico = ibase_fetch_assoc($tecnicos)) { ?>
@@ -170,8 +189,11 @@ $tecnicos = ibase_query($conexao, "SELECT CODIGO, NOME FROM TECNICOS ORDER BY NO
             $imagemValida = ($imagemSalva !== "" && preg_match('/^data:image\/(png|jpeg|jpg|gif|webp);base64,[A-Za-z0-9+\/=\r\n]+$/', $imagemSalva));
         ?>
             <article class="timeline-item"><div class="timeline-card">
-                <strong><?php echo h(isset($item["USUARIO"]) ? $item["USUARIO"] : "Usuário"); ?></strong>
-                <?php if (!empty($item["USUARIOPARA"])) { ?><span> &rarr; <?php echo h($item["USUARIOPARA"]); ?></span><?php } ?>
+                <div class="transferencia-pessoas">
+                    <span><strong>Transferido por:</strong> <?php echo h(isset($item["USUARIO"]) && $item["USUARIO"] !== null ? $item["USUARIO"] : "Usuário não identificado"); ?></span>
+                    <span class="transferencia-seta">&rarr;</span>
+                    <span><strong>Transferido para:</strong> <?php echo h(isset($item["USUARIOPARA"]) && $item["USUARIOPARA"] !== null ? $item["USUARIOPARA"] : "Destinatário não identificado"); ?></span>
+                </div>
                 <div class="timeline-meta"><?php echo h($item["DATAALTERACAO"]); ?> <?php echo h($item["HORAALTERACAO"]); ?></div>
                 <div><?php echo nl2br(h($item["COMENTARIO"])); ?></div>
                 <?php if ($imagemValida) { ?>
