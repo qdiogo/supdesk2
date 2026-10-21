@@ -1,20 +1,7 @@
 <?php
-/* Diagnóstico temporário: remover display_errors após corrigir o problema. */
 ini_set("display_errors", "1");
 ini_set("display_startup_errors", "1");
 error_reporting(E_ALL);
-
-/*
- * comentarios_internos.php — imagens guardadas como Base64 no Firebird.
- *
- * PRÉ-REQUISITO: IMAGEM deve ser BLOB SUB_TYPE TEXT. Se a coluna atual for VARCHAR,
- * faça backup e ajuste a estrutura antes de instalar:
- * Se IMAGEM já existir como VARCHAR, altere o tipo conforme suportado pela versão Firebird:
- *   ALTER TABLE COMENTARIOS_INTERNOS ALTER IMAGEM TYPE BLOB SUB_TYPE TEXT;
- * Ajuste o nome da coluna se já existir uma coluna BLOB apropriada.
- *
- * As colunas de comentário assumidas são as mostradas no arquivo enviado.
- */
 include "conexao.php";
 
 $grupo = isset($_REQUEST["GRUPO"]) ? (int)$_REQUEST["GRUPO"] : 0;
@@ -31,7 +18,6 @@ function h($valor) {
     return htmlspecialchars((string)$valor, ENT_QUOTES, "UTF-8");
 }
 
-/* Lê o conteúdo de um BLOB retornado pelo ibase_fetch_assoc. */
 function lerBlobBase64($conexao, $valorBlob) {
     if ($valorBlob === null || $valorBlob === false || $valorBlob === "") {
         return "";
@@ -90,6 +76,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             (GRUPO, COMENTARIO, PARA, DATAALTERACAO, HORAALTERACAO, IMAGEM)
             VALUES (?, ?, ?, ?, ?, CAST(? AS BLOB SUB_TYPE TEXT))";
         $stmt = @ibase_prepare($conexao, $sqlInsert);
+		
+		$SQLx="UPDATE CHAMADOS SET TECNICO='".$para."' WHERE CODIGO=" . $grupo;
+		$tabelax=ibase_query($conexao,$SQLx);
+		
         if (!$stmt) {
             $mensagemErro = "Falha ao preparar INSERT. Verifique se IMAGEM existe e é BLOB SUB_TYPE TEXT.";
         } else {
@@ -169,6 +159,7 @@ $tecnicos = ibase_query($conexao, "SELECT CODIGO, NOME FROM TECNICOS ORDER BY NO
                     <?php } } ?>
                 </select>
             </div>
+			
             <button type="submit" class="btn btn-success">Salvar comentário</button>
         </form>
 
@@ -186,7 +177,7 @@ $tecnicos = ibase_query($conexao, "SELECT CODIGO, NOME FROM TECNICOS ORDER BY NO
                 <?php if ($imagemValida) { ?>
                     <div style="margin-top:12px;"><img class="timeline-image" src="<?php echo h($imagemSalva); ?>" alt="Imagem do comentário"></div>
                 <?php } elseif (!empty($item["IMAGEM"])) { ?>
-                    <div class="alert alert-warning" style="margin-top:10px;">Não foi possível ler o BLOB da imagem deste comentário.</div>
+                    <div class="alert alert-warning" style="margin-top:10px;">Sem anexo</div>
                 <?php } ?>
             </div></article>
         <?php } ?>
