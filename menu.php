@@ -1,5 +1,57 @@
 
- <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar" style="background-image: linear-gradient(to right top, #504a55, #48444d, #403d46, #39373e, #323137);">
+<style>
+/* Refinamento visual do menu lateral; links e permissões permanecem inalterados. */
+#accordionSidebar {
+  background:linear-gradient(180deg,#172b4d 0%,#203a65 55%,#182e52 100%) !important;
+  box-shadow:4px 0 18px rgba(18,35,63,.18);
+}
+#accordionSidebar .sidebar-brand { min-height:76px; padding:14px 10px; color:#fff; }
+#accordionSidebar .sidebar-brand-text { font-size:15px; font-weight:800; letter-spacing:1.6px; }
+#accordionSidebar .sidebar-brand-icon { color:#b9d4ff; }
+#accordionSidebar .sidebar-heading { padding:12px 16px 7px; color:#a9c2e8; font-size:10px; font-weight:800; letter-spacing:1.1px; text-transform:uppercase; }
+#accordionSidebar .sidebar-divider { margin:8px 14px; border-top:1px solid rgba(220,234,255,.15); }
+#accordionSidebar .nav-item { margin:3px 9px; }
+#accordionSidebar .nav-item .nav-link { display:flex; align-items:center; gap:9px; padding:11px 13px; border-radius:9px; color:rgba(245,248,255,.84); transition:background .18s ease,color .18s ease,transform .18s ease; }
+#accordionSidebar .nav-item .nav-link i { width:18px; color:#a9c8f7; text-align:center; }
+#accordionSidebar .nav-item .nav-link:hover { background:rgba(225,238,255,.12); color:#fff; transform:translateX(2px); }
+#accordionSidebar .nav-item .nav-link.active { background:rgba(116,164,236,.22); color:#fff; box-shadow:inset 3px 0 #8dbaff; }
+#accordionSidebar .collapse-inner { margin:2px 0 8px; padding:10px 8px !important; border:1px solid rgba(209,222,241,.8); border-radius:10px !important; box-shadow:0 7px 18px rgba(7,20,41,.16); }
+#accordionSidebar .collapse-header { padding:5px 10px 8px; color:#73819a; font-size:10px; font-weight:800; letter-spacing:.8px; text-transform:uppercase; }
+#accordionSidebar .collapse-item { display:flex; align-items:center; gap:8px; margin:2px 0; padding:8px 10px; border-radius:7px; color:#36445b; font-size:12px; transition:background .15s ease,color .15s ease; }
+#accordionSidebar .collapse-item i { width:16px; color:#5579b6; text-align:center; }
+#accordionSidebar .collapse-item:hover { background:#edf4ff; color:#234b91; text-decoration:none; }
+#accordionSidebar #sidebarToggle { background:rgba(225,238,255,.2); }
+#accordionSidebar #sidebarToggle:hover { background:rgba(225,238,255,.32); }
+#accordionSidebar.toggled .sidebar-brand-text,
+#accordionSidebar.toggled .sidebar-heading,
+#accordionSidebar.toggled .sidebar-divider { display:none !important; }
+#accordionSidebar.toggled .nav-item { margin:4px 6px; }
+#accordionSidebar.toggled .nav-item .nav-link { display:flex; flex-direction:column; justify-content:center; gap:0; padding:12px 4px; text-align:center; }
+#accordionSidebar.toggled .nav-item .nav-link span { display:none !important; }
+#accordionSidebar.toggled .nav-item .nav-link i { width:auto; margin:0; font-size:16px; }
+#accordionSidebar.toggled .collapse { display:none !important; }
+#accordionSidebar.toggled .sidebar-brand { min-height:62px; }
+@media (max-width:767px) {
+  #accordionSidebar .nav-item { margin-left:6px; margin-right:6px; }
+  #accordionSidebar .nav-item .nav-link { padding:10px 9px; }
+}
+</style>
+<script>
+document.addEventListener('click', function(event) {
+  var elemento = event.target;
+  while (elemento && elemento !== document) {
+    if (elemento.matches && elemento.matches('#accordionSidebar.toggled .nav-item > .nav-link')) {
+      event.preventDefault();
+      event.stopPropagation();
+      if (event.stopImmediatePropagation) event.stopImmediatePropagation();
+      document.getElementById('accordionSidebar').classList.remove('toggled');
+      return;
+    }
+    elemento = elemento.parentNode;
+  }
+});
+</script>
+<ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion toggled" id="accordionSidebar">
 	<a class="sidebar-brand d-flex align-items-center justify-content-center" href="#">
 		<div class="sidebar-brand-icon rotate-n-15">
 			<i class="fas fa-desktop"></i>
@@ -22,7 +74,7 @@
 	Interface
   </div>
   <li class="nav-item">
-	<a class="nav-link collapsed in active" href="#" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="true" aria-controls="collapseTwo">
+    <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
 	  <i class="fas fa-fw fa-cog"></i>
 	  <span>Arquivos(Base)</span>
 	</a>

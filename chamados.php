@@ -253,27 +253,28 @@
 		color: #fff !important;
 	}
 
-	/* ===== LINHA DIVISÓRIA DAS EMPRESAS ===== */
-	tr.linha-empresa {
-		background-image: linear-gradient(to right top, #504a55, #48444d, #403d46, #39373e, #323137);
-		text-align: center;
-		font-weight: bold;
-		color: white;
+		/* ===== LINHA DIVISÓRIA DAS EMPRESAS ===== */
+		tr.linha-empresa {
+			background-image: none;
+			background-color: #dbeafe;
+			text-align: center;
+			font-weight: bold;
+			color: #1e3a8a;
 	}
 
 	/* No DARK, sobrescreve com azul sólido bem visível */
-	body.dark-mode tr.linha-empresa {
-		background-image: none !important;
-		background-color: #3a4a6a !important;
-		border-top: 2px solid #6a8fc5 !important;
-		border-bottom: 2px solid #6a8fc5 !important;
+		body.dark-mode tr.linha-empresa {
+			background-image: none !important;
+			background-color: #293b57 !important;
+			border-top: 2px solid #6a8fc5 !important;
+			border-bottom: 2px solid #6a8fc5 !important;
 		color: #ffffff !important;
 	}
 
-	body.dark-mode tr.linha-empresa td {
-		background-color: #3a4a6a !important;
-		color: #ffffff !important;
-	}
+		body.dark-mode tr.linha-empresa td {
+			background-color: #293b57 !important;
+			color: #ffffff !important;
+		}
 
 	/* ===== TOOLTIP CUSTOMIZADO (controlável no dark) ===== */
 	tr[data-tooltip] {
@@ -336,6 +337,39 @@
 
   </style>
   
+
+  <style>
+    /* Tema complementar para harmonizar com o layout da tela anterior. */
+    body { background:#f4f7fb !important; }
+    .chamados-page-heading { border-radius:16px !important; background:linear-gradient(115deg,#253b80,#456bd1) !important; box-shadow:0 8px 24px rgba(27,39,71,.14) !important; }
+    .chamados-page-heading h1 { color:#fff !important; }
+    #content .card, #content .modal-content { border:0; border-radius:12px; box-shadow:0 8px 24px rgba(27,39,71,.10); overflow:hidden; }
+    #content .card-header, #content .modal-header { background:linear-gradient(110deg,#253b80,#456bd1); color:#fff; }
+    #content .modal-header .modal-title { color:#fff; }
+    #content .nav-tabs { border-bottom:1px solid #e2e8f0; background:#f5f7fb; padding:8px 10px 0; }
+    #content .nav-tabs .nav-link { border-radius:8px 8px 0 0; color:#52627d; font-weight:600; }
+    #content .nav-tabs .nav-link.active { background:#fff; color:#3157b7; border-color:#e2e8f0 #e2e8f0 #fff; }
+    #content .form-control, #content select, #content textarea, #content input[type="text"], #content input[type="date"] { border:1px solid #d3dce9; border-radius:8px; background:#fff; color:#26334d; }
+    #content .form-control:focus, #content select:focus, #content textarea:focus { border-color:#4c6fd5; box-shadow:0 0 0 3px rgba(76,111,213,.13); }
+    #content .btn { border-radius:8px; font-weight:600; box-shadow:0 2px 5px rgba(25,40,70,.08); }
+    #content .btn-primary, #content .btn-info { background:#365fc5; border-color:#365fc5; }
+    #content .btn-primary:hover, #content .btn-info:hover { background:#294da8; border-color:#294da8; }
+    #dataTable_wrapper { border:1px solid #e3e8f0; border-radius:12px; }
+    #dataTable thead th { background:#edf2fb !important; color:#293956 !important; }
+    #dataTable tbody tr:nth-child(even):not(.linha-empresa) td { background:#f8faff; }
+    #dataTable tbody tr:not(.linha-empresa):hover td { background:#eef4ff !important; }
+    #dataTable_wrapper .dataTables_filter input, #dataTable_wrapper .dataTables_length select { border:1px solid #ccd4e2; border-radius:7px; padding:6px 9px; }
+    body.dark-mode { background:#111827 !important; }
+    body.dark-mode .chamados-page-heading { background:linear-gradient(115deg,#182338,#233b62) !important; }
+    body.dark-mode #content .card, body.dark-mode #content .modal-content { background:#1e1e1e; }
+    body.dark-mode #content .card-header, body.dark-mode #content .modal-header { background:linear-gradient(110deg,#182338,#233b62); }
+    body.dark-mode #content .nav-tabs { background:#1e1e1e; border-color:#333; }
+    body.dark-mode #content .nav-tabs .nav-link.active { background:#252b36; color:#fff; border-color:#454d5a; }
+    body.dark-mode #content .form-control, body.dark-mode #content select, body.dark-mode #content textarea, body.dark-mode #content input { background:#252b36 !important; color:#eee !important; border-color:#454d5a !important; }
+    tr.linha-empresa td { background:#dbeafe !important; color:#1e3a8a !important; border-color:#bfdbfe !important; }
+    body.dark-mode tr.linha-empresa td { background:#293b57 !important; color:#fff !important; border-color:#6a8fc5 !important; }
+    @media (max-width:767px) { .chamados-page-heading { margin:14px 10px !important; padding:18px !important; } #content .modal-dialog { margin:8px; } }
+  </style>
 </head> 
 <body id="page-top" onload="buscarprox()"> 
 

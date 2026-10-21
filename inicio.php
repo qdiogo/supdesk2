@@ -324,6 +324,40 @@
     .header-container {
         padding: 15px 0;
     }
+
+
+    /* Refinamento visual do painel, sem alterar funcionalidades. */
+    body { min-height:100vh; background:#f4f7fb; color:#26334d; font-family:Verdana,Arial,sans-serif; }
+    .navbar-inverse { background-image:linear-gradient(115deg,#172b4d,#365fc5)!important; border:0; box-shadow:0 5px 18px rgba(27,48,83,.18); }
+    .header-container { padding:18px 0 20px; }
+    .header-container h3 { font-size:21px; font-weight:700; letter-spacing:.2px; }
+    .header-container h6 { line-height:1.7; color:rgba(255,255,255,.85)!important; }
+    .selecao { min-height:136px; padding:22px 16px; border:1px solid rgba(255,255,255,.17); border-radius:14px; background:linear-gradient(140deg,#253b80,#456bd1); box-shadow:0 7px 18px rgba(32,60,117,.16); }
+    .selecao:hover { transform:translateY(-4px); background:linear-gradient(140deg,#2c4c9b,#557be0); box-shadow:0 12px 24px rgba(32,60,117,.23); }
+    .selecao a { color:#fff; }
+    .selecao i { color:#d7e6ff; font-size:2.35em; margin-bottom:12px; }
+    .selecao strong { display:block; font-size:14px; line-height:1.45; }
+    .buttondelet { background:#d64b57; border:0; border-radius:8px; padding:9px 20px; box-shadow:0 3px 9px rgba(0,0,0,.15); }
+    .buttondelet:hover { background:#bf3946; transform:translateY(-1px); }
+    .licencas-container { border:1px solid #e4eaf3; border-radius:14px; box-shadow:0 7px 22px rgba(31,48,76,.08); }
+    .licencas-container h3 { color:#253b80; border-bottom-color:#557be0; font-weight:700; }
+    .table-licencas { border:1px solid #e4eaf3; border-radius:9px; overflow:hidden; }
+    .table-licencas th { background:linear-gradient(110deg,#253b80,#456bd1); }
+    .table-licencas td { color:#354258; }
+    .table-licencas tbody tr:nth-child(even) { background:#f7f9fd; }
+    .table-licencas tbody tr:hover { background:#edf4ff; }
+    .loading-overlay { background:rgba(23,43,77,.92); }
+    .spinner { border-top-color:#8dbaff; }
+    ::-webkit-scrollbar-track { background:#e8eef7; }
+    ::-webkit-scrollbar-thumb { background:#6d8fce; }
+    ::-webkit-scrollbar-thumb:hover { background:#365fc5; }
+    [data-tooltip]:before { background:#172b4d; box-shadow:0 4px 12px rgba(0,0,0,.2); }
+    @media (max-width:767px) {
+      .header-container { padding:10px 0 16px; text-align:center; }
+      .header-container h3 { font-size:18px; }
+      .selecao { min-height:112px; margin-bottom:15px; }
+      .licencas-container { padding:14px; }
+    }
     </style>
     
 	<script>

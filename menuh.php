@@ -1,3 +1,29 @@
+<style>
+/* Estilo do topo alinhado ao painel azul; não altera links ou scripts. */
+.topbar.navbar {
+  min-height:64px;
+  padding:0 18px;
+  background-image:linear-gradient(110deg,#172b4d 0%,#253b80 52%,#456bd1 100%) !important;
+  border:0;
+  border-radius:0 0 12px 12px;
+  box-shadow:0 5px 18px rgba(27,48,83,.18);
+}
+.topbar.navbar .nav-link { color:rgba(255,255,255,.9) !important; transition:background .18s ease,color .18s ease; }
+.topbar.navbar .nav-link:hover, .topbar.navbar .nav-link:focus { color:#fff !important; background:rgba(255,255,255,.1); border-radius:8px; }
+.topbar.navbar .topbar-divider { border-right:1px solid rgba(255,255,255,.24); height:34px; margin:auto 10px; }
+.topbar.navbar #time { display:inline-block; margin:11px 12px 0; padding:7px 11px; border:1px solid rgba(255,255,255,.23); border-radius:20px; background:rgba(255,255,255,.1); color:#fff; font-size:12px; font-weight:600; white-space:nowrap; }
+.topbar.navbar .badge-counter { border:2px solid #253b80; }
+.topbar.navbar .dropdown-menu { border:1px solid #e5eaf2; border-radius:10px; box-shadow:0 10px 28px rgba(25,45,80,.18); overflow:hidden; }
+.topbar.navbar .dropdown-header { background:#f2f6fd; color:#253b80; font-weight:700; }
+.topbar.navbar .dropdown-item { padding-top:10px; padding-bottom:10px; }
+.topbar.navbar .dropdown-item:hover { background:#edf4ff; }
+.topbar.navbar .img-profile { width:34px; height:34px; object-fit:cover; border:2px solid rgba(255,255,255,.75); }
+@media (max-width:767px) {
+  .topbar.navbar { min-height:56px; padding:0 8px; border-radius:0 0 9px 9px; }
+  .topbar.navbar #time { margin:8px 4px 0; padding:6px 8px; font-size:11px; }
+  .topbar.navbar .topbar-divider { margin:0 4px; }
+}
+</style>
 
 <nav class="navbar navbar-expand navbar-light topbar mb-4 static-top shadow" style="background-image: linear-gradient(to right top, #504a55, #48444d, #403d46, #39373e, #323137); color: white; font-weight: bold; font-size: 14px;">
 	  <!-- Sidebar Toggle (Topbar) -->
