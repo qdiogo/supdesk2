@@ -14,6 +14,9 @@ $ACESSO = "Timeline de Comentários";
 $mensagemErro = "";
 $mensagemOk = "";
 $tecnicoOrigem = isset($_SESSION["USUARIO"]) ? (int)$_SESSION["USUARIO"] : 0;
+$comentarioDigitado = "";
+$paraSelecionado = 0;
+$imagemDataUrl = "";
 
 function h($valor) {
     return htmlspecialchars((string)$valor, ENT_QUOTES, "UTF-8");
@@ -46,6 +49,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $comentario = isset($_POST["COMENTARIO"]) ? trim($_POST["COMENTARIO"]) : "";
     $para = isset($_POST["PARA"]) ? (int)$_POST["PARA"] : 0;
     $imagemDataUrl = isset($_POST["IMAGEM_BASE64"]) ? trim($_POST["IMAGEM_BASE64"]) : "";
+    /* Mantém os valores no formulário quando há erro de validação ou gravação. */
+    $comentarioDigitado = isset($_POST["COMENTARIO"]) ? $_POST["COMENTARIO"] : "";
+    $paraSelecionado = $para;
 
     if ($comentario === "") {
         $mensagemErro = "Digite o comentário.";
@@ -160,21 +166,21 @@ $tecnicos = ibase_query($conexao, "SELECT CODIGO, NOME FROM TECNICOS ORDER BY NO
         <form method="post" action="comentarios_internos.php?GRUPO=<?php echo urlencode((string)$grupo); ?>" onsubmit="return validarEnvio();">
             <div class="form-group">
                 <label for="COMENTARIO">Comentário interno</label>
-                <textarea class="form-control" id="COMENTARIO" name="COMENTARIO" rows="4" maxlength="2000" required></textarea>
+                <textarea class="form-control" id="COMENTARIO" name="COMENTARIO" rows="4" maxlength="2000" required><?php echo h($comentarioDigitado); ?></textarea>
                 <small class="form-text text-muted">Copie uma captura e cole aqui com Ctrl+V.</small>
             </div>
-            <input type="hidden" id="IMAGEM_BASE64" name="IMAGEM_BASE64" value="">
+            <input type="hidden" id="IMAGEM_BASE64" name="IMAGEM_BASE64" value="<?php echo h($imagemDataUrl); ?>">
             <div class="form-group">
                 <label>Pré-visualização da imagem</label><br>
-                <img id="preview" alt="Pré-visualização" style="display:none;max-width:100%;max-height:350px;border:1px solid #ccc;padding:4px;">
-                <br><button type="button" id="removerImagem" class="btn btn-sm btn-outline-danger" style="display:none;margin-top:8px;">Remover imagem</button>
+                <img id="preview" alt="Pré-visualização" src="<?php echo h($imagemDataUrl); ?>" style="<?php echo $imagemDataUrl !== "" ? "display:inline-block;" : "display:none;" ?>max-width:100%;max-height:350px;border:1px solid #ccc;padding:4px;">
+                <br><button type="button" id="removerImagem" class="btn btn-sm btn-outline-danger" style="<?php echo $imagemDataUrl !== "" ? "display:inline-block;" : "display:none;" ?>margin-top:8px;">Remover imagem</button>
             </div>
             <div class="form-group">
                 <label for="PARA">Transferir para técnico</label>
                 <select class="form-control" id="PARA" name="PARA" required>
                     <option value="">Selecione</option>
                     <?php if ($tecnicos) { while ($tecnico = ibase_fetch_assoc($tecnicos)) { ?>
-                        <option value="<?php echo h($tecnico["CODIGO"]); ?>"><?php echo h($tecnico["NOME"]); ?></option>
+                        <option value="<?php echo h($tecnico["CODIGO"]); ?>" <?php echo ((int)$paraSelecionado === (int)$tecnico["CODIGO"]) ? "selected" : ""; ?>><?php echo h($tecnico["NOME"]); ?></option>
                     <?php } } ?>
                 </select>
             </div>
