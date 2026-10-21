@@ -538,7 +538,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['print_base64'])) {
 .preview-print-colado{display:none;align-items:center;gap:10px;margin-top:8px}
 .preview-print-colado img{max-width:220px;max-height:140px;border:1px solid #ddd;border-radius:4px}
 .status-print-colado{font-size:13px;margin-top:6px;color:#666}.descricao-print{min-width:220px;padding:5px;border:1px solid #ccc;border-radius:4px}.card-imagens-mural{border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.10)}.card-imagem-mural{border-radius:10px;border:1px solid #e5e5e5;margin-bottom:16px;background:#fff}.card-imagem-mural img{cursor:zoom-in}
-</style>
+
+        /* Timeline de atividades do chamado */
+        .ticket-timeline{border:1px solid #dce3ea;border-radius:8px;box-shadow:0 2px 8px rgba(25,45,65,.06);margin-top:18px;background:#fff}
+        .ticket-timeline>.card-header{background:#f6f8fa;border-bottom:1px solid #e2e7ec;padding:14px 18px}
+        .ticket-timeline>.card-header .card-title{font-size:18px;margin:0 0 3px;color:#293b4d}
+        .ticket-timeline>.card-body{padding:18px 20px}
+        .ticket-timeline .timeline-event{position:relative;margin:10px 0 18px!important;padding:14px 12px!important;border:1px solid #e0e6ec;border-radius:8px;background:#fff;box-shadow:0 1px 4px rgba(30,50,70,.06)}
+        .ticket-timeline .timeline-event:before{content:"";position:absolute;left:-9px;top:20px;width:15px;height:15px;border:3px solid #fff;border-radius:50%;background:#1b75bb;box-shadow:0 0 0 1px #1b75bb}
+        .ticket-timeline .timeline-event p{margin-bottom:7px}
+        .ticket-timeline .timeline-event .text-secondary{font-size:12px;color:#778493!important}
+        .ticket-timeline .comentario-imagem-item{background:#fbfcfd!important}
+        @media(max-width:767px){.ticket-timeline>.card-body{padding:12px}.ticket-timeline .timeline-event{padding:10px 8px!important}.ticket-timeline .timeline-event [class^="col-"]{margin-bottom:8px}}
+
+	</style>
 </head>
 <?php 
 	$codigo = !empty($_GET["CODIGO"]) ? $_GET["CODIGO"] : "0";
@@ -1327,7 +1340,8 @@ if($tm)while($im=ibase_fetch_assoc($tm)){ $ext=strtolower(pathinfo($im['NOME'],P
 							$UNIDADE="  UNIDADE=" . $_SESSION["UNIDADENEGOCIO"] . " AND ";
 						}
 					?>
-					<div class="card">
+					<div class="card ticket-timeline">
+						<div class="card-header"><h4 class="card-title">Timeline do chamado</h4><small class="text-muted">Comentários, transferências, anexos e movimentações</small></div>
 						<div class="card-body">
 							<?php
 							$SQLC="SELECT COALESCE(T.NOME,CL.NOME) AS NOME, S.DESCRICAO, CAST(C.COMENTARIO AS VARCHAR(20000)) AS COMENTARIO, DATAALTERACAO, HORAALTERACAO, C.TECNICO  FROM COMENTARIOS C ".
@@ -1339,7 +1353,7 @@ if($tm)while($im=ibase_fetch_assoc($tm)){ $ext=strtolower(pathinfo($im['NOME'],P
 							if (!empty($tabelaC))
 							{
 							while ($xtabC = ibase_fetch_assoc($tabelaC)){?>
-							<div class="row">
+							<div class="row timeline-event">
 								<div class="col-md-2">
 									<img src="<?php echo $_SESSION["LOGO"]?>" class="img img-rounded img-fluid"/>
 									<p class="text-secondary text-center"><?PHP ECHO formatardata($xtabC["DATAALTERACAO"],1)?> às <?PHP ECHO $xtabC["HORAALTERACAO"]?></p>
@@ -1369,7 +1383,7 @@ if($tm)while($im=ibase_fetch_assoc($tm)){ $ext=strtolower(pathinfo($im['NOME'],P
 <?php if (!empty($lista_mural)) { ?>
 <div class="comentarios-imagens-publicadas">
  <?php foreach ($lista_mural as $imagemComentario) { $nomeComentario=$imagemComentario['NOME']; ?>
- <div class="row comentario-imagem-item" style="margin:18px 0;padding:12px;border:1px solid #e5e5e5;border-radius:10px;background:#fff;box-shadow:0 1px 5px rgba(0,0,0,.08)">
+ <div class="row comentario-imagem-item timeline-event" style="margin:18px 0;padding:12px;border:1px solid #e5e5e5;border-radius:10px;background:#fff;box-shadow:0 1px 5px rgba(0,0,0,.08)">
   <div class="col-md-2"><img src="<?php echo !empty($_SESSION['LOGO']) ? $_SESSION['LOGO'] : '/img/def_face.jpg'; ?>" class="img img-rounded img-fluid"><p class="text-secondary text-center">Anexo do chamado</p></div>
   <div class="col-md-10"><strong>Imagem adicionada aos comentários</strong><br>
    <img src="arquivos/<?php echo rawurlencode($nomeComentario); ?>" alt="Imagem anexada ao comentário" style="max-width:100%;max-height:500px;border-radius:8px;margin-top:8px;display:block">
@@ -1391,7 +1405,7 @@ if($tm)while($im=ibase_fetch_assoc($tm)){ $ext=strtolower(pathinfo($im['NOME'],P
 											{
 												while ($xtabL = ibase_fetch_assoc($tabelaL)){ 
 												$TENICO="";?>
-												<div class="row">
+												<div class="row timeline-event">
 													<div class="col-md-2">
 														<?PHP if($xtabL["TECNICO"]!=''){ ?>
 															<img src="<?php echo $_SESSION["LOGO"]?>" class="img img-rounded img-fluid"/>
@@ -1441,22 +1455,22 @@ if($tm)while($im=ibase_fetch_assoc($tm)){ $ext=strtolower(pathinfo($im['NOME'],P
 										}
 										
 										if (!empty($_SESSION["TECNICO"])){
-											$SQL="SELECT CODIGO, (SELECT DESCRICAO FROM SETOR WHERE CODIGO=T.SETOR)  AS NOMESETOR (SELECT NOME FROM TECNICOS WHERE CODIGO=TECNICO) AS USUARIO, (SELECT NOME FROM TECNICOS WHERE CODIGO=PARA) AS USUARIOPARA,  PARA, CAST(COMENTARIO AS VARCHAR(2000)) AS COMENTARIO, DATAALTERACAO, HORAALTERACAO, MANUTENCAO, GRUPO, CLIENTE FROM COMENTARIOS_INTERNOS WHERE GRUPO=" . $_GET["CODIGO"]; 
+											$SQL="SELECT C.CODIGO, (SELECT FIRST 1 DESCRICAO FROM SETOR WHERE CODIGO=(SELECT FIRST 1 SETOR FROM TECNICOS WHERE CODIGO=C.TECNICO)) AS NOMESETOR, (SELECT FIRST 1 NOME FROM TECNICOS WHERE CODIGO=C.TECNICO) AS USUARIO, (SELECT FIRST 1 NOME FROM TECNICOS WHERE CODIGO=C.PARA) AS USUARIOPARA, C.TECNICO, C.PARA, CAST(C.COMENTARIO AS VARCHAR(2000)) AS COMENTARIO, C.DATAALTERACAO, C.HORAALTERACAO, C.MANUTENCAO, C.GRUPO, C.CLIENTE FROM COMENTARIOS_INTERNOS C WHERE C.GRUPO=" . (int)$_GET["CODIGO"] . " ORDER BY C.DATAALTERACAO DESC, C.HORAALTERACAO DESC"; 
 											$tabela=ibase_query($conexao,$SQL);  
 											?>
 											<?php while ($row=$open=ibase_fetch_assoc($tabela)){  
 											$sequencia=$row["CODIGO"];?>  
-											<div class="row">
+											<div class="row timeline-event">
 												<div class="col-md-2">
 													<img src="<?php echo $_SESSION["LOGO"]?>" class="img img-rounded img-fluid"/>
 													<p class="text-secondary text-center"><?php echo formatardata($row["DATAALTERACAO"],1)?> - <?php echo substr($row["DATAALTERACAO"], 10) ?></p>
 												</div>
 												<div class="col-md-10">
 													<p><a href="#"><strong>
-														<h5 class="mb-1">Interno:<?PHP ECHO $row["USUARIO"]?><span class="float-right"><?PHP ECHO $row["NOMESETOR"]?></span></h5><br>
+														<h5 class="mb-1">Transferido por: <?PHP ECHO $row["USUARIO"]?><span class="float-right"><?PHP ECHO $row["NOMESETOR"]?></span></h5><br>
 													</strong></a></p>
 													<p>
-														<h5 class="mb-1"><?PHP ECHO $row["COMENTARIO"]?><br>Enviado para: <?php echo $row["USUARIOPARA"]?></h5><br>
+														<h5 class="mb-1"><?PHP ECHO $row["COMENTARIO"]?></h5><p><strong>Transferido para:</strong> <?php echo $row["USUARIOPARA"]?></p><br>
 													</p>
 													<p>
 												   </p>
