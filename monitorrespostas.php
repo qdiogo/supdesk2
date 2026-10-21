@@ -109,10 +109,11 @@ function abrirlista(indice, email)
 					$openx=ibase_fetch_assoc($tabelaXx);?>  
 					<tr>  
 					  <td><?php ECHO $row["CODIGO"]?></td>
-					  <td><?php ECHO $row["RAZAOSOCIAL"]?></td>
-					<td><?php if (!empty($openx["DATA"])) {
+					  <td><?php if (!empty($openx["DATA"])) {
 							ECHO date("Y-m-d",strtotime($openx["DATA"]));
 						} ?></td>
+					  <td><?php ECHO $row["RAZAOSOCIAL"]?></td>
+						
 					  <td><?php ECHO $row["NOME"]?></td>
 					  <td><?php ECHO $row["ASSUNTO"]?></td>
 					  <td><?php ECHO $row["FEITO"]?></td>
