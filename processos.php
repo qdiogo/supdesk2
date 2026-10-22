@@ -4,7 +4,6 @@
 	}
 ?>
 
-
 <?PHP
 	$UNIDADE="";
 	if (!empty($_SESSION["UNIDADENEGOCIO"]))
@@ -19,13 +18,87 @@
 <head>
 <meta http-equiv="refresh" content="120">
   <?php include "css.php"?>
-  <script type="text/javascript" src="/cavas/canvasjs.min.js"></script></head>
+  <script type="text/javascript" src="/cavas/canvasjs.min.js"></script>
   <script>
 		function pegadata()
 		{
 			location.href="/processos.php?ANO=" + document.getElementById("ano").value;
 		}
   </script>
+<style>
+	.kpi-card{
+		border-radius: 10px;
+		transition: transform .15s ease, box-shadow .15s ease;
+	}
+	.kpi-card:hover{
+		transform: translateY(-3px);
+		box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important;
+	}
+	.kpi-card .kpi-icon{
+		opacity: .35;
+		font-size: 2rem;
+	}
+	.kpi-card .kpi-label{
+		font-size: .72rem;
+		letter-spacing: .05em;
+	}
+	.kpi-card .kpi-value{
+		font-size: 1.7rem;
+		line-height: 1.1;
+	}
+	.dash-header{
+		background: linear-gradient(90deg,#0066cc,#004a99);
+		color:#fff;
+		padding: 14px 20px;
+		border-radius: 10px;
+		margin-bottom: 22px;
+		display:flex;
+		align-items:center;
+		justify-content:space-between;
+		flex-wrap:wrap;
+		gap:10px;
+	}
+	.dash-header h1{
+		color:#fff;
+		font-size: 1.35rem;
+		margin:0;
+	}
+	.dash-header small{
+		display:block;
+		font-size: .72rem;
+		opacity:.85;
+		margin-top:2px;
+	}
+	.dash-header select{
+		max-width: 120px;
+		border-radius: 6px;
+		border: none;
+		padding: 6px 10px;
+		font-weight: bold;
+	}
+	.chart-card .card-header{
+		background:#f4f7fb;
+		border-bottom:1px solid #dde5ee;
+	}
+	.chart-card .card-header h6{
+		margin:0;
+	}
+	.table-clean thead th{
+		background:#004a99;
+		color:#fff;
+		font-size:.75rem;
+		text-transform:uppercase;
+		letter-spacing:.04em;
+		border:none;
+	}
+	.table-clean tbody td{
+		font-size:.85rem;
+		vertical-align:middle;
+	}
+	.table-clean tbody tr:hover{
+		background:#eef4fb;
+	}
+</style>
 </head>
 
 <body id="page-top">
@@ -49,68 +122,42 @@
 			}
 					?>
 		<div class="container-fluid">
-		  <div class="d-sm-flex align-items-center justify-content-between mb-4">
-            <h1 class="h3 mb-0 text-gray-800">Dashboard 
-				<select id="ano" class="form-control" onchange="pegadata()">
-					<?PHP
-						$opcaoxano1="";
-						$opcaoxano2="";
-						$opcaoxano3="";
-						$opcaoxano4="";
-						$opcaoxano5="";
-						if (!empty($_GET["ANO"]))
-						{
-							if ($_GET["ANO"]=="2022")
-							{
-								$opcaoxano1="selected";
-							}
-							if ($_GET["ANO"]=="2023")
-							{
-								$opcaoxano2="selected";
-							}
-							if ($_GET["ANO"]=="2024")
-							{
-								$opcaoxano3="selected";
-							}
-							if ($_GET["ANO"]=="2025")
-							{
-								$opcaoxano4="selected";
-							}
-							if ($_GET["ANO"]=="2026")
-							{
-								$opcaoxano5="selected";
-							}
-						}else{
-							if (date('Y')=="2022")
-							{
-								$opcaoxano1="selected";
-							}
-							if (date('Y')=="2023")
-							{
-								$opcaoxano2="selected";
-							}
-							if (date('Y')=="2024")
-							{
-								$opcaoxano3="selected";
-							}
-							if (date('Y')=="2025")
-							{
-								$opcaoxano4="selected";
-							}
-							if (date('Y')=="2026")
-							{
-								$opcaoxano5="selected";
-							}
-						}
-					?>
-					<option value="2022" <?php echo $opcaoxano1?>>2022</option>
-					<option value="2023" <?php echo $opcaoxano2?>>2023</option>
-					<option value="2024" <?php echo $opcaoxano3?>>2024</option>
-					<option value="2025" <?php echo $opcaoxano4?>>2025</option>
-					<option value="2026" <?php echo $opcaoxano5?>>2026</option>
-				</select>
+
+		  <div class="dash-header">
+			<h1>
+				Dashboard
+				<small>Atualizado em <?php echo date('d/m/Y H:i'); ?></small>
 			</h1>
-          </div>
+			<select id="ano" class="form-control" onchange="pegadata()">
+				<?PHP
+					$opcaoxano1="";
+					$opcaoxano2="";
+					$opcaoxano3="";
+					$opcaoxano4="";
+					$opcaoxano5="";
+					if (!empty($_GET["ANO"]))
+					{
+						if ($_GET["ANO"]=="2022") $opcaoxano1="selected";
+						if ($_GET["ANO"]=="2023") $opcaoxano2="selected";
+						if ($_GET["ANO"]=="2024") $opcaoxano3="selected";
+						if ($_GET["ANO"]=="2025") $opcaoxano4="selected";
+						if ($_GET["ANO"]=="2026") $opcaoxano5="selected";
+					}else{
+						if (date('Y')=="2022") $opcaoxano1="selected";
+						if (date('Y')=="2023") $opcaoxano2="selected";
+						if (date('Y')=="2024") $opcaoxano3="selected";
+						if (date('Y')=="2025") $opcaoxano4="selected";
+						if (date('Y')=="2026") $opcaoxano5="selected";
+					}
+				?>
+				<option value="2022" <?php echo $opcaoxano1?>>2022</option>
+				<option value="2023" <?php echo $opcaoxano2?>>2023</option>
+				<option value="2024" <?php echo $opcaoxano3?>>2024</option>
+				<option value="2025" <?php echo $opcaoxano4?>>2025</option>
+				<option value="2026" <?php echo $opcaoxano5?>>2026</option>
+			</select>
+		  </div>
+
 		 <?PHP } ?>
 		<div class="row">
 			<?php
@@ -136,7 +183,6 @@
 					"INNER JOIN CHAMADOS C ON (C.CODIGO=HISTORICO_AT_CHAMADOS.CHAMADO) ".
 					"WHERE (1=1) AND ".$UNIDADE." ACAO='INSERIU' AND QUEM='CLIENTE' AND CAST(DATAHORA AS DATE)>='".$stop_datewO->format('Y-m-d')."' "; 
 			$ABERTOSONTEM=ibase_fetch_assoc(ibase_query($conexao,$SQLINS));
-			//ECHO $SQLao;
           
 			$SQLR="SELECT COUNT(CODIGO) AS QTDE FROM CHAMADOS WHERE (1=1) AND ".$UNIDADE." (STATUS='F') ";
 			$openR=ibase_fetch_assoc(ibase_query($conexao,$SQLR));			
@@ -166,165 +212,138 @@
 					"INNER JOIN CHAMADOS C ON (C.CODIGO=HISTORICO_AT_CHAMADOS.CHAMADO) ".
 					"WHERE (1=1) AND ".$UNIDADE." ACAO='INSERIU' AND QUEM='CLIENTE' AND CAST(DATAHORA AS DATE)>='".date('Y-m-d')."' "; 
             $ABERTOSHOJE=ibase_fetch_assoc(ibase_query($conexao,$SQLINS));
-			//ECHO $SQLao;
 			
 			if (!isset($_SESSION["QTDE"])) {
 				$_SESSION["QTDE"] = 0;
 			}
 
-			// Supondo que $open["QTDE"] vem do banco
 			$novoChamado = false;
 
-			// Compara com a sessão
 			if ($open["QTDE"] > $_SESSION["QTDE"]) {
 				$novoChamado = true;
-				// Atualiza a sessão com o valor atual
 				$_SESSION["QTDE"] = $open["QTDE"];
 			}
 			?>
-            <!-- Earnings (Monthly) Card Example -->
+
             <div class="col-xl-3 col-md-3 mb-4">
-              <div class="card border-left-warning shadow h-100 py-2">
+              <div class="card kpi-card border-left-warning shadow h-100 py-2">
                 <div class="card-body">
                   <div class="row no-gutters align-items-center">
                     <div class="col mr-2">
-                      <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Chamados Abertos</div>
-                      <div class="h5 mb-0 font-weight-bold text-gray-800"> <?php echo ($open["QTDE"])?></div>
+                      <div class="text-xs font-weight-bold text-warning text-uppercase mb-1 kpi-label">Chamados Abertos</div>
+                      <div class="kpi-value font-weight-bold text-gray-800"><?php echo ($open["QTDE"])?></div>
                     </div>
-                    <div class="col-auto">
-                       
-                    </div>
+                    <div class="col-auto"><i class="fas fa-folder-open kpi-icon text-warning"></i></div>
                   </div>
                 </div>
               </div>
             </div>
 			<div class="col-xl-3 col-md-3 mb-4">
-              <div class="card border-left-warning shadow h-100 py-2">
+              <div class="card kpi-card border-left-warning shadow h-100 py-2">
                 <div class="card-body">
                   <div class="row no-gutters align-items-center">
                     <div class="col mr-2">
-                      <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Aguardando Liberação</div>
-                      <div class="h5 mb-0 font-weight-bold text-gray-800"> <?php echo ($open2["QTDE"])?></div>
+                      <div class="text-xs font-weight-bold text-warning text-uppercase mb-1 kpi-label">Aguardando Liberação</div>
+                      <div class="kpi-value font-weight-bold text-gray-800"><?php echo ($open2["QTDE"])?></div>
                     </div>
-                    <div class="col-auto">
-                       
-                    </div>
+                    <div class="col-auto"><i class="fas fa-hourglass-half kpi-icon text-warning"></i></div>
                   </div>
                 </div>
               </div>
             </div>
 			<div class="col-xl-3 col-md-3 mb-4">
-              <div class="card border-left-warning shadow h-100 py-2">
+              <div class="card kpi-card border-left-warning shadow h-100 py-2">
                 <div class="card-body">
                   <div class="row no-gutters align-items-center">
                     <div class="col mr-2">
-                      <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Chamados Abertos Hoje</div>
-                      <div class="h5 mb-0 font-weight-bold text-gray-800"> <?php echo $ABERTOSHOJE["QTDEX"]?></div>
+                      <div class="text-xs font-weight-bold text-warning text-uppercase mb-1 kpi-label">Chamados Abertos Hoje</div>
+                      <div class="kpi-value font-weight-bold text-gray-800"><?php echo $ABERTOSHOJE["QTDEX"]?></div>
                     </div>
-                    <div class="col-auto">
-                       
-                    </div>
+                    <div class="col-auto"><i class="fas fa-calendar-day kpi-icon text-warning"></i></div>
                   </div>
                 </div>
               </div>
             </div>
 			
 			 <div class="col-xl-3 col-md-3 mb-4">
-              <div class="card border-left-primary shadow h-100 py-2">
+              <div class="card kpi-card border-left-primary shadow h-100 py-2">
                 <div class="card-body">
                   <div class="row no-gutters align-items-center">
                     <div class="col mr-2">
-                      <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Fechados Hoje</div>
-                      <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo (int)($openh["QTDER"])?></div>
+                      <div class="text-xs font-weight-bold text-primary text-uppercase mb-1 kpi-label">Fechados Hoje</div>
+                      <div class="kpi-value font-weight-bold text-gray-800"><?php echo (int)($openh["QTDER"])?></div>
                     </div>
-                    <div class="col-auto">
-                       
-                    </div>
+                    <div class="col-auto"><i class="fas fa-check-circle kpi-icon text-primary"></i></div>
                   </div>
                 </div>
               </div>
             </div>
 
             <div class="col-xl-3 col-md-3 mb-4">
-              <div class="card border-left-primary shadow h-100 py-2">
+              <div class="card kpi-card border-left-primary shadow h-100 py-2">
                 <div class="card-body">
                   <div class="row no-gutters align-items-center">
                     <div class="col mr-2">
-                      <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Fechados Ontem</div>
-                      <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo (int)($openo["QTDE"])?></div>
+                      <div class="text-xs font-weight-bold text-primary text-uppercase mb-1 kpi-label">Fechados Ontem</div>
+                      <div class="kpi-value font-weight-bold text-gray-800"><?php echo (int)($openo["QTDE"])?></div>
                     </div>
-                    <div class="col-auto">
-                       
-                    </div>
+                    <div class="col-auto"><i class="fas fa-check kpi-icon text-primary"></i></div>
                   </div>
                 </div>
               </div>
             </div>
-			
-			
-			 
 			
 			<div class="col-xl-3 col-md-3 mb-4">
-              <div class="card border-left-warning shadow h-100 py-2">
+              <div class="card kpi-card border-left-warning shadow h-100 py-2">
                 <div class="card-body">
                   <div class="row no-gutters align-items-center">
                     <div class="col mr-2">
-                      <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Chamados Abertos Ontem</div>
-                      <div class="h5 mb-0 font-weight-bold text-gray-800"> <?php echo (int)($ABERTOSONTEM["QTDE"])?></div>
+                      <div class="text-xs font-weight-bold text-warning text-uppercase mb-1 kpi-label">Chamados Abertos Ontem</div>
+                      <div class="kpi-value font-weight-bold text-gray-800"><?php echo (int)($ABERTOSONTEM["QTDE"])?></div>
                     </div>
-                    <div class="col-auto">
-                       
-                    </div>
+                    <div class="col-auto"><i class="fas fa-calendar-minus kpi-icon text-warning"></i></div>
                   </div>
                 </div>
               </div>
             </div>
-			
 			
 			<div class="col-xl-3 col-md-3 mb-4">
-              <div class="card border-left-info shadow h-100 py-2">
+              <div class="card kpi-card border-left-info shadow h-100 py-2">
                 <div class="card-body">
                   <div class="row no-gutters align-items-center">
                     <div class="col mr-2">
-                      <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Fechados na Semana</div>
-                      <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo (int)($opens["QTDER"])?></div>
+                      <div class="text-xs font-weight-bold text-info text-uppercase mb-1 kpi-label">Fechados na Semana</div>
+                      <div class="kpi-value font-weight-bold text-gray-800"><?php echo (int)($opens["QTDER"])?></div>
                     </div>
-                    <div class="col-auto">
-                       
-                    </div>
+                    <div class="col-auto"><i class="fas fa-calendar-week kpi-icon text-info"></i></div>
                   </div>
                 </div>
               </div>
             </div>
-
 			
            <div class="col-xl-3 col-md-3 mb-4">
-              <div class="card border-left-success shadow h-100 py-2">
+              <div class="card kpi-card border-left-success shadow h-100 py-2">
                 <div class="card-body">
                   <div class="row no-gutters align-items-center">
                     <div class="col mr-2">
-                      <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Chamados no Mês</div>
-                      <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo ($openm["QTDE"])?></div>
+                      <div class="text-xs font-weight-bold text-success text-uppercase mb-1 kpi-label">Chamados no Mês</div>
+                      <div class="kpi-value font-weight-bold text-gray-800"><?php echo ($openm["QTDE"])?></div>
                     </div>
-                    <div class="col-auto">
-                       
-                    </div>
+                    <div class="col-auto"><i class="fas fa-calendar-alt kpi-icon text-success"></i></div>
                   </div>
                 </div>
               </div>
             </div>
 
             <div class="col-xl-3 col-md-3 mb-4">
-              <div class="card border-left-success shadow h-100 py-2">
+              <div class="card kpi-card border-left-success shadow h-100 py-2">
                 <div class="card-body">
                   <div class="row no-gutters align-items-center">
                     <div class="col mr-2">
-                      <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Chamados Fechados</div>
-                      <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo ($openR["QTDE"])?></div>
+                      <div class="text-xs font-weight-bold text-success text-uppercase mb-1 kpi-label">Chamados Fechados</div>
+                      <div class="kpi-value font-weight-bold text-gray-800"><?php echo ($openR["QTDE"])?></div>
                     </div>
-                    <div class="col-auto">
-                       
-                    </div>
+                    <div class="col-auto"><i class="fas fa-archive kpi-icon text-success"></i></div>
                   </div>
                 </div>
               </div>
@@ -337,20 +356,17 @@
 					   "GROUP BY HISTORICO_AT_CHAMADOS.TECNICO, DATA ORDER BY COUNT(CHAMADO) DESC ";
 				$TABFECH=ibase_query($conexao,$XFECH);
 				
-				
 				while ($tabfech=ibase_fetch_assoc($TABFECH)){
 				?>
 				 <div class="col-xl-3 col-md-3 mb-4">
-				  <div class="card border-left-success shadow h-100 py-2">
+				  <div class="card kpi-card border-left-success shadow h-100 py-2">
 					<div class="card-body">
 					  <div class="row no-gutters align-items-center">
 						<div class="col mr-2">
-						  <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Chamados Fechados: <?php echo $tabfech["NOME"]?></div>
-						  <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo ($tabfech["QTDE"])?></div>
+						  <div class="text-xs font-weight-bold text-success text-uppercase mb-1 kpi-label">Fechados Hoje: <?php echo $tabfech["NOME"]?></div>
+						  <div class="kpi-value font-weight-bold text-gray-800"><?php echo ($tabfech["QTDE"])?></div>
 						</div>
-						<div class="col-auto">
-						   
-						</div>
+						<div class="col-auto"><i class="fas fa-user-check kpi-icon text-success"></i></div>
 					  </div>
 					</div>
 				  </div>
@@ -365,16 +381,14 @@
 				$tabela11=ibase_query($conexao,$SQL11);
 				while ($row11=ibase_fetch_assoc($tabela11)){?>
 					<div class="col-xl-3 col-md-3 mb-4">
-					  <div class="card border-left-success shadow h-100 py-2">
+					  <div class="card kpi-card border-left-info shadow h-100 py-2">
 						<div class="card-body">
 						  <div class="row no-gutters align-items-center">
 							<div class="col mr-2">
-							  <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Registro de Tarefas: <?php echo $row11["NOME"]?></div>
-							  <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo ($row11["QTDE"])?></div>
+							  <div class="text-xs font-weight-bold text-info text-uppercase mb-1 kpi-label">Tarefas Hoje: <?php echo $row11["NOME"]?></div>
+							  <div class="kpi-value font-weight-bold text-gray-800"><?php echo ($row11["QTDE"])?></div>
 							</div>
-							<div class="col-auto">
-							   
-							</div>
+							<div class="col-auto"><i class="fas fa-tasks kpi-icon text-info"></i></div>
 						  </div>
 						</div>
 					  </div>
@@ -389,21 +403,9 @@
 
           <div class="row">
             <div class="col-xl-12 col-lg-7">
-              <div class="card shadow mb-4">
+              <div class="card shadow mb-4 chart-card">
                 <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
                   <h6 class="m-0 font-weight-bold text-info">Linha de Tendência</h6>
-                  <div class="dropdown no-arrow">
-                    <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                      <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
-                    </a>
-                    <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="dropdownMenuLink">
-                      <div class="dropdown-header">Dropdown Header:</div>
-                      <a class="dropdown-item" href="#">Action</a>
-                      <a class="dropdown-item" href="#">Another action</a>
-                      <div class="dropdown-divider"></div>
-                      <a class="dropdown-item" href="#">Something else here</a>
-                    </div>
-                  </div>
                 </div>
                 <div class="card-body">
                   <div class="chart-area">
@@ -420,13 +422,8 @@
 							var chart = new CanvasJS.Chart("chartContainer2", {
 								exportEnabled: true,
 								animationEnabled: true,
-								title:{
-									text: "Chamados Fechados por Técnicos"
-								},
-								legend:{
-									cursor: "pointer",
-									itemclick: explodePie
-								},
+								title:{ text: "Chamados Fechados por Técnicos" },
+								legend:{ cursor: "pointer", itemclick: explodePie },
 								data: [{
 									type: "pie",
 									showInLegend: true,
@@ -462,13 +459,8 @@
 							var chart = new CanvasJS.Chart("chartContainer3", {
 								exportEnabled: true,
 								animationEnabled: true,
-								title:{
-									text: "Chamados Fechados por Empresas"
-								},
-								legend:{
-									cursor: "pointer",
-									itemclick: explodePie
-								},
+								title:{ text: "Chamados Fechados por Empresas" },
+								legend:{ cursor: "pointer", itemclick: explodePie },
 								data: [{
 									type: "pie",
 									showInLegend: true,
@@ -485,15 +477,6 @@
 							});
 							chart.render();
 
-							function explodePie (e) {
-								if(typeof (e.dataSeries.dataPoints[e.dataPointIndex].exploded) === "undefined" || !e.dataSeries.dataPoints[e.dataPointIndex].exploded) {
-									e.dataSeries.dataPoints[e.dataPointIndex].exploded = true;
-								} else {
-									e.dataSeries.dataPoints[e.dataPointIndex].exploded = false;
-								}
-							e.chart.render();
-							}
-							
 							<?PHP
 								$SQL2="SELECT COUNT(CHAMADOS.CODIGO) AS QUANTIDADE, NOME FROM CHAMADOS ".
                                 "INNER JOIN TECNICOS T ON (T.CODIGO=CHAMADOS.TECNICO) WHERE (1=1) AND ".$UNIDADE." (STATUS IS NULL OR STATUS='') AND EXTRACT(YEAR FROM DATAHORA)='".$ANO."' ".
@@ -504,13 +487,8 @@
 							var chart = new CanvasJS.Chart("chartContainer4", {
 								exportEnabled: true,
 								animationEnabled: true,
-								title:{
-									text: "Chamados Abertos Por Técnicos"
-								},
-								legend:{
-									cursor: "pointer",
-									itemclick: explodePie
-								},
+								title:{ text: "Chamados Abertos Por Técnicos" },
+								legend:{ cursor: "pointer", itemclick: explodePie },
 								data: [{
 									type: "funnel",
 									showInLegend: true,
@@ -527,15 +505,6 @@
 							});
 							chart.render();
 
-							function explodePie (e) {
-								if(typeof (e.dataSeries.dataPoints[e.dataPointIndex].exploded) === "undefined" || !e.dataSeries.dataPoints[e.dataPointIndex].exploded) {
-									e.dataSeries.dataPoints[e.dataPointIndex].exploded = true;
-								} else {
-									e.dataSeries.dataPoints[e.dataPointIndex].exploded = false;
-								}
-							e.chart.render();
-							}
-							
 							<?PHP
 								$SQL4="SELECT COUNT(CHAMADOS.CODIGO) AS QUANTIDADE, NOME FROM CHAMADOS ".
                                 "INNER JOIN TECNICOS T ON (T.CODIGO=CHAMADOS.TECNICO) WHERE (1=1) AND ".$UNIDADE." (STATUS IS NULL OR STATUS='') AND EXTRACT(YEAR FROM DATAHORA)='".$ANO."' ".
@@ -544,34 +513,7 @@
 								$tabela4=ibase_query($conexao,$SQL4);
 							?>
 							
-							var chart = new CanvasJS.Chart("chartContainer4", {
-								exportEnabled: true,
-								animationEnabled: true,
-								title:{
-									text: "Chamados Aberto por Técnicos"
-								},
-								legend:{
-									cursor: "pointer",
-									itemclick: explodePie
-								},
-								data: [{
-									type: "funnel",
-									showInLegend: true,
-									toolTipContent: "{name}: <strong>{y}%</strong>",
-									indexLabel: "{name} - {y}%",
-									dataPoints: [
-										<?php 
-										$NOME="";
-										while ($row4=ibase_fetch_assoc($tabela4)){
-											echo "{ y: ".$row4["QUANTIDADE"].", name: '".$row4["NOME"]."', exploded: true },";
-										} ?>
-									]
-								}]
-							});
-							chart.render();
-
-
-              <?PHP
+							<?PHP
 								$SQL11="SELECT COUNT(TECNICO) AS QTDE, UPPER(NOME) AS NOME FROM REGISTRO_TAREFAS ".
 										"INNER JOIN TECNICOS T ON (T.CODIGO=REGISTRO_TAREFAS.TECNICO) WHERE (1=1) AND ".$UNIDADE." (1=1) AND EXTRACT(YEAR FROM REGISTRO_TAREFAS.DATA)='".$ANO."'  ".
 										"GROUP BY NOME ".
@@ -582,13 +524,8 @@
 							var chart = new CanvasJS.Chart("chartContainer11", {
 								exportEnabled: true,
 								animationEnabled: true,
-								title:{
-									text: "Registro de Tarefas"
-								},
-								legend:{
-									cursor: "pointer",
-									itemclick: explodePie
-								},
+								title:{ text: "Registro de Tarefas" },
+								legend:{ cursor: "pointer", itemclick: explodePie },
 								data: [{
 									type: "funnel",
 									showInLegend: true,
@@ -597,8 +534,8 @@
 									dataPoints: [
 										<?php 
 										$NOME="";
-										while ($row11=ibase_fetch_assoc($tabela11)){
-											echo "{ y: ".$row11["QTDE"].", name: '".$row11["NOME"]."', exploded: true },";
+										while ($row11c=ibase_fetch_assoc($tabela11)){
+											echo "{ y: ".$row11c["QTDE"].", name: '".$row11c["NOME"]."', exploded: true },";
 										} ?>
 									]
 								}]
@@ -624,13 +561,8 @@
 							var chart = new CanvasJS.Chart("chartContainer5", {
 								exportEnabled: true,
 								animationEnabled: true,
-								title:{
-									text: "Chamado Abertos Por Empresas "
-								},
-								legend:{
-									cursor: "pointer",
-									itemclick: explodePie
-								},
+								title:{ text: "Chamados Abertos Por Empresas" },
+								legend:{ cursor: "pointer", itemclick: explodePie },
 								data: [{
 									type: "funnel",
 									showInLegend: true,
@@ -659,13 +591,8 @@
 							var chart = new CanvasJS.Chart("chartContainer88", {
 								exportEnabled: true,
 								animationEnabled: true,
-								title:{
-									text: "Chamados Geral Abertos por Categorias "
-								},
-								legend:{
-									cursor: "pointer",
-									itemclick: explodePie
-								},
+								title:{ text: "Chamados Geral Abertos por Categorias" },
+								legend:{ cursor: "pointer", itemclick: explodePie },
 								data: [{
 									type: "funnel",
 									showInLegend: true,
@@ -674,7 +601,6 @@
 									valueRepresents: "area",
 									dataPoints: [
 										<?php 
-										$NOME="";
 										while ($row88=ibase_fetch_assoc($tabela88)){
 											echo "{ y: ".$row88["QUANTIDADE"].", name: '".$row88["DESCRICAO"]."', exploded: true },";
 										} ?>
@@ -694,13 +620,8 @@
 							var chart = new CanvasJS.Chart("chartContainer89", {
 								exportEnabled: true,
 								animationEnabled: true,
-								title:{
-									text: "Chamados Fechados por Categoria "
-								},
-								legend:{
-									cursor: "pointer",
-									itemclick: explodePie
-								},
+								title:{ text: "Chamados Fechados por Categoria" },
+								legend:{ cursor: "pointer", itemclick: explodePie },
 								data: [{
 									type: "funnel",
 									showInLegend: true,
@@ -709,7 +630,6 @@
 									valueRepresents: "area",
 									dataPoints: [
 										<?php 
-										$NOME="";
 										while ($row99=ibase_fetch_assoc($tabela99)){
 											echo "{ y: ".$row99["QUANTIDADE"].", name: '".$row99["DESCRICAO"]."', exploded: true },";
 										} ?>
@@ -718,8 +638,6 @@
 							});
 							chart.render();
 							
-							
-
 							function explodePie (e) {
 								if(typeof (e.dataSeries.dataPoints[e.dataPointIndex].exploded) === "undefined" || !e.dataSeries.dataPoints[e.dataPointIndex].exploded) {
 									e.dataSeries.dataPoints[e.dataPointIndex].exploded = true;
@@ -729,22 +647,11 @@
 							e.chart.render();
 							}
 							
-							//FIMUNIDADES
 							var chart = new CanvasJS.Chart("chartContainer", {
-							title: {
-								text: "Linha de Tendência"
-							},
-							axisX: {
-								valueFormatStrinC: "MMM YYYY"
-							},
-							axisY2: {
-								title: "Linha de Tendência",
-								prefix: "",
-								suffix: ""
-							},
-							toolTip: {
-								shared: true
-							},
+							title: { text: "Linha de Tendência" },
+							axisX: { valueFormatString: "MMM YYYY" },
+							axisY2: { title: "Linha de Tendência", prefix: "", suffix: "" },
+							toolTip: { shared: true },
 							legend: {
 								cursor: "pointer",
 								verticalAlign: "top",
@@ -758,14 +665,12 @@
 								name: "Chamados Abertos (Sem Resposta)",
 								showInLegend: true,
 								markerSize: 1,
-								yValueFormatStrinC: "####",
 								dataPoints: [		
 									<?PHP
 										$SQL8="SELECT EXTRACT(YEAR FROM DATAHORA) AS ANO, EXTRACT(MONTH FROM DATAHORA)AS  MES,  COUNT(CODIGO) AS QUANTIDADE  FROM CHAMADOS WHERE (1=1) AND ".$UNIDADE." TECNICO IS NULL AND EXTRACT(YEAR FROM DATAHORA)='".$ANO."'  ".
 											  "GROUP BY EXTRACT(YEAR FROM DATAHORA), EXTRACT(MONTH FROM DATAHORA)  ".
 											  "ORDER BY EXTRACT(YEAR FROM DATAHORA), EXTRACT(MONTH FROM DATAHORA) ASC ";
 										$tabela8=ibase_query($conexao,$SQL8);
-									
 									while ($row8=ibase_fetch_assoc($tabela8)){
 										echo "{ x: new Date(".$row8["ANO"].", ".$row8["MES"].", 1), y: ".$row8["QUANTIDADE"]." },";
 									} ?>
@@ -777,17 +682,12 @@
 								name: "Chamados Fechados",
 								showInLegend: true,
 								markerSize: 0,
-								yValueFormatStrinC: "####",
 								dataPoints: [
-									
 									<?PHP
 										$SQL8="SELECT EXTRACT(YEAR FROM DATAALTERACAO) AS ANO, EXTRACT(MONTH FROM DATAALTERACAO)AS  MES,  COUNT(CODIGO) AS QUANTIDADE  FROM CHAMADOS WHERE (1=1) AND ".$UNIDADE." (STATUS='F') AND DATAALTERACAO IS NOT NULL AND EXTRACT(YEAR FROM DATAHORA)='".$ANO."' ".
                                         "GROUP BY EXTRACT(YEAR FROM DATAALTERACAO), EXTRACT(MONTH FROM DATAALTERACAO)  ".
                                         "ORDER BY EXTRACT(YEAR FROM DATAALTERACAO), EXTRACT(MONTH FROM DATAALTERACAO) ASC ";
-										
 										$tabela8=ibase_query($conexao,$SQL8);
-									
-									
 									while ($row9=ibase_fetch_assoc($tabela8)){
 										echo "{ x: new Date(".$row9["ANO"].", ".$row9["MES"].", 1), y: ".$row9["QUANTIDADE"]." },";
 									} ?>
@@ -799,16 +699,14 @@
 								name: "Chamados Abertos - Geral",
 								showInLegend: true,
 								markerSize: 0,
-								yValueFormatStrinC: "####",
 								dataPoints: [
 									<?PHP
 										$SQL8="SELECT EXTRACT(YEAR FROM DATAHORA) AS ANO, EXTRACT(MONTH FROM DATAHORA)AS  MES,  COUNT(CODIGO) AS QUANTIDADE  FROM CHAMADOS WHERE (1=1) AND ".$UNIDADE." EXTRACT(YEAR FROM DATAHORA)='".$ANO."' ".
                                         " GROUP BY EXTRACT(YEAR FROM DATAHORA), EXTRACT(MONTH FROM DATAHORA)  ".
                                         " ORDER BY EXTRACT(YEAR FROM DATAHORA), EXTRACT(MONTH FROM DATAHORA) ASC ";
 										$tabela8=ibase_query($conexao,$SQL8);
-									
-									while ($row8=ibase_fetch_assoc($tabela8)){
-										echo "{ x: new Date(".$row8["ANO"].", ".$row8["MES"].", 1), y: ".$row8["QUANTIDADE"]." },";
+									while ($row8b=ibase_fetch_assoc($tabela8)){
+										echo "{ x: new Date(".$row8b["ANO"].", ".$row8b["MES"].", 1), y: ".$row8b["QUANTIDADE"]." },";
 									} ?>
 								]
 							},
@@ -818,16 +716,14 @@
 								name: "Chamados Agendados",
 								showInLegend: true,
 								markerSize: 0,
-								yValueFormatStrinC: "####",
 								dataPoints: [
 									<?PHP
 										$SQL8="SELECT EXTRACT(YEAR FROM DATAHORA) AS ANO, EXTRACT(MONTH FROM DATAHORA)AS  MES,  COUNT(CODIGO) AS QUANTIDADE  FROM CHAMADOS WHERE (1=1) AND ".$UNIDADE." (STATUS='PA') AND EXTRACT(YEAR FROM DATAHORA)='".$ANO."' ".
                                         "GROUP BY EXTRACT(YEAR FROM DATAHORA), EXTRACT(MONTH FROM DATAHORA)  ".
                                         "ORDER BY EXTRACT(YEAR FROM DATAHORA), EXTRACT(MONTH FROM DATAHORA) ASC ";
 											$tabela8=ibase_query($conexao,$SQL8);
-									
-									while ($row8=ibase_fetch_assoc($tabela8)){
-										echo "{ x: new Date(".$row8["ANO"].", ".$row8["MES"].", 1), y: ".$row8["MES"]." },";
+									while ($row8c=ibase_fetch_assoc($tabela8)){
+										echo "{ x: new Date(".$row8c["ANO"].", ".$row8c["MES"].", 1), y: ".$row8c["MES"]." },";
 									} ?>
 								]
 							}]
@@ -842,279 +738,85 @@
 							}
 							chart.render();
 						}
-
-
 						}
 						</script>
-				   <div id="chartContainer" style="height: 320px; width: 100%;">
-				  </div>
+				   <div id="chartContainer" style="height: 320px; width: 100%;"></div>
                 </div>
               </div>
             </div>
 			</div>
-			<BR><BR><BR><BR><BR><BR>
-            <!-- Pie Chart -->
-           
-		   <div class="col-xl-6 col-lg-5">
-              <div class="card shadow mb-4">
-                <!-- Card Header - Dropdown -->
-                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+
+		   <div class="row">
+		   <div class="col-xl-6 col-lg-6">
+              <div class="card shadow mb-4 chart-card">
+                <div class="card-header py-3">
                   <h6 class="m-0 font-weight-bold text-info">Chamados Fechados por Técnicos</h6>
-                  <div class="dropdown no-arrow">
-                    <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                      <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
-                    </a>
-                    <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="dropdownMenuLink">
-                      <div class="dropdown-header">Dropdown Header:</div>
-                      <a class="dropdown-item" href="#">Action</a>
-                      <a class="dropdown-item" href="#">Another action</a>
-                      <div class="dropdown-divider"></div>
-                      <a class="dropdown-item" href="#">Something else here</a>
-                    </div>
-                  </div>
                 </div>
-                <!-- Card Body -->
                 <div class="card-body">
-                  <div class="chart-pie pt-4 pb-2">
                    <div id="chartContainer2" style="height: 320px; width: 100%;"></div>
-                  </div>
-                  <div class="mt-4 text-center small">
-                    <span class="mr-2">
-                      <i class="fas fa-circle text-primary"></i> 
-                    </span>
-                    <span class="mr-2">
-                      <i class="fas fa-circle text-info"></i> 
-                    </span>
-                    <span class="mr-2">
-                      <i class="fas fa-circle text-info"></i> 
-                    </span>
-                  </div>
                 </div>
               </div>
             </div>
-			<div class="col-xl-6 col-lg-5">
-              <div class="card shadow mb-4">
-                <!-- Card Header - Dropdown -->
-                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+			<div class="col-xl-6 col-lg-6">
+              <div class="card shadow mb-4 chart-card">
+                <div class="card-header py-3">
                   <h6 class="m-0 font-weight-bold text-info">Chamados Fechados por Empresas</h6>
-                  <div class="dropdown no-arrow">
-                    <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                      <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
-                    </a>
-                    <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="dropdownMenuLink">
-                      <div class="dropdown-header">Dropdown Header:</div>
-                      <a class="dropdown-item" href="#">Action</a>
-                      <a class="dropdown-item" href="#">Another action</a>
-                      <div class="dropdown-divider"></div>
-                      <a class="dropdown-item" href="#">Something else here</a>
-                    </div>
-                  </div>
                 </div>
-                <!-- Card Body -->
                 <div class="card-body">
-                  <div class="chart-pie pt-4 pb-2">
                    <div id="chartContainer3" style="height: 320px; width: 100%;"></div>
-                  </div>
-                  <div class="mt-4 text-center small">
-                    <span class="mr-2">
-                      <i class="fas fa-circle text-primary"></i> 
-                    </span>
-                    <span class="mr-2">
-                      <i class="fas fa-circle text-info"></i> 
-                    </span>
-                    <span class="mr-2">
-                      <i class="fas fa-circle text-info"></i> 
-                    </span>
-                  </div>
                 </div>
               </div>
             </div>
-			
-			
-			
-			<BR><BR><BR><BR><BR><BR>
-            <!-- Pie Chart -->
-           
-		   <div class="col-xl-6 col-lg-5">
-              <div class="card shadow mb-4">
-                <!-- Card Header - Dropdown -->
-                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+
+		   <div class="col-xl-6 col-lg-6">
+              <div class="card shadow mb-4 chart-card">
+                <div class="card-header py-3">
                   <h6 class="m-0 font-weight-bold text-info">Chamados Abertos por Técnicos</h6>
-                  <div class="dropdown no-arrow">
-                    <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                      <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
-                    </a>
-                    <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="dropdownMenuLink">
-                      <div class="dropdown-header">Dropdown Header:</div>
-                      <a class="dropdown-item" href="#">Action</a>
-                      <a class="dropdown-item" href="#">Another action</a>
-                      <div class="dropdown-divider"></div>
-                      <a class="dropdown-item" href="#">Something else here</a>
-                    </div>
-                  </div>
                 </div>
-                <!-- Card Body -->
                 <div class="card-body">
-                  <div class="chart-pie pt-4 pb-2">
                    <div id="chartContainer4" style="height: 320px; width: 100%;"></div>
-                  </div>
-                  <div class="mt-4 text-center small">
-                    <span class="mr-2">
-                      <i class="fas fa-circle text-primary"></i> 
-                    </span>
-                    <span class="mr-2">
-                      <i class="fas fa-circle text-info"></i> 
-                    </span>
-                    <span class="mr-2">
-                      <i class="fas fa-circle text-info"></i> 
-                    </span>
-                  </div>
                 </div>
               </div>
             </div>
-			<div class="col-xl-6 col-lg-5">
-              <div class="card shadow mb-4">
-                <!-- Card Header - Dropdown -->
-                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+			<div class="col-xl-6 col-lg-6">
+              <div class="card shadow mb-4 chart-card">
+                <div class="card-header py-3">
                   <h6 class="m-0 font-weight-bold text-info">Chamados Abertos por Empresas</h6>
-                  <div class="dropdown no-arrow">
-                    <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                      <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
-                    </a>
-                    <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="dropdownMenuLink">
-                      <div class="dropdown-header">Dropdown Header:</div>
-                      <a class="dropdown-item" href="#">Action</a>
-                      <a class="dropdown-item" href="#">Another action</a>
-                      <div class="dropdown-divider"></div>
-                      <a class="dropdown-item" href="#">Something else here</a>
-                    </div>
-                  </div>
                 </div>
-                <!-- Card Body -->
                 <div class="card-body">
-                  <div class="chart-pie pt-4 pb-2">
                    <div id="chartContainer5" style="height: 320px; width: 100%;"></div>
-                  </div>
-                  <div class="mt-4 text-center small">
-                    <span class="mr-2">
-                      <i class="fas fa-circle text-primary"></i> 
-                    </span>
-                    <span class="mr-2">
-                      <i class="fas fa-circle text-info"></i> 
-                    </span>
-                    <span class="mr-2">
-                      <i class="fas fa-circle text-info"></i> 
-                    </span>
-                  </div>
                 </div>
               </div>
             </div>
 			
-			
-			<div class="col-xl-6 col-lg-5">
-              <div class="card shadow mb-4">
-                <!-- Card Header - Dropdown -->
-                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+			<div class="col-xl-6 col-lg-6">
+              <div class="card shadow mb-4 chart-card">
+                <div class="card-header py-3">
                   <h6 class="m-0 font-weight-bold text-info">Chamados Geral Abertos Por Categoria</h6>
-                  <div class="dropdown no-arrow">
-                    <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                      <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
-                    </a>
-                    <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="dropdownMenuLink">
-                      <div class="dropdown-header">Dropdown Header:</div>
-                      <a class="dropdown-item" href="#">Action</a>
-                      <a class="dropdown-item" href="#">Another action</a>
-                      <div class="dropdown-divider"></div>
-                      <a class="dropdown-item" href="#">Something else here</a>
-                    </div>
-                  </div>
                 </div>
-                <!-- Card Body -->
                 <div class="card-body">
-                  <div class="chart-pie pt-4 pb-2">
                    <div id="chartContainer88" style="height: 320px; width: 100%;"></div>
-                  </div>
-                  <div class="mt-4 text-center small">
-                    <span class="mr-2">
-                      <i class="fas fa-circle text-primary"></i> 
-                    </span>
-                    <span class="mr-2">
-                      <i class="fas fa-circle text-info"></i> 
-                    </span>
-                    <span class="mr-2">
-                      <i class="fas fa-circle text-info"></i> 
-                    </span>
-                  </div>
                 </div>
               </div>
             </div>
-			<div class="col-xl-6 col-lg-5">
-              <div class="card shadow mb-4">
-                <!-- Card Header - Dropdown -->
-                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+			<div class="col-xl-6 col-lg-6">
+              <div class="card shadow mb-4 chart-card">
+                <div class="card-header py-3">
                   <h6 class="m-0 font-weight-bold text-info">Chamados Fechados Por Categoria</h6>
-                  <div class="dropdown no-arrow">
-                    <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                      <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
-                    </a>
-                    <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="dropdownMenuLink">
-                      <div class="dropdown-header">Dropdown Header:</div>
-                      <a class="dropdown-item" href="#">Action</a>
-                      <a class="dropdown-item" href="#">Another action</a>
-                      <div class="dropdown-divider"></div>
-                      <a class="dropdown-item" href="#">Something else here</a>
-                    </div>
-                  </div>
                 </div>
-                <!-- Card Body -->
                 <div class="card-body">
-                  <div class="chart-pie pt-4 pb-2">
                    <div id="chartContainer89" style="height: 320px; width: 100%;"></div>
-                  </div>
-                  <div class="mt-4 text-center small">
-                    <span class="mr-2">
-                      <i class="fas fa-circle text-primary"></i> 
-                    </span>
-                    <span class="mr-2">
-                      <i class="fas fa-circle text-info"></i> 
-                    </span>
-                    <span class="mr-2">
-                      <i class="fas fa-circle text-info"></i> 
-                    </span>
-                  </div>
                 </div>
               </div>
             </div>
-			
-			
-			
-			
-			
-			
-			
-			
-            <div class="col-xl-6 col-lg-5">
-              <div class="card shadow mb-4">
-                <!-- Card Header - Dropdown -->
-                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+
+            <div class="col-xl-6 col-lg-6">
+              <div class="card shadow mb-4 chart-card">
+                <div class="card-header py-3">
                   <h6 class="m-0 font-weight-bold text-info">Produção Diária dos Chamados (Total)</h6>
-                  <div class="dropdown no-arrow">
-                    <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                      <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
-                    </a>
-                    <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="dropdownMenuLink">
-                      <div class="dropdown-header">Dropdown Header:</div>
-                      <a class="dropdown-item" href="#">Action</a>
-                      <a class="dropdown-item" href="#">Another action</a>
-                      <div class="dropdown-divider"></div>
-                      <a class="dropdown-item" href="#">Something else here</a>
-                    </div>
-                  </div>
                 </div>
-                <!-- Card Body -->
                 <div class="card-body">
-                  <div class="chart-pie pt-4 pb-2">
-                    <table class="table">
+                    <table class="table table-sm table-hover table-clean">
                       <thead class="thead-dark">
                         <tr>
                           <th>Qtde Chamados</th>
@@ -1124,15 +826,11 @@
                       </thead>
                       <tbody>
                       <?PHP
-					  
-					   		
                         $XFECH="select COUNT(CHAMADO) AS QTDE , (SELECT NOME FROM TECNICOS WHERE CODIGO=HISTORICO_AT_CHAMADOS.TECNICO) AS NOME , DATA AS ULTIMAENTRADA ".
 							   "from HISTORICO_AT_CHAMADOS ".
 							   " WHERE (1=1) AND ".$UNIDADE."  HISTORICO_AT_CHAMADOS.DATA='".$hoje."' and quem='TECNICO' and ACAO='FECHADO' AND EXTRACT(YEAR FROM HISTORICO_AT_CHAMADOS.DATA)='".$ANO."' ".
 							   "GROUP BY HISTORICO_AT_CHAMADOS.TECNICO, DATA ORDER BY COUNT(CHAMADO) DESC ";
                         $TABFECH=ibase_query($conexao,$XFECH);
-						
-						
 						while ($tabfech=ibase_fetch_assoc($TABFECH)){
                         if ($tabfech["ULTIMAENTRADA"]!='')
                         {
@@ -1141,110 +839,56 @@
                           echo "<tr><td>".$tabfech["QTDE"]."</td><td>".$tabfech["NOME"]."</td><td></td></tr>";
                         }
                       } ?>
-                    </table>
                     </tbody>
-                  </div>
-                  <div class="mt-4 text-center small">
-                   
-                  </div>
+                    </table>
                 </div>
               </div>
             </div>
-			 <div class="col-xl-6 col-lg-5">
-              <div class="card shadow mb-4">
-                <!-- Card Header - Dropdown -->
-                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+			 <div class="col-xl-6 col-lg-6">
+              <div class="card shadow mb-4 chart-card">
+                <div class="card-header py-3">
                   <h6 class="m-0 font-weight-bold text-info">Produção Mensal</h6>
-                  <div class="dropdown no-arrow">
-                    <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                      <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
-                    </a>
-                    <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="dropdownMenuLink">
-                      <div class="dropdown-header">Dropdown Header:</div>
-                      <a class="dropdown-item" href="#">Action</a>
-                      <a class="dropdown-item" href="#">Another action</a>
-                      <div class="dropdown-divider"></div>
-                      <a class="dropdown-item" href="#">Something else here</a>
-                    </div>
-                  </div>
                 </div>
-                <!-- Card Body -->
                 <div class="card-body">
-                  <div class="chart-pie pt-4 pb-2">
-                    <table class="table">
+                    <table class="table table-sm table-hover table-clean">
                       <thead class="thead-dark">
                         <tr>
                           <th>Qtde Chamados no Mês</th>
-                          <th COLSPAN=2>Técnico</th>
+                          <th>Técnico</th>
                         </tr>
                       </thead>
                       <tbody>
                       <?PHP
-					  
-					   		
                        $XFECH="select COUNT(CHAMADO) AS QTDE , (SELECT NOME FROM TECNICOS WHERE CODIGO=HISTORICO_AT_CHAMADOS.TECNICO) AS NOME ".
 							   "from HISTORICO_AT_CHAMADOS ".
 							   " WHERE (1=1) AND ".$UNIDADE."   extract(month from HISTORICO_AT_CHAMADOS.DATA)='".date('m')."'  and extract(year from HISTORICO_AT_CHAMADOS.DATA)='".$ANO."' and quem='TECNICO' and ACAO='FECHADO' ".
 							   "GROUP BY HISTORICO_AT_CHAMADOS.TECNICO ORDER BY COUNT(CHAMADO) DESC  ";
                         $TABFECH=ibase_query($conexao,$XFECH);
-						
-						
 						while ($tabfech=ibase_fetch_assoc($TABFECH)){
-                         echo "<tr><td>".$tabfech["QTDE"]."</td><td>".$tabfech["NOME"]."</td><td></td></tr>";
+                         echo "<tr><td>".$tabfech["QTDE"]."</td><td>".$tabfech["NOME"]."</td></tr>";
                       } ?>
                     </table>
                     </tbody>
-                  </div>
-                  <div class="mt-4 text-center small">
-                   
-                  </div>
                 </div>
               </div>
             </div>
-            <div class="col-xl-6 col-lg-5">
-              <div class="card shadow mb-4">
-                <!-- Card Header - Dropdown -->
-                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+            <div class="col-xl-6 col-lg-6">
+              <div class="card shadow mb-4 chart-card">
+                <div class="card-header py-3">
                   <h6 class="m-0 font-weight-bold text-info">Registro de Tarefas (Diário)</h6>
-                  <div class="dropdown no-arrow">
-                    <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                      <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
-                    </a>
-                    <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="dropdownMenuLink">
-                      <div class="dropdown-header">Dropdown Header:</div>
-                      <a class="dropdown-item" href="#">Action</a>
-                      <a class="dropdown-item" href="#">Another action</a>
-                      <div class="dropdown-divider"></div>
-                      <a class="dropdown-item" href="#">Something else here</a>
-                    </div>
-                  </div>
                 </div>
-                <!-- Card Body -->
                 <div class="card-body">
-                  <div class="chart-pie pt-4 pb-2">
                    <div id="chartContainer11" style="height: 320px; width: 100%;"></div>
-                  </div>
-                  <div class="mt-4 text-center small">
-                    <span class="mr-2">
-                      <i class="fas fa-circle text-primary"></i> 
-                    </span>
-                    <span class="mr-2">
-                      <i class="fas fa-circle text-info"></i> 
-                    </span>
-                    <span class="mr-2">
-                      <i class="fas fa-circle text-info"></i> 
-                    </span>
-                  </div>
                 </div>
               </div>
             </div>
         </div>
       </div>
-      <BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR>
+
       <footer class="sticky-footer bg-white">
         <div class="container my-auto">
           <div class="copyright text-center my-auto">
-            <span>Copyright SUPDESK 2020</span>
+            <span>Copyright SUPDESK 2020 &middot; atualizado em <?php echo date('d/m/Y H:i')?></span>
           </div>
         </div>
       </footer>
@@ -1275,7 +919,6 @@
 		<audio id="alertaAudio" autoplay>
 			<source src="vozchamado.mp3" type="audio/mpeg">
 		</audio>
-
 		<script>
 			var audio = document.getElementById("alertaAudio");
 			audio.play();
