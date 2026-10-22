@@ -419,7 +419,7 @@
 </script>
 
 <?php
-
+$ACESSO="Chamados Abertos";
 if (!empty($_GET["TIPO"]))
 {
 	$_SESSION["TIPO"]=$_GET["TIPO"];
@@ -468,13 +468,17 @@ if (ISSET($_GET["ATITUDE"]))
 			if ($_SESSION["TIPO"]=="1")
 			{
 				$SQL=$SQL . " AND (M.STATUS = 'AG' AND M.TECNICO=" . $_SESSION["USUARIO"]. ")";
+				$ACESSO="Chamados Agendados";
 			}else if ($_SESSION["TIPO"]=="2"){		
 				$SQL=$SQL . "AND (M.STATUS = 'F') ";
+				$ACESSO="Chamados Fechados";
 			}else if ($_SESSION["TIPO"]=="3"){
 				$SQL=$SQL . " AND (M.STATUS='PA') ";
+				$ACESSO="Chamados Pausados";
 			}else if ($_SESSION["TIPO"]=="4"){
 				$SQL=$SQL . " AND (M.TECNICO=" . $_SESSION["USUARIO"] . ")";
 				$SQL=$SQL . " AND (M.STATUS <> 'F' OR M.STATUS IS NULL) ";
+				$ACESSO="Chamados Abertos";
 			}else{
 				$SQL=$SQL . " (M.STATUS IS NULL OR M.STATUS='' OR  M.STATUS='PA' OR M.STATUS='A' OR  M.STATUS='PL' OR M.STATUS='AG')  ";
 			}
@@ -547,12 +551,6 @@ if (ISSET($_GET["ATITUDE"]))
 	<div id="content-wrapper" class="d-flex flex-column">     
 	  <div id="content"> 
 		<?php include "menuh.php" ?>
-
-		<section class="chamados-page-heading">
-			<h1><i class="fas fa-clipboard-list"></i> Central de chamados</h1>
-			<p>Consulte, filtre e acompanhe os chamados da sua equipe.</p>
-		</section>
-     
 		<meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no' name='viewport' />
   
 		<div class="row">
