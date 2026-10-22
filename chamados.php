@@ -940,7 +940,7 @@ if (ISSET($_GET["ATITUDE"]))
 						<th>Categoria</th>
 						<th>Sub-Categoria</th>
 						<th>Avaliação</th> 
-						<th WIDTH=1><button class="btn-success rounded-circle border-0" type="button" onclick="alterar('0')"><i class="fas fa-plus-square"></i></button></th>  
+						<th colspan=12><button class="btn-success rounded-circle border-0" type="button" onclick="alterar('0')"><i class="fas fa-plus-square"></i></button></th>  
 					</tr>    
 				  </thead>
 				  <tfoot> 
@@ -994,14 +994,13 @@ if (ISSET($_GET["ATITUDE"]))
 						$empresa=$xtab["RAZAOSOCIAL"];
 						$MUDACOR=0;
 					?> 
-					<!-- LINHA DIVISÓRIA DA EMPRESA - agora com classe -->
 					<tr class="linha-empresa">
 						<td></td>
+						<td style="color: white;" colspan=12><center><?php echo strtoupper($xtab["RAZAOSOCIAL"])?></center></td>
+						
 						<td></td>
 						<td></td>
 						<td></td>
-						<td></td>
-						<td style="color: white;"><?php echo strtoupper($xtab["RAZAOSOCIAL"])?></td>
 						<td></td>
 						<td></td>
 						<td></td>
@@ -1125,7 +1124,7 @@ if (ISSET($_GET["ATITUDE"]))
 								Assinado por: <?php echo $xtab["ASSINADO_USER"]?>
 							<?php } ?>
 						</td>
-						<td class="stylo2">
+						<td class="stylo2" colspan=12>
 							<table align="center" >
 								<td >
 									<div class="btn-group btn-group-justified" role="group" aria-label="...">
