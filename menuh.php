@@ -83,42 +83,63 @@
 
   <!-- ===== BOTÕES RÁPIDOS HORIZONTAIS ===== -->
   <div class="quick-bar">
+	<?php if (!empty($_SESSION["USUARIOX"])) {?>
+		<a class="quick-btn q-success" href="/cliente_chamados?ATITUDE=0" title="Abrir Novo Chamado">
+		  <i class="fas fa-plus-circle"></i>
+		  <span>Novo Chamado</span>
+		</a>
 
-    <a class="quick-btn q-success" href="chamados.php?ATITUDE=0" title="Abrir Novo Chamado">
-      <i class="fas fa-plus-circle"></i>
-      <span>Novo Chamado</span>
-    </a>
+		<a class="quick-btn q-primary" href="cliente_chamados.php" title="Central de Chamados">
+		  <i class="fas fa-clipboard-list"></i>
+		  <span>Chamados Abertos</span>
+		</a>
 
-    <a class="quick-btn q-primary" href="chamados" title="Central de Chamados">
-      <i class="fas fa-clipboard-list"></i>
-      <span>Chamados</span>
-    </a>
+		<a class="quick-btn q-warning" href="cliente_chamados.php?TIPO=2" title="Chamados Fechados">
+		  <i class="fas fa-check-circle"></i>
+		  <span>Fechados</span>
+		</a>
 
-    <a class="quick-btn q-info" href="chamados?TIPO=4" title="Meus Chamados">
-      <i class="fas fa-user-check"></i>
-      <span>Meus</span>
-    </a>
+		<a class="quick-btn q-primary" href="/cliente_chamados.php?TIPO=3" title="Registro de Tarefas">
+		  <i class="fas fa-tasks"></i>
+		  <span>Em Pausa</span>
+		</a>
 
-    <a class="quick-btn q-warning" href="chamados?TIPO=2" title="Chamados Fechados">
-      <i class="fas fa-check-circle"></i>
-      <span>Fechados</span>
-    </a>
+	<?php }else{ ?>
+		<a class="quick-btn q-success" href="chamados.php?ATITUDE=0" title="Abrir Novo Chamado">
+		  <i class="fas fa-plus-circle"></i>
+		  <span>Novo Chamado</span>
+		</a>
 
-    <a class="quick-btn q-primary" href="registro_tarefas?TIPO=1" title="Registro de Tarefas">
-      <i class="fas fa-tasks"></i>
-      <span>Tarefas</span>
-    </a>
+		<a class="quick-btn q-primary" href="chamados" title="Central de Chamados">
+		  <i class="fas fa-clipboard-list"></i>
+		  <span>Chamados</span>
+		</a>
 
-    <a class="quick-btn q-danger" href="lembretes.php" title="Lembretes">
-      <i class="fas fa-bell"></i>
-      <span>Lembretes</span>
-    </a>
+		<a class="quick-btn q-info" href="chamados?TIPO=4" title="Meus Chamados">
+		  <i class="fas fa-user-check"></i>
+		  <span>Meus</span>
+		</a>
 
-    <a class="quick-btn q-info" href="rel_produtividade_tecnico" title="Produtividade por Técnico">
-      <i class="fas fa-chart-bar"></i>
-      <span>Produtividade</span>
-    </a>
+		<a class="quick-btn q-warning" href="chamados?TIPO=2" title="Chamados Fechados">
+		  <i class="fas fa-check-circle"></i>
+		  <span>Fechados</span>
+		</a>
 
+		<a class="quick-btn q-primary" href="registro_tarefas?TIPO=1" title="Registro de Tarefas">
+		  <i class="fas fa-tasks"></i>
+		  <span>Tarefas</span>
+		</a>
+
+		<a class="quick-btn q-danger" href="lembretes.php" title="Lembretes">
+		  <i class="fas fa-bell"></i>
+		  <span>Lembretes</span>
+		</a>
+
+		<a class="quick-btn q-info" href="rel_produtividade_tecnico" title="Produtividade por Técnico">
+		  <i class="fas fa-chart-bar"></i>
+		  <span>Produtividade</span>
+		</a>
+	<?php } ?>
   </div>
   <!-- ===== FIM BOTÕES RÁPIDOS ===== -->
 
