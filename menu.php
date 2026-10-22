@@ -1,13 +1,11 @@
-
 <style>
-/* Refinamento visual do menu lateral; links e permissões permanecem inalterados. */
 #accordionSidebar {
   background:linear-gradient(180deg,#172b4d 0%,#203a65 55%,#182e52 100%) !important;
   box-shadow:4px 0 18px rgba(18,35,63,.18);
 }
-#accordionSidebar .sidebar-brand { min-height:76px; padding:14px 10px; color:#fff; }
-#accordionSidebar .sidebar-brand-text { font-size:15px; font-weight:800; letter-spacing:1.6px; }
-#accordionSidebar .sidebar-brand-icon { color:#b9d4ff; }
+#accordionSidebar .sidebar-brand { min-height:76px; padding:14px 10px; color:#fff; overflow:hidden; }
+#accordionSidebar .sidebar-brand-text { font-size:14px; font-weight:800; letter-spacing:1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:140px; }
+#accordionSidebar .sidebar-brand-icon { color:#b9d4ff; flex-shrink:0; }
 #accordionSidebar .sidebar-heading { padding:12px 16px 7px; color:#a9c2e8; font-size:10px; font-weight:800; letter-spacing:1.1px; text-transform:uppercase; }
 #accordionSidebar .sidebar-divider { margin:8px 14px; border-top:1px solid rgba(220,234,255,.15); }
 #accordionSidebar .nav-item { margin:3px 9px; }
@@ -15,11 +13,34 @@
 #accordionSidebar .nav-item .nav-link i { width:18px; color:#a9c8f7; text-align:center; }
 #accordionSidebar .nav-item .nav-link:hover { background:rgba(225,238,255,.12); color:#fff; transform:translateX(2px); }
 #accordionSidebar .nav-item .nav-link.active { background:rgba(116,164,236,.22); color:#fff; box-shadow:inset 3px 0 #8dbaff; }
-#accordionSidebar .collapse-inner { margin:2px 0 8px; padding:10px 8px !important; border:1px solid rgba(209,222,241,.8); border-radius:10px !important; box-shadow:0 7px 18px rgba(7,20,41,.16); }
-#accordionSidebar .collapse-header { padding:5px 10px 8px; color:#73819a; font-size:10px; font-weight:800; letter-spacing:.8px; text-transform:uppercase; }
-#accordionSidebar .collapse-item { display:flex; align-items:center; gap:8px; margin:2px 0; padding:8px 10px; border-radius:7px; color:#36445b; font-size:12px; transition:background .15s ease,color .15s ease; }
-#accordionSidebar .collapse-item i { width:16px; color:#5579b6; text-align:center; }
+
+#accordionSidebar .collapse-inner { margin:2px 0 6px; padding:6px 4px !important; border:1px solid rgba(209,222,241,.8); border-radius:8px !important; box-shadow:0 7px 18px rgba(7,20,41,.16); }
+#accordionSidebar .collapse-header { padding:3px 6px 5px; color:#73819a; font-size:8px; font-weight:800; letter-spacing:.6px; text-transform:uppercase; }
+
+#accordionSidebar .collapse-item {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  margin: 0;
+  padding: 5px 5px;
+  border-radius: 5px;
+  color: #36445b;
+  font-size: 9px;
+  line-height: 1.15;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: background .15s ease, color .15s ease;
+}
+#accordionSidebar .collapse-item i {
+  width: 10px;
+  color: #5579b6;
+  text-align: center;
+  flex-shrink: 0;
+  font-size: 9px;
+}
 #accordionSidebar .collapse-item:hover { background:#edf4ff; color:#234b91; text-decoration:none; }
+
 #accordionSidebar #sidebarToggle { background:rgba(225,238,255,.2); }
 #accordionSidebar #sidebarToggle:hover { background:rgba(225,238,255,.32); }
 #accordionSidebar.toggled .sidebar-brand-text,
@@ -56,17 +77,10 @@ document.addEventListener('click', function(event) {
 		<div class="sidebar-brand-icon rotate-n-15">
 			<i class="fas fa-desktop"></i>
 		</div>
-		<div class="sidebar-brand-text mx-3">SUP-DESK</sup></div>
-		
+		<div class="sidebar-brand-text">SUP-DESK</div>
 	</a>
 
   <hr class="sidebar-divider my-0">
-	
-  <!--<li class="nav-item active">
-	<a class="nav-link" href="index">
-	  <i class="fas fa-fw fa-tachometer-alt"></i>
-	  <span>Dashboard</span></a>
-  </li>-->
 
   <hr class="sidebar-divider">
 
@@ -91,8 +105,6 @@ document.addEventListener('click', function(event) {
 	  </div>
 	</div>
   </li>
-
-
 
   <hr class="sidebar-divider">
 
@@ -122,16 +134,13 @@ document.addEventListener('click', function(event) {
 		<a class="collapse-item" href="sobreaviso_chamados"> <i class="fas fa-clipboard-check"></i> Sobreaviso </a>
 		<a class="collapse-item" href="controlevalidade"> <i class="fas fa-clipboard-check"></i> Controle </a>
 		<?php if ((($_SESSION["XNIVEL"])=="3") || (($_SESSION["XNIVEL"])=="4") || (($_SESSION["XNIVEL"])=="5")){ ?>
-			
 			<a class="collapse-item" href="monitorrespostas"> <i class="fas fa-clipboard-check"></i> Monitor de Respostas </a>
 		<?php } ?>
 		<a class="collapse-item" href="financeiro"> <i class="fas fa-clipboard-check"></i> Despesas (Viagens) </a>
-		
 	  </div>
 	</div>
   </li>
-  
-  
+
   <div class="sidebar-heading">
 	Relatórios<i class="fas fa-chart-bar"></i>
   </div> 
@@ -143,19 +152,26 @@ document.addEventListener('click', function(event) {
 	</a>
 	<div id="relatorios" class="collapse" aria-labelledby="headingPages" data-parent="#accordionSidebar">
 	  <div class="bg-white py-2 collapse-inner rounded">
-		<h6 class="collapse-header">Anal??o:</h6>
+		<h6 class="collapse-header">Chamados</h6>
 		<a class="collapse-item" href="filtro_chamados"> <i class="fas fa-chart-bar"></i> Rel por Chamados</a>
-		<a class="collapse-item" href="FILTRO_CHAMADOSPDF"> <i class="fas fa-chart-bar"></i> Rel por Chamados (PDF)</a>
-		<a class="collapse-item" href="FILTRO_TAREFAS"> <i class="fas fa-chart-bar"></i> Rel de Tarefas (PDF)</a>
-		<a class="collapse-item" href="FILTRO_SOBREAVISOPDF"> <i class="fas fa-chart-bar"></i> Sobreaviso Rel (PDF)</a>
-		<a class="collapse-item" href="filtrovalidade"> <i class="fas fa-chart-bar"></i> Controle Licença</a>
+		<a class="collapse-item" href="FILTRO_CHAMADOSPDF"> <i class="fas fa-file-pdf"></i> Rel por Chamados (PDF)</a>
+		<a class="collapse-item" href="FILTRO_TAREFAS"> <i class="fas fa-file-pdf"></i> Rel de Tarefas (PDF)</a>
+		<a class="collapse-item" href="FILTRO_SOBREAVISOPDF"> <i class="fas fa-file-pdf"></i> Sobreaviso Rel (PDF)</a>
+		<a class="collapse-item" href="filtrovalidade"> <i class="fas fa-clipboard-check"></i> Controle Licença</a>
+
+		<h6 class="collapse-header">Produtividade</h6>
+		<a class="collapse-item" href="rel_produtividade_tecnico"> <i class="fas fa-user-check"></i> Produtividade por Técnico</a>
+		<a class="collapse-item" href="rel_produtividade_empresa"> <i class="fas fa-building"></i> Produtividade por Empresa</a>
+		<a class="collapse-item" href="rel_produtividade_unidade"> <i class="fas fa-hospital"></i> Produtividade por Unidade</a>
+		<a class="collapse-item" href="rel_produtividade_categoria"> <i class="fas fa-tags"></i> Produtividade por Categoria</a>
+		<a class="collapse-item" href="rel_tempo_atendimento"> <i class="fas fa-clock"></i> Tempo Médio de Atendimento</a>
+
+		<h6 class="collapse-header">Financeiro</h6>
 		<a class="collapse-item" href="dashboard_financeiro"> <i class="fas fa-clipboard-check"></i> Despesas Dashboard </a>
 	  </div>
 	</div>
   </li>
-  
-  
-  
+
   <hr class="sidebar-divider d-none d-md-block">
 
   <div class="text-center d-none d-md-inline">

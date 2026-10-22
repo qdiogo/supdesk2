@@ -96,6 +96,8 @@
 	$(document).ready(function() {
 		$('#dataTable').DataTable( {
 			"order": [[ 0, "desc"], [3, "asc"], [4, "desc" ]],
+			"responsive": true,
+			"pageLength": 25,
 			"language": {
 				"lengthMenu": " _MENU_ Registros (Para direcionar ou abrir o modo de visualização simples, clique duas vezes sobre",
 				"zeroRecords": "Nenhum registro encontrado!",
@@ -168,13 +170,13 @@
 		window.open('documentos_chamados.php?TECNICO=S&CODIGO=' + indice,'page','toolbar=no,location=no,status=no,menubar=no,scrollbars=no,resizable=no,width=900,height=900');
 	} 
   </script>	
-  <style>
+	
+	<style>
 	.stylo2{ 
 		text-align:center; 
 		font-size:12px;
 	}
 
-	/* ===== BOTÃO DE TEMA ===== */
 	#theme-toggle {
 		position: fixed;
 		top: 10px;
@@ -186,101 +188,72 @@
 		padding: 6px 14px;
 		font-size: 12px;
 		font-weight: bold;
-		background: #191970;
+		background: #0a1524;
 		color: #fff;
 	}
 
-	/* ===== TEMA DARK ===== */
 	body.dark-mode {
-		background: #121212 !important;
+		background: #0a1220 !important;
 		color: #e0e0e0 !important;
 	}
-
 	body.dark-mode #wrapper,
 	body.dark-mode #content-wrapper,
 	body.dark-mode #content {
-		background: #121212 !important;
+		background: #0a1220 !important;
 		color: #e0e0e0 !important;
 	}
-
 	body.dark-mode .card,
 	body.dark-mode .modal-content,
 	body.dark-mode .tab-content,
 	body.dark-mode .tab-pane {
-		background: #1e1e1e !important;
+		background: #111a28 !important;
 		color: #e0e0e0 !important;
 	}
-
 	body.dark-mode table,
 	body.dark-mode thead,
 	body.dark-mode tbody,
 	body.dark-mode tr,
 	body.dark-mode td,
 	body.dark-mode th {
-		background: #1e1e1e !important;
+		background: #111a28 !important;
 		color: #e0e0e0 !important;
-		border-color: #333 !important;
+		border-color: #1f2c40 !important;
 	}
-
 	body.dark-mode .form-control,
 	body.dark-mode input,
 	body.dark-mode select,
 	body.dark-mode textarea {
-		background: #2a2a2a !important;
+		background: #15202f !important;
 		color: #e0e0e0 !important;
-		border: 1px solid #444 !important;
+		border: 1px solid #2a3a52 !important;
 	}
-
-	body.dark-mode .modal-header {
-		background: #0d0d3b !important;
-	}
-
-	body.dark-mode .nav-tabs .nav-link {
-		color: #ccc !important;
-	}
-
+	body.dark-mode .modal-header { background: #050d18 !important; }
+	body.dark-mode .nav-tabs .nav-link { color: #b8c6d9 !important; }
 	body.dark-mode .nav-tabs .nav-link.active {
-		background: #1e1e1e !important;
+		background: #111a28 !important;
 		color: #fff !important;
 	}
-
-	body.dark-mode a {
-		color: #8ab4f8 !important;
-	}
-
+	body.dark-mode a { color: #6f9fe0 !important; }
 	body.dark-mode .btn-info,
-	body.dark-mode .btn-primary {
-		color: #fff !important;
+	body.dark-mode .btn-primary { color: #fff !important; }
+
+	/* ===== LINHA DA EMPRESA — mesmo azul escuro do header ===== */
+	tr.linha-empresa td{
+		background: linear-gradient(115deg,#0a1524,#0f2749) !important;
+		color:#ffffff !important;
+		font-weight:bold;
+		text-align:center;
+		border-color:#0f2749 !important;
+		letter-spacing:.5px;
+		padding:9px !important;
+	}
+	body.dark-mode tr.linha-empresa td{
+		background: linear-gradient(115deg,#050d18,#0a1d3a) !important;
+		color:#ffffff !important;
+		border-color:#0a1d3a !important;
 	}
 
-		/* ===== LINHA DIVISÓRIA DAS EMPRESAS ===== */
-		tr.linha-empresa {
-			background-image: none;
-			background-color: #dbeafe;
-			text-align: center;
-			font-weight: bold;
-			color: #1e3a8a;
-	}
-
-	/* No DARK, sobrescreve com azul sólido bem visível */
-		body.dark-mode tr.linha-empresa {
-			background-image: none !important;
-			background-color: #293b57 !important;
-			border-top: 2px solid #6a8fc5 !important;
-			border-bottom: 2px solid #6a8fc5 !important;
-		color: #ffffff !important;
-	}
-
-		body.dark-mode tr.linha-empresa td {
-			background-color: #293b57 !important;
-			color: #ffffff !important;
-		}
-
-	/* ===== TOOLTIP CUSTOMIZADO (controlável no dark) ===== */
-	tr[data-tooltip] {
-		position: relative;
-	}
-
+	tr[data-tooltip] { position: relative; }
 	tr[data-tooltip]:hover::after {
 		content: attr(data-tooltip);
 		position: absolute;
@@ -292,88 +265,134 @@
 		padding: 6px 10px;
 		border-radius: 4px;
 		font-size: 11px;
-		max-width: 500px;
+		max-width: 90vw;
 		white-space: pre-wrap;
 		z-index: 9999;
 		box-shadow: 0 2px 8px rgba(0,0,0,0.3);
 	}
-
-	/* Tooltip no modo dark: fundo preto, texto branco */
 	body.dark-mode tr[data-tooltip]:hover::after {
 		background: #000 !important;
 		color: #fff !important;
 		border: 1px solid #666 !important;
 	}
 
-    /* Layout aprimorado da listagem de chamados */
-    body{background:#f4f7fb!important}
-    #content{padding-bottom:32px}
-    .chamados-page-heading{margin:18px 18px 20px;padding:23px 26px;border-radius:16px;background:linear-gradient(115deg,#172b4d,#2455a4);color:#fff;box-shadow:0 8px 24px rgba(23,43,77,.16)}
-    .chamados-page-heading h1{margin:0;font-size:25px;font-weight:700;letter-spacing:.1px;color:#fff}
-    .chamados-page-heading p{margin:6px 0 0;color:rgba(255,255,255,.78);font-size:14px}
-    #content .row{margin-left:0;margin-right:0}
-    #content .row .btn{border-radius:8px;box-shadow:0 2px 5px rgba(25,40,70,.10);font-weight:600}
-    #content table#dataTable{width:100%!important;font-size:13px!important;background:#fff;border:0!important;border-collapse:separate!important;border-spacing:0;box-shadow:0 5px 20px rgba(31,48,76,.08);border-radius:12px;overflow:hidden}
-    #dataTable thead th{background:#edf2f9!important;color:#34445d!important;font-weight:700;padding:12px 10px!important;border-color:#e2e8f0!important;white-space:nowrap}
-    #dataTable tbody td{padding:10px 9px!important;vertical-align:middle;border-color:#edf0f5!important;color:#354258}
-    #dataTable tbody tr:not(.linha-empresa):hover td{background:#f5f8fd!important;transition:background .15s ease}
-    #dataTable tfoot th{background:#f8f9fc!important;color:#59677d!important;padding:9px!important;border-color:#e4e9f0!important}
-    #dataTable_wrapper{margin:0 18px 24px;padding:16px;background:#fff;border-radius:14px;box-shadow:0 5px 22px rgba(31,48,76,.07);overflow-x:auto}
-    #dataTable_wrapper .dataTables_length,#dataTable_wrapper .dataTables_filter,#dataTable_wrapper .dataTables_info,#dataTable_wrapper .dataTables_paginate{padding:7px 2px;color:#64728a}
-    #dataTable_wrapper .dataTables_filter input,#dataTable_wrapper .dataTables_length select{border:1px solid #d7dfeb;border-radius:7px;padding:6px 9px;background:#fff;color:#34445d}
-    #dataTable_wrapper .dataTables_paginate .paginate_button{border-radius:6px!important}
-    #content input.form-control,#content select.form-control{min-height:38px;border:1px solid #d8e0eb;border-radius:8px;box-shadow:none;padding:8px 10px}
-    #content input.form-control:focus,#content select.form-control:focus{border-color:#5285d8;box-shadow:0 0 0 3px rgba(82,133,216,.12)}
-    #content label{font-size:12px;font-weight:700;color:#59677d;margin-bottom:5px}
-    .linha-empresa td{padding:9px!important;letter-spacing:.4px}
-    #theme-toggle{top:14px;right:16px;padding:8px 15px;border-radius:22px;box-shadow:0 3px 10px rgba(0,0,0,.18)}
-    body.dark-mode{background:#111827!important}
-    body.dark-mode .chamados-page-heading{background:linear-gradient(115deg,#182338,#233b62)}
-    body.dark-mode #dataTable_wrapper{background:#1e1e1e;border:1px solid #303744}
-    body.dark-mode #dataTable thead th,body.dark-mode #dataTable tfoot th{background:#252b36!important;color:#e1e8f2!important}
-    body.dark-mode #dataTable tbody tr:not(.linha-empresa):hover td{background:#292f3a!important}
-    body.dark-mode #dataTable_wrapper .dataTables_filter input,body.dark-mode #dataTable_wrapper .dataTables_length select{background:#252b36;color:#eee;border-color:#454d5a}
-    @media(max-width:767px){.chamados-page-heading{margin:14px 10px;padding:18px}.chamados-page-heading h1{font-size:21px}#dataTable_wrapper{margin:0 8px 18px;padding:10px}#dataTable thead th,#dataTable tbody td{padding:8px 7px!important}}
+	body{background:#eef2f8!important}
+	#content{padding-bottom:32px}
 
-  </style>
-  
+	/* Header mais escuro */
+	.chamados-page-heading{
+		margin:14px 10px 16px;
+		padding:16px 18px;
+		border-radius:14px;
+		background:linear-gradient(115deg,#0a1524,#0f2749);
+		color:#fff;
+		box-shadow:0 8px 24px rgba(5,13,24,.35);
+	}
+	.chamados-page-heading h1{margin:0;font-size:20px;font-weight:700;letter-spacing:.1px;color:#fff}
+	.chamados-page-heading p{margin:4px 0 0;color:rgba(255,255,255,.72);font-size:12px}
 
-  <style>
-    /* Tema complementar para harmonizar com o layout da tela anterior. */
-    body { background:#f4f7fb !important; }
-    .chamados-page-heading { border-radius:16px !important; background:linear-gradient(115deg,#253b80,#456bd1) !important; box-shadow:0 8px 24px rgba(27,39,71,.14) !important; }
-    .chamados-page-heading h1 { color:#fff !important; }
-    #content .card, #content .modal-content { border:0; border-radius:12px; box-shadow:0 8px 24px rgba(27,39,71,.10); overflow:hidden; }
-    #content .card-header, #content .modal-header { background:linear-gradient(110deg,#253b80,#456bd1); color:#fff; }
-    #content .modal-header .modal-title { color:#fff; }
-    #content .nav-tabs { border-bottom:1px solid #e2e8f0; background:#f5f7fb; padding:8px 10px 0; }
-    #content .nav-tabs .nav-link { border-radius:8px 8px 0 0; color:#52627d; font-weight:600; }
-    #content .nav-tabs .nav-link.active { background:#fff; color:#3157b7; border-color:#e2e8f0 #e2e8f0 #fff; }
-    #content .form-control, #content select, #content textarea, #content input[type="text"], #content input[type="date"] { border:1px solid #d3dce9; border-radius:8px; background:#fff; color:#26334d; }
-    #content .form-control:focus, #content select:focus, #content textarea:focus { border-color:#4c6fd5; box-shadow:0 0 0 3px rgba(76,111,213,.13); }
-    #content .btn { border-radius:8px; font-weight:600; box-shadow:0 2px 5px rgba(25,40,70,.08); }
-    #content .btn-primary, #content .btn-info { background:#365fc5; border-color:#365fc5; }
-    #content .btn-primary:hover, #content .btn-info:hover { background:#294da8; border-color:#294da8; }
-    #dataTable_wrapper { border:1px solid #e3e8f0; border-radius:12px; }
-    #dataTable thead th { background:#edf2fb !important; color:#293956 !important; }
-    #dataTable tbody tr:nth-child(even):not(.linha-empresa) td { background:#f8faff; }
-    #dataTable tbody tr:not(.linha-empresa):hover td { background:#eef4ff !important; }
-    #dataTable_wrapper .dataTables_filter input, #dataTable_wrapper .dataTables_length select { border:1px solid #ccd4e2; border-radius:7px; padding:6px 9px; }
-    body.dark-mode { background:#111827 !important; }
-    body.dark-mode .chamados-page-heading { background:linear-gradient(115deg,#182338,#233b62) !important; }
-    body.dark-mode #content .card, body.dark-mode #content .modal-content { background:#1e1e1e; }
-    body.dark-mode #content .card-header, body.dark-mode #content .modal-header { background:linear-gradient(110deg,#182338,#233b62); }
-    body.dark-mode #content .nav-tabs { background:#1e1e1e; border-color:#333; }
-    body.dark-mode #content .nav-tabs .nav-link.active { background:#252b36; color:#fff; border-color:#454d5a; }
-    body.dark-mode #content .form-control, body.dark-mode #content select, body.dark-mode #content textarea, body.dark-mode #content input { background:#252b36 !important; color:#eee !important; border-color:#454d5a !important; }
-    tr.linha-empresa td { background:#dbeafe !important; color:#1e3a8a !important; border-color:#bfdbfe !important; }
-    body.dark-mode tr.linha-empresa td { background:#293b57 !important; color:#fff !important; border-color:#6a8fc5 !important; }
-    @media (max-width:767px) { .chamados-page-heading { margin:14px 10px !important; padding:18px !important; } #content .modal-dialog { margin:8px; } }
-  </style>
+	#content .row{margin-left:0;margin-right:0}
+	#content .row .btn{border-radius:8px;box-shadow:0 2px 5px rgba(15,29,54,.15);font-weight:600}
+
+	#content table#dataTable{
+		width:100%!important;
+		font-size:12px!important;
+		background:#fff;
+		border:0!important;
+		border-collapse:separate!important;
+		border-spacing:0;
+		box-shadow:0 5px 20px rgba(15,29,54,.12);
+		border-radius:12px;
+		overflow:hidden;
+	}
+	#dataTable thead th{
+		background:#e1e8f3!important;
+		color:#1a2f4a!important;
+		font-weight:700;
+		padding:8px 6px!important;
+		border-color:#cfd9e8!important;
+		white-space:nowrap;
+		font-size:11px;
+		text-transform:uppercase;
+	}
+	#dataTable tbody td{padding:8px 6px!important;vertical-align:middle;border-color:#dde3ec!important;color:#1f2a3d;font-size:11px}
+	#dataTable tbody tr:not(.linha-empresa):hover td{background:#e8eef8!important;transition:background .15s ease}
+	#dataTable tfoot th{background:#eef2f8!important;color:#3d4d63!important;padding:7px!important;border-color:#d5dde8!important;font-size:10px}
+
+	#dataTable_wrapper{margin:0 8px 20px;padding:10px;background:#fff;border-radius:14px;box-shadow:0 5px 22px rgba(15,29,54,.10);overflow-x:auto}
+	#dataTable_wrapper .dataTables_length,
+	#dataTable_wrapper .dataTables_filter,
+	#dataTable_wrapper .dataTables_info,
+	#dataTable_wrapper .dataTables_paginate{padding:6px 2px;color:#4b5b73;font-size:12px}
+	#dataTable_wrapper .dataTables_filter input,
+	#dataTable_wrapper .dataTables_length select{border:1px solid #c9d3e2;border-radius:7px;padding:5px 8px;background:#fff;color:#1a2f4a;font-size:12px}
+	#dataTable_wrapper .dataTables_paginate .paginate_button{border-radius:6px!important}
+
+	#content input.form-control,
+	#content select.form-control{min-height:34px;border:1px solid #c9d3e2;border-radius:8px;box-shadow:none;padding:6px 9px;font-size:12px}
+	#content input.form-control:focus,
+	#content select.form-control:focus{border-color:#1f4ba3;box-shadow:0 0 0 3px rgba(31,75,163,.18)}
+	#content label{font-size:11px;font-weight:700;color:#3d4d63;margin-bottom:3px}
+
+	#theme-toggle{top:10px;right:12px;padding:6px 12px;border-radius:20px;box-shadow:0 3px 10px rgba(5,13,24,.35);font-size:11px}
+
+	body.dark-mode{background:#0a1220!important}
+	body.dark-mode .chamados-page-heading{background:linear-gradient(115deg,#050d18,#0a1d3a)}
+	body.dark-mode #dataTable_wrapper{background:#111a28;border:1px solid #1f2c40}
+	body.dark-mode #dataTable thead th,
+	body.dark-mode #dataTable tfoot th{background:#15202f!important;color:#c9d6e8!important}
+	body.dark-mode #dataTable tbody tr:not(.linha-empresa):hover td{background:#1a2636!important}
+	body.dark-mode #dataTable_wrapper .dataTables_filter input,
+	body.dark-mode #dataTable_wrapper .dataTables_length select{background:#15202f;color:#e5ecf5;border-color:#2a3a52}
+
+	/* Alinhamento dos botões Buscar / Limpar */
+	.filtro-acoes{
+		display:flex;
+		gap:8px;
+		align-items:flex-end;
+		height:100%;
+	}
+	.filtro-acoes .btn{
+		height:34px;
+		min-width:110px;
+		white-space:nowrap;
+		font-size:12px;
+		padding:0 12px;
+		display:inline-flex;
+		align-items:center;
+		justify-content:center;
+	}
+	.filtro-acoes .btn i,
+	.filtro-acoes .btn span{
+		margin-right:5px;
+	}
+
+	@media (max-width: 1199px){
+		#dataTable th.col-ocultar,
+		#dataTable td.col-ocultar{ display: none !important; }
+	}
+	@media (max-width: 991px){
+		#dataTable th.col-ocultar-md,
+		#dataTable td.col-ocultar-md{ display: none !important; }
+		.chamados-page-heading{ padding:14px 16px; }
+		.chamados-page-heading h1{ font-size:18px; }
+	}
+	@media (max-width: 767px){
+		#dataTable th.col-ocultar-sm,
+		#dataTable td.col-ocultar-sm{ display: none !important; }
+		#dataTable thead th,
+		#dataTable tbody td{ padding:6px 4px !important; font-size:10px; }
+		#dataTable_wrapper{ margin:0 4px 14px; padding:6px; }
+		.modal-dialog{ max-width: 98% !important; margin: 8px auto; }
+		#fram5, #fram6{ width: 100% !important; height: 70vh !important; }
+		.filtro-acoes{ flex-direction:column; gap:6px; }
+		.filtro-acoes .btn{ width:100%; }
+	}
+	</style>
 </head> 
 <body id="page-top" onload="buscarprox()"> 
 
-<button id="theme-toggle" onclick="toggleTheme()">?? Dark</button>
+<button id="theme-toggle" onclick="toggleTheme()">Dark</button>
 
 <script>
 	function applyTheme(theme) {
@@ -529,10 +548,10 @@ if (ISSET($_GET["ATITUDE"]))
 	  <div id="content"> 
 		<?php include "menuh.php" ?>
 
-            <section class="chamados-page-heading">
-              <h1><i class="fas fa-clipboard-list"></i> Central de chamados</h1>
-              <p>Consulte, filtre e acompanhe os chamados da sua equipe.</p>
-            </section>
+		<section class="chamados-page-heading">
+			<h1><i class="fas fa-clipboard-list"></i> Central de chamados</h1>
+			<p>Consulte, filtre e acompanhe os chamados da sua equipe.</p>
+		</section>
      
 		<meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no' name='viewport' />
   
@@ -547,8 +566,7 @@ if (ISSET($_GET["ATITUDE"]))
 			  <input type="hidden" id="pitch" min="0" max="2" value="1" />
 			</p>
 		  </div>
-		  <div class="col s12">
-		  </div>
+		  <div class="col s12"></div>
 		</div>
 		<div class="row">
 		  <div class="input-field col s12">
@@ -556,9 +574,9 @@ if (ISSET($_GET["ATITUDE"]))
 		  </div>
 		</div>
 		<div class="modal fade bd-example-modal-lg" id="ExemploModalCentralizado" tabindex="-1" role="dialog" aria-labelledby="TituloModalCentralizado" aria-hidden="true">  
-		  <div class="modal-dialog modal-lg" role="document"> 
+		  <div class="modal-dialog modal-lg" role="document" style="max-width:1200px;"> 
 			<div class="modal-content">   
-			  <div class="modal-header" style="background: #191970; color: white; font-weight: bold; font-size: 70px;">   
+			  <div class="modal-header" style="background: #050d18; color: white; font-weight: bold;">   
 				<h5 class="modal-title" id="TituloModalCentralizado" align="center"><?php echo $ACESSO ?>-<?php echo $_GET["ATITUDE"]  ?></h5>
 				<button type="button" class="close" data-dismiss="modal" aria-label="Fechar" onclick='location.href="chamados.php?TIPO=<?php echo $_SESSION["TIPO"]?>"'>
 				  <span aria-hidden="true">&times;</span>
@@ -814,10 +832,10 @@ if (ISSET($_GET["ATITUDE"]))
 						</form> 
 					</div>
 					<div id="home2" class="tab-pane fade">
-						<iframe frameborder=0 id="fram5" src="/comentarios_internos.PHP?GRUPO=<?PHP ECHO $_GET["ATITUDE"]?>" width="780px" height="1000px"></iframe>
+						<iframe frameborder=0 id="fram5" src="/comentarios_internos.PHP?GRUPO=<?PHP ECHO $_GET["ATITUDE"]?>" style="width:100%; height:1000px;"></iframe>
 					</div>
 					<div id="home3" class="tab-pane fade">
-						<iframe frameborder=0 id="fram6" src="/documentos_chamados.PHP?TECNICO=S&CODIGO=<?PHP ECHO $_GET["ATITUDE"]?>" width="780px" height="1000px"></iframe>
+						<iframe frameborder=0 id="fram6" src="/documentos_chamados.PHP?TECNICO=S&CODIGO=<?PHP ECHO $_GET["ATITUDE"]?>" style="width:100%; height:1000px;"></iframe>
 					</div>
 				</div> 					
 			</div>   
@@ -837,109 +855,120 @@ if (ISSET($_GET["ATITUDE"]))
 			<div class="card-body">  
 			  <div class="table-responsive"> 
 				
-				<div class="row">
-					<div class="col-md-3"></div>
-					<div class="col-md-2">
-						<a href="chamados.php?WTIPO=U"><button class="btn btn-warning"><i class="fas fa-exclamation-triangle"></i> Urgência</button></a>
+				<div class="row g-2" style="margin-bottom:10px;">
+					<div class="col-6 col-md-3 col-lg-2">
+						<a href="chamados.php?WTIPO=U" class="d-block">
+							<button class="btn btn-warning w-100"><i class="fas fa-exclamation-triangle"></i> Urgência</button>
+						</a>
 					</div>
-					<div class="col-md-2" style="margin-left: -50px">
-						<a href="chamados.php?WTIPO=P"><button class="btn btn-danger"><i class="fas fa-exclamation-triangle"></i> Prioridade</button></a>
+					<div class="col-6 col-md-3 col-lg-2">
+						<a href="chamados.php?WTIPO=P" class="d-block">
+							<button class="btn btn-danger w-100"><i class="fas fa-exclamation-triangle"></i> Prioridade</button>
+						</a>
 					</div>
-					<div class="col-md-2"  style="margin-left: -40px">
-						<a href="chamados.php?WTIPO=N"><button class="btn btn-success"><i class="fas fa-exclamation-triangle"></i> Normal</button></a>
+					<div class="col-6 col-md-3 col-lg-2">
+						<a href="chamados.php?WTIPO=N" class="d-block">
+							<button class="btn btn-success w-100"><i class="fas fa-exclamation-triangle"></i> Normal</button>
+						</a>
 					</div>
-					<div class="col-md-2"  style="margin-left: -50px">
-						<a href="chamados.php?WTIPO=T"><button class="btn btn-info"><i class="fas fa-exclamation-triangle"></i> Todos</button></a>
+					<div class="col-6 col-md-3 col-lg-2">
+						<a href="chamados.php?WTIPO=T" class="d-block">
+							<button class="btn btn-info w-100"><i class="fas fa-exclamation-triangle"></i> Todos</button>
+						</a>
 					</div>
 				</div>
-				<table>
-					<form method="get" action="/chamados">
-						<input type="hidden" name="TIPO" value="<?PHP ECHO $_GET["TIPO"]?>">
-						<td width=100>
-							<label>Protocolo</label>
-							<input type="number" name="protocolo" id="protocolo" value="<?php echo $protocolo?>" class="form-control"> 
-						</td>
-						<td>
-							<label>Assunto</label>
-							<input type="text" name="assunto" id="assunto" value="<?php echo $assunto?>" class="form-control"> 
-						</td>
-						<td width=200>
-							<label class="basic-url">Empresa</label>
-							<select name="Empresa" id="Empresa" class="form-control">
-								<option></option>
-								<?php
-								$SQL1="SELECT CODIGO, FANTASIA, RAZAOSOCIAL FROM EMPRESAS ORDER BY RAZAOSOCIAL ASC";
-								$tabelaX=ibase_query($conexao,$SQL1); 
-								while ($rowX=ibase_fetch_assoc($tabelaX)){ ?>
-								   <option value="<?php ECHO $rowX["CODIGO"]?>"><?php ECHO $rowX["RAZAOSOCIAL"]?></option>  
-								<?php
-								}?>  
-							</select>
-						</td>
-						<td width=200>
-							<label class="basic-url">Técnicos</label>
-							<select name="usuario" id="usuario" class="form-control">
-								<option></option>
-								<?php
-								$SQL1="SELECT CODIGO, NOME FROM TECNICOS ORDER BY NOME ASC";
-								$tabelaX=ibase_query($conexao,$SQL1); 
-								while ($rowX=ibase_fetch_assoc($tabelaX)){ ?>
-								   <option value="<?php ECHO $rowX["CODIGO"]?>"><?php ECHO $rowX["NOME"]?></option>  
-								<?php
-								}?>  
-							</select>
-						</td>
-						<td>
-							<td width=200>
-							<label class="basic-url">Responsável</label>
-							<select name="responsavel" id="responsavel" class="form-control">
-								<option></option>
-								<?php
-								$SQL1="SELECT CODIGO, NOME, (SELECT FIRST 1 RAZAOSOCIAL FROM EMPRESAS WHERE CODIGO=CLIENTES.EMPRESA) AS EMPRESA FROM CLIENTES ORDER BY NOME ASC";
-								$tabelaX=ibase_query($conexao,$SQL1); 
-								while ($rowX=ibase_fetch_assoc($tabelaX)){ ?>
-								   <option value="<?php ECHO $rowX["CODIGO"]?>"><strong><?php ECHO $rowX["NOME"]?></strong>-<?php ECHO $rowX["EMPRESA"]?></option>  
-								<?php
-								}?>  
-							</select>
-						</td>
-						<td>
-							<td width=200>
-							<label class="basic-url">Categoria</label>
-							<select name="SUBCATEGORIAS" id="SUBCATEGORIAS" class="form-control">
-								<option></option>
-								<?php
-								$SQL1="SELECT CODIGO, DESCRICAO FROM CATEGORIA ORDER BY DESCRICAO ASC";
-								$tabelaX=ibase_query($conexao,$SQL1); 
-								while ($rowX=ibase_fetch_assoc($tabelaX)){ ?>
-								   <option value="<?php ECHO $rowX["CODIGO"]?>"><strong><?php ECHO $rowX["DESCRICAO"]?></strong></option>  
-								<?php
-								}?>  
-							</select>
-						</td>
-						</td>
-						<td>
-							<button class="btn btn-info" style="margin-top:20px"><span class="glyphicon glyphicon-search"></span> Buscar</button>
-						</td>
-						<td>
-							<button type="button" style="margin-top:20px" onclick='location.href="/chamados"' class="btn btn-danger"><span class="glyphicon glyphicon-erase"></span> Limpar</button>
-						</td>
-					</form>
-				</table>
-				<table class="table-bordered" id="dataTable" width="100%" style="font-size: 2px;"> 
+
+				<form method="get" action="/chamados" class="row g-2 align-items-end" style="margin-bottom:12px;">
+					<input type="hidden" name="TIPO" value="<?PHP ECHO $_GET["TIPO"]?>">
+
+					<div class="col-6 col-md-2 col-lg-1">
+						<label>Protocolo</label>
+						<input type="number" name="protocolo" id="protocolo" value="<?php echo $protocolo?>" class="form-control">
+					</div>
+					<div class="col-6 col-md-2 col-lg-2">
+						<label>Assunto</label>
+						<input type="text" name="assunto" id="assunto" value="<?php echo $assunto?>" class="form-control">
+					</div>
+					<div class="col-6 col-md-2 col-lg-2">
+						<label>Empresa</label>
+						<select name="Empresa" id="Empresa" class="form-control">
+							<option></option>
+							<?php
+							$SQL1="SELECT CODIGO, FANTASIA, RAZAOSOCIAL FROM EMPRESAS ORDER BY RAZAOSOCIAL ASC";
+							$tabelaX=ibase_query($conexao,$SQL1); 
+							while ($rowX=ibase_fetch_assoc($tabelaX)){ ?>
+							   <option value="<?php ECHO $rowX["CODIGO"]?>"><?php ECHO $rowX["RAZAOSOCIAL"]?></option>  
+							<?php
+							}?>  
+						</select>
+					</div>
+					<div class="col-6 col-md-2 col-lg-2">
+						<label>Técnicos</label>
+						<select name="usuario" id="usuario" class="form-control">
+							<option></option>
+							<?php
+							$SQL1="SELECT CODIGO, NOME FROM TECNICOS ORDER BY NOME ASC";
+							$tabelaX=ibase_query($conexao,$SQL1); 
+							while ($rowX=ibase_fetch_assoc($tabelaX)){ ?>
+							   <option value="<?php ECHO $rowX["CODIGO"]?>"><?php ECHO $rowX["NOME"]?></option>  
+							<?php
+							}?>  
+						</select>
+					</div>
+					<div class="col-6 col-md-2 col-lg-2">
+						<label>Responsável</label>
+						<select name="responsavel" id="responsavel" class="form-control">
+							<option></option>
+							<?php
+							$SQL1="SELECT CODIGO, NOME, (SELECT FIRST 1 RAZAOSOCIAL FROM EMPRESAS WHERE CODIGO=CLIENTES.EMPRESA) AS EMPRESA FROM CLIENTES ORDER BY NOME ASC";
+							$tabelaX=ibase_query($conexao,$SQL1); 
+							while ($rowX=ibase_fetch_assoc($tabelaX)){ ?>
+							   <option value="<?php ECHO $rowX["CODIGO"]?>"><strong><?php ECHO $rowX["NOME"]?></strong>-<?php ECHO $rowX["EMPRESA"]?></option>  
+							<?php
+							}?>  
+						</select>
+					</div>
+					<div class="col-6 col-md-2 col-lg-2">
+						<label>Categoria</label>
+						<select name="SUBCATEGORIAS" id="SUBCATEGORIAS" class="form-control">
+							<option></option>
+							<?php
+							$SQL1="SELECT CODIGO, DESCRICAO FROM CATEGORIA ORDER BY DESCRICAO ASC";
+							$tabelaX=ibase_query($conexao,$SQL1); 
+							while ($rowX=ibase_fetch_assoc($tabelaX)){ ?>
+							   <option value="<?php ECHO $rowX["CODIGO"]?>"><strong><?php ECHO $rowX["DESCRICAO"]?></strong></option>  
+							<?php
+							}?>  
+						</select>
+					</div>
+
+					<div class="col-12 col-md-4 col-lg-3">
+						<div class="filtro-acoes">
+							<button class="btn btn-info">
+								<span class="glyphicon glyphicon-search"></span> Buscar
+							</button>
+							<button type="button" onclick='location.href="/chamados"' class="btn btn-danger">
+								<span class="glyphicon glyphicon-erase"></span> Limpar
+							</button>
+						</div>
+					</div>
+				</form>
+
+				<div class="table-responsive">
+				<table class="table-bordered" id="dataTable" width="100%"> 
 				  <thead>  
 					<tr> 
 						<th id="colunaordem">Ordem</th>
 						<th>N°</th>
 						<th>Assunto</th>
-						<th>Cliente</th>
-						<th>Data/Hora</th>
-						<th>Prioridade</th>
-						<th>Técnico</th>
+						<th class="col-ocultar-md">Cliente</th>
+						<th class="col-ocultar-sm">Data/Hora</th>
+						<th class="col-ocultar-sm">Prioridade</th>
+						<th class="col-ocultar-md">Técnico</th>
 						<th>Status</th>
-						<th>Categoria</th>
-						<th>Sub-Categoria</th>
-						<th>Avaliação</th> 
+						<th class="col-ocultar">Categoria</th>
+						<th class="col-ocultar">Sub-Categoria</th>
+						<th class="col-ocultar-sm">Avaliação</th> 
 						<th colspan=12><button class="btn-success rounded-circle border-0" type="button" onclick="alterar('0')"><i class="fas fa-plus-square"></i></button></th>  
 					</tr>    
 				  </thead>
@@ -948,15 +977,15 @@ if (ISSET($_GET["ATITUDE"]))
 						<th id="colunaordem">Ordem</th>
 						<th>N°</th>
 						<th>Assunto</th>
-						<th>Cliente</th>
-						<th>Data/Hora</th>
-						<th>Prioridade</th>
-						<th>Técnico</th>
+						<th class="col-ocultar-md">Cliente</th>
+						<th class="col-ocultar-sm">Data/Hora</th>
+						<th class="col-ocultar-sm">Prioridade</th>
+						<th class="col-ocultar-md">Técnico</th>
 						<th>Status</th>
-						<th>Categoria</th>
-						<th>Sub-Categoria</th>
-						<th>Interno</th>
-						<th>Avaliação</th> 
+						<th class="col-ocultar">Categoria</th>
+						<th class="col-ocultar">Sub-Categoria</th>
+						<th class="col-ocultar-sm">Interno</th>
+						<th class="col-ocultar-sm">Avaliação</th> 
 						<th>Ação</th>
 					</tr>  
 				  </tfoot>  
@@ -995,24 +1024,12 @@ if (ISSET($_GET["ATITUDE"]))
 						$MUDACOR=0;
 					?> 
 					<tr class="linha-empresa">
-						<td></td>
-						<td style="color: white;" colspan=12><center><?php echo strtoupper($xtab["RAZAOSOCIAL"])?></center></td>
-						
-						<td></td>
-						<td></td>
-						<td></td>
-						<td></td>
-						<td></td>
-						<td></td>
-						<td></td>
-						<td></td>
-						<td></td>
+						<td colspan="13"><center><?php echo strtoupper($xtab["RAZAOSOCIAL"])?></center></td>
 					</tr>
 					<?php }
 					
 					$MUDACOR=$MUDACOR + 1;
 					
-					// Tooltip customizado com data-tooltip (controlável no dark)
 					$conteudo_tooltip = str_replace('"', "", $xtab["CONTEUDO"]);
 					?>
 					<tr data-tooltip="<?PHP ECHO $conteudo_tooltip;?>" ondblclick='location.href="chamados.php?ATITUDE=<?PHP ECHO $xtab["CODIGO"]?>&TIPO=<?php echo $_SESSION["TIPO"]?>"'
@@ -1028,7 +1045,7 @@ if (ISSET($_GET["ATITUDE"]))
 								}
 							?>
 						</td>
-						<td width=150 class="stylo2" style="text-align:center">
+						<td class="stylo2 col-ocultar-md" style="text-align:center">
 							<?PHP IF (!empty($xtab["NOME"])) { 
 									ECHO  "<br>" . $xtab["NOME"];
 								}
@@ -1042,18 +1059,18 @@ if (ISSET($_GET["ATITUDE"]))
 								}
 							?>
 						</td>
-						<td class="stylo2"><?PHP ECHO date("d/m/Y",strtotime($xtab["DATAHORA"]))?> <br> <?PHP ECHO date("H:i:s",strtotime($xtab["DATAHORA"])) ?></td>
+						<td class="stylo2 col-ocultar-sm"><?PHP ECHO date("d/m/Y",strtotime($xtab["DATAHORA"]))?> <br> <?PHP ECHO date("H:i:s",strtotime($xtab["DATAHORA"])) ?></td>
 						<?php 
 						$dias="";
 						if (empty($_GET["TIPO"]))
 						{
 							if (($interval->format('%a dias')=="0 dias") || ($interval->format('%a dias')=="1 dias")) {
-								echo "<td width=150 class='stylo2' style='background: #FF6347; color:white;' width=1 >Chamado novo <br>";
+								echo "<td class='stylo2 col-ocultar-sm' style='background: #FF6347; color:white;' width=100>Chamado novo <br>";
 							}else{
-								echo "<td width=150 class='stylo2' width=1 >";
+								echo "<td class='stylo2 col-ocultar-sm' width=100>";
 							}
 						}else{
-							echo "<td width=150 class='stylo2' width=1 >";
+							echo "<td class='stylo2 col-ocultar-sm' width=100>";
 						}?>
 						
 							<center>
@@ -1070,7 +1087,7 @@ if (ISSET($_GET["ATITUDE"]))
 								?>
 							</center>
 						</td>
-						<td class="stylo2">
+						<td class="stylo2 col-ocultar-md">
 							<?PHP if (!empty($xtab["NOMETECNICO"])){
 								 ECHO $xtab["NOMETECNICO"];
 							}else{ 
@@ -1088,7 +1105,7 @@ if (ISSET($_GET["ATITUDE"]))
 								<button class="btn-warning rounded-circle border-0" title="Chamado Em Pause"><i class="fas fa-pause"></i></button>
 							<?php } ?>
 							<?PHP if (($xtab["STATUS"]=="PL")) {?>
-								<button class="btn-success rounded-circle border-0" title="Chamado em Execu??o"><i class="fas fa-play"></i></button>
+								<button class="btn-success rounded-circle border-0" title="Chamado em Execução"><i class="fas fa-play"></i></button>
 							<?php } ?>
 							<?PHP if (($xtab["STATUS"]=="AG")) {?>
 								<button class="btn-primary rounded-circle border-0" title="Chamado Agendado"><i class="fas fa-calendar-alt"></i></button>
@@ -1100,10 +1117,10 @@ if (ISSET($_GET["ATITUDE"]))
 								<button class="btn-danger rounded-circle border-0" title="Chamado Reaberto"><i class="fa fa-retweet"></i></button>
 							<?php } ?>
 						</td>
-						<td class="stylo2" style="text-align:left"><?PHP ECHO $xtab["NOMECATEGORIA"]?></td>
-						<td class="stylo2" style="text-align:left"><?PHP ECHO $xtab["SUBCATEGORIANOME"]?></td>
+						<td class="stylo2 col-ocultar" style="text-align:left"><?PHP ECHO $xtab["NOMECATEGORIA"]?></td>
+						<td class="stylo2 col-ocultar" style="text-align:left"><?PHP ECHO $xtab["SUBCATEGORIANOME"]?></td>
 						
-						<td WIDTH=8 colspan=2 >
+						<td WIDTH=8 colspan=2 class="col-ocultar-sm">
 							<?php if (!empty($xtab["AVALIACAO"])) {?>	
 								<?php if ($xtab["AVALIACAO"]==5){	?>
 									Excelente: * * * * *
@@ -1125,12 +1142,12 @@ if (ISSET($_GET["ATITUDE"]))
 							<?php } ?>
 						</td>
 						<td class="stylo2" colspan=12>
-							<table align="center" >
-								<td >
-									<div class="btn-group btn-group-justified" role="group" aria-label="...">
+							<table align="center" style="border:0;">
+								<td style="border:0;">
+									<div class="btn-group btn-group-justified flex-wrap" role="group" aria-label="...">
 										<div class="btn-group" role="group">
 											<?php if (!empty($xtab["CELULAR"])) { ?>
-												<button type="button" class="btn-success rounded-circle border-0" id="whstapp" data-target="#whatsapp" placement="bottom" id="whstapp" onclick="enviarmensagem('<?php ECHO $xtab["CELULAR"]?>','<?php echo $resp ?> <?php echo $xtab["RESPONSAVEL"] ?>. Sou <?php echo $TABUSER["NOME"]?> da *Webmedical*, referente ao chamado <?php echo $xtab["CODIGO"]?> - <?php echo tirarAcentos($xtab["ASSUNTO"])?>')" data-toggle="tooltip" data-placement="bottom" title="Enviar para whatsapp" onclick="autor(1)"> <i class="fab fa-whatsapp"></i></button>
+												<button type="button" class="btn-success rounded-circle border-0" id="whstapp" data-target="#whatsapp" placement="bottom" onclick="enviarmensagem('<?php ECHO $xtab["CELULAR"]?>','<?php echo $resp ?> <?php echo $xtab["RESPONSAVEL"] ?>. Sou <?php echo $TABUSER["NOME"]?> da *Webmedical*, referente ao chamado <?php echo $xtab["CODIGO"]?> - <?php echo tirarAcentos($xtab["ASSUNTO"])?>')" data-toggle="tooltip" data-placement="bottom" title="Enviar para whatsapp"> <i class="fab fa-whatsapp"></i></button>
 											<?php } ?>
 											<button class="btn-dark rounded-circle border-0" onclick="chamado_tela(<?PHP ECHO $xtab["CODIGO"]?>)" title="Abrir chamado detalhado"><i class="far fa-folder-open"></i></button>
 											<?PHP if (!empty($_SESSION["XNIVEL"])){
@@ -1141,7 +1158,7 @@ if (ISSET($_GET["ATITUDE"]))
 											</div>
 											<div class="btn-group" role="group">
 												<button  class=" btn-warning rounded-circle border-0" onclick="status(<?PHP ECHO $xtab["CODIGO"]?>,'PA')" title="Colocar em Pause"><i class="fas fa-pause"></i></button>
-											</div><br>
+											</div>
 											<div class="btn-group rounded-circle border-0" role="group">
 											<button class=" btn-success rounded-circle border-0" onclick="status(<?PHP ECHO $xtab["CODIGO"]?>, 'PL')" title="Iniciar Chamado"><i class="fas fa-play"></i></button>
 											</div>
@@ -1164,6 +1181,7 @@ if (ISSET($_GET["ATITUDE"]))
 					?> 
 				  </tbody> 
 				</table>
+				</div>
 				<?php include "rodape.php" ?>				
 			  </div> 
 			</div>   
@@ -1173,5 +1191,4 @@ if (ISSET($_GET["ATITUDE"]))
 	</div>
 </div> 
 </body>
-</html> 
-</script>
+</html>
