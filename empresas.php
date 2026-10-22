@@ -29,13 +29,52 @@ function abrirlista(indice)
 {
 	window.open('clientes.php?GRUPO=' + indice,'page','toolbar=no,location=no,status=no,menubar=no,scrollbars=no,resizable=no,width=900,height=900');
 } 
- function abrirlista2(indice)
+function abrirlista2(indice)
 {
 	window.open('unidadenegocio.php?GRUPO=' + indice,'page','toolbar=no,location=no,status=no,menubar=no,scrollbars=no,resizable=no,width=900,height=900');
-}  
+}
+
+var _filtroTimer = null;
+
+function abrirchamados(indice, nome)
+{
+	window._empresaChamadosAtual = indice;
+	$('#modalChamadosTitulo').html('<i class="fas fa-ticket"></i> Chamados da Empresa: ' + nome);
+	$('#modalChamadosConteudo').html('<div class="text-center py-4"><i class="fas fa-spinner fa-spin fa-2x text-primary"></i><br>Carregando...</div>');
+	$('#modalChamados').modal('show');
+	$('#modalChamadosConteudo').load('chamados_empresa_ajax.php?EMPRESA=' + indice);
+}
+
+function filtrarChamados(){
+	clearTimeout(_filtroTimer);
+	_filtroTimer = setTimeout(function(){
+		var emp  = window._empresaChamadosAtual || "";
+		var data = document.getElementById("f_cham_data") ? document.getElementById("f_cham_data").value : "";
+		var num  = document.getElementById("f_cham_num")  ? document.getElementById("f_cham_num").value  : "";
+		var unid = document.getElementById("f_cham_unid") ? document.getElementById("f_cham_unid").value : "";
+		var tec  = document.getElementById("f_cham_tec")  ? document.getElementById("f_cham_tec").value  : "";
+
+		var url = "chamados_empresa_ajax.php?EMPRESA=" + emp
+		        + "&F_DATA=" + encodeURIComponent(data)
+		        + "&F_NUM="  + encodeURIComponent(num)
+		        + "&F_UNID=" + encodeURIComponent(unid)
+		        + "&F_TEC="  + encodeURIComponent(tec);
+
+		$('#modalChamadosConteudo').html('<div class="text-center py-4"><i class="fas fa-spinner fa-spin fa-2x text-primary"></i><br>Carregando...</div>');
+		$('#modalChamadosConteudo').load(url);
+	}, 300);
+}
+
+function limparFiltrosChamados(){
+	var emp = window._empresaChamadosAtual || "";
+	$('#modalChamadosConteudo').html('<div class="text-center py-4"><i class="fas fa-spinner fa-spin fa-2x text-primary"></i><br>Carregando...</div>');
+	$('#modalChamadosConteudo').load('chamados_empresa_ajax.php?EMPRESA=' + emp);
+}
+
 $(document).ready(function() {
 	$('#dataTable').DataTable( {
 		"order": [[ 0, "desc"], [3, "asc"], [4, "asc" ]],
+		"columnDefs": [ { "orderable": false, "targets": 6 } ],
 		"language": {
 			"lengthMenu": " _MENU_ Registros",
 			"zeroRecords": "Nenhum registro encontrado!",
@@ -69,6 +108,25 @@ if (ISSET($_GET["ATITUDE"]))
 	<div id="content-wrapper" class="d-flex flex-column">     
 	  <div id="content"> 
 		<?php include "menuh.php" ?>     
+
+		<div class="modal fade bd-example-modal-lg" id="modalChamados" tabindex="-1" role="dialog" aria-labelledby="modalChamadosTitulo" aria-hidden="true">
+		  <div class="modal-dialog modal-lg" role="document" style="max-width:1100px;">
+			<div class="modal-content">
+			  <div class="modal-header" style="background-image: linear-gradient(to right top, #504a55, #48444d, #403d46, #39373e, #323137); color: white; font-weight: bold;">
+				<h5 class="modal-title" id="modalChamadosTitulo">Chamados da Empresa</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Fechar" style="color:#fff;">
+				  <span aria-hidden="true">&times;</span>
+				</button>
+			  </div>
+			  <div class="modal-body" id="modalChamadosConteudo" style="padding:15px;">
+			  </div>
+			  <div class="modal-footer">
+				<button type="button" class="btn btn-danger" data-dismiss="modal">Fechar</button>
+			  </div>
+			</div>
+		  </div>
+		</div>
+
 		<div class="modal fade bd-example-modal-lg" id="ExemploModalCentralizado" tabindex="-1" role="dialog" aria-labelledby="TituloModalCentralizado" aria-hidden="true">  
 		  <div class="modal-dialog modal-lg" role="document"> 
 			<div class="modal-content">   
@@ -207,7 +265,7 @@ if (ISSET($_GET["ATITUDE"]))
 					  <th>FANTASIA</th> 	
 					  <th>MONITORADA</th>	
 					  <th>ATIVO</th>					  
-					  <th><button class="btn btn-success" type="button" onclick="alterar('0')"><i class="fas fa-plus-square"></i></button></th>  
+					  <th style="text-align:center;"><button class="btn btn-success" type="button" onclick="alterar('0')"><i class="fas fa-plus-square"></i></button></th>  
 					</tr>    
 				  </thead>
 				  <tfoot> 
@@ -218,7 +276,7 @@ if (ISSET($_GET["ATITUDE"]))
 					  <th>FANTASIA</th> 
 					  <th>MONITORADA</th>
 					  <th>ATIVO</th>
-					  <th>Ação</th>
+					  <th style="text-align:center;"><i class="fas fa-ticket"></i> Ação</th>
 					</tr>  
 				  </tfoot>  
 				  <tbody>
@@ -235,7 +293,7 @@ if (ISSET($_GET["ATITUDE"]))
 					  	<?php include "acao.php" ?>
 						<button class="button buttoned" type="button" onclick="abrirlista('<?PHP ECHO $sequencia?>')" title="Usuarios Associados a empresa"><i class="fas fa-user"></i></button>
 						<button class="button buttoned" type="button" onclick="abrirlista2('<?PHP ECHO $sequencia?>')" title="Unidade de Negocio da empresa"><i class="fas fa-home"></i></button>
-					  
+						<button class="button buttoned" type="button" onclick="abrirchamados('<?PHP ECHO $sequencia?>', '<?PHP ECHO addslashes($row["FANTASIA"])?>')" title="Ver todos os chamados da empresa"><i class="fas fa-home"></i></button>
 					  </td> 
 					</tr>
 					<?php } ?> 
@@ -250,4 +308,4 @@ if (ISSET($_GET["ATITUDE"]))
 </div> 
 	<?php include "rodape.php" ?> 
 </body>
-</html> 
+</html>
